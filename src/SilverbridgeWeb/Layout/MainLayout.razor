@@ -1,17 +1,76 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
+
+@* Required *@
+<MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" />/>
+<MudPopoverProvider />
+
+@* Needed for dialogs *@
+<MudDialogProvider />
+
+@* Needed for snackbars *@
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudAvatar>
+            <MudImage ObjectFit="ObjectFit.Contain" Src="images/bridge.jpg"></MudImage>
+        </MudAvatar>
+        <MudText Typo="Typo.h5" Class="ml-3">Silverbridge Harps GAC</MudText>
+        <MudSpacer />
+        <MudDivider Vertical="true" FlexItem="true" />
+        <MudIconButton Icon=@modeIcon Color="Color.Inherit" @onclick="ToggleDarkMode" />
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />
-    </div>
+    </MudDrawer>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+    <MudAppBar Bottom="true" Elevation="1">
+        <MudStack Row="true">
+            <MudIconButton Icon="@Icons.Custom.Brands.Facebook" Color="Color.Inherit" Href="https://www.facebook.com/SilverbridgeGaa" />
+            <MudIconButton Icon="@Icons.Custom.Brands.Instagram" Color="Color.Inherit" Href="https://www.instagram.com/silverbridgegaa" />
+            <MudIconButton Icon="@Icons.Custom.Brands.X" Color="Color.Inherit" Href="https://x.com/silverbridgegaa" />
+            @* <MudIconButton Icon="@Icons.Custom.Brands.YouTube" Color="Color.Inherit" Href="https://www.youtube.com/@SilverbridgeHarpsGFC-oh6kb" /> *@
+        </MudStack>
+        <MudSpacer />
+        <MudStack Row="true">
+            <MudIcon Icon="@Icons.Material.Filled.Copyright" Color="Color.Inherit" />
+            <MudText Typo="Typo.subtitle1">@DateTime.Now.Year Silverbridge GAC </MudText>
+        </MudStack>
+    </MudAppBar>
+</MudLayout>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="/gym">Gym</a>
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+@code {
+    bool _drawerOpen = true;
+    private bool _isDarkMode;
+    private MudThemeProvider _mudThemeProvider;
+    private string modeIcon => _isDarkMode ? Icons.Material.Filled.LightMode : @Icons.Material.Filled.DarkMode;
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
+            StateHasChanged();
+        }
+    }
+
+    private Task OnSystemPreferenceChanged(bool newValue)
+    {
+        _isDarkMode = newValue;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    void ToggleDarkMode()
+    {
+        _isDarkMode = !_isDarkMode;
+    }
+}
