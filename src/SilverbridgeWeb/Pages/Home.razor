@@ -2,11 +2,15 @@
 
 <PageTitle>Home</PageTitle>
 
-<div class="d-flex align-content-center flex-column mb-3">
-    <div class="p-2">
-        <h1> Silverbridge Harps GAC</h1>
-    </div>
-    <div class="p-2">
-        <img src="/images/aerial_view.jpg" alt="Club-View" />
-    </div>
-</div>
+<MudCarousel Class="mud-width-full" Style="height: 30vh;" ShowArrows="true" ShowBullets="true" EnableSwipeGesture="true" AutoCycle="true" TData="object">
+    <MudCarouselItem Transition="Transition.Slide">
+        <div class="d-flex justify-content-center" style="height:100%">
+            <MudImage Fluid="true" Src="/images/aerial_view.jpg" Alt="bridge_aerial" Elevation="25" Class="rounded-lg mx-auto my-auto"/>
+        </div>
+    </MudCarouselItem>
+    <MudCarouselItem Transition="Transition.Slide">
+        <div class="d-flex justify-content-center" style="height:100%">
+            <MudImage Fluid="true" Src="/images/aerial_view.jpg" Alt="bridge_aerial" Elevation="25" Class="rounded-lg mx-auto my-auto"/>
+        </div>
+    </MudCarouselItem>
+</MudCarousel>
