@@ -32,7 +32,7 @@
             <MudIconButton Icon="@Icons.Custom.Brands.Facebook" Color="Color.Inherit" Href="https://www.facebook.com/SilverbridgeGaa" />
             <MudIconButton Icon="@Icons.Custom.Brands.Instagram" Color="Color.Inherit" Href="https://www.instagram.com/silverbridgegaa" />
             <MudIconButton Icon="@Icons.Custom.Brands.X" Color="Color.Inherit" Href="https://x.com/silverbridgegaa" />
-            @* <MudIconButton Icon="@Icons.Custom.Brands.YouTube" Color="Color.Inherit" Href="https://www.youtube.com/@SilverbridgeHarpsGFC-oh6kb" /> *@
+            <MudIconButton Icon="@Icons.Custom.Brands.YouTube" Color="Color.Inherit" Href=@youtubeUrl />
         </MudStack>
         <MudSpacer />
         <MudStack Row="true">
@@ -47,6 +47,7 @@
     private bool _isDarkMode;
     private MudThemeProvider _mudThemeProvider;
     private string modeIcon => _isDarkMode ? Icons.Material.Filled.LightMode : @Icons.Material.Filled.DarkMode;
+    private string youtubeUrl = "https://www.youtube.com/@SilverbridgeHarpsGFC-oh6kb";
 
     void DrawerToggle()
     {
