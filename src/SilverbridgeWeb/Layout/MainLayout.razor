@@ -24,15 +24,15 @@
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />
     </MudDrawer>
-    <MudMainContent>
+    <MudMainContent Class="pb-5">
         @Body
     </MudMainContent>
     <MudAppBar Bottom="true" Elevation="1">
         <MudContainer MaxWidth="MaxWidth.Large">
             <MudGrid>
-                <MudItem xs="12" sm="6">
-                    <MudText Typo="Typo.body2">© @DateTime.Now.Year Silverbridge Harps GAC</MudText>
-                </MudItem>
+                @* <MudItem xs="12" sm="6"> *@
+                @*     <MudText Typo="Typo.body2">© @DateTime.Now.Year Silverbridge Harps GAC</MudText> *@
+                @* </MudItem> *@
                 <MudItem xs="12" sm="6" Class="d-flex justify-content-end">
                     <MudIconButton Icon="@Icons.Custom.Brands.Facebook" Color="Color.Inherit" Href="https://www.facebook.com/SilverbridgeGaa" />
                     <MudIconButton Icon="@Icons.Custom.Brands.Instagram" Color="Color.Inherit" Href="https://www.instagram.com/silverbridgegaa" />
