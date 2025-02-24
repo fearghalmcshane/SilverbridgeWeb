@@ -1,4 +1,21 @@
 ﻿<MudNavMenu>
     <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">Home</MudNavLink>
-    <MudNavLink Href="/gym" Icon="@Icons.Material.Filled.FitnessCenter" Match="NavLinkMatch.Prefix">Gym</MudNavLink>
+
+    <MudNavGroup Title="Facilities" Expanded="true">
+        <MudNavLink Href="/gym" Icon="@Icons.Material.Filled.FitnessCenter" Match="NavLinkMatch.Prefix">Gym</MudNavLink>
+        <MudNavLink Href="/clubkeeley" Icon="@Icons.Material.Filled.WorkspacePremium" Match="NavLinkMatch.Prefix">Club Keeley</MudNavLink>
+    </MudNavGroup>
+
+    <MudNavGroup Title="About Us" Expanded="true">
+        <MudNavLink Href="/committee" Icon="@Icons.Material.Filled.Contacts" Match="NavLinkMatch.Prefix">Committee</MudNavLink>
+        <MudNavLink Href="/involved" Icon="@Icons.Material.Filled.People" Match="NavLinkMatch.Prefix">Get Involved</MudNavLink>
+        <MudNavLink Href="/contact" Icon="@Icons.Material.Filled.ContactSupport" Match="NavLinkMatch.Prefix">Contact Us</MudNavLink>
+    </MudNavGroup>
+
+    <MudNavGroup Title="External Services" Expanded="true">
+        <MudNavLink Href="https://silverbridge.clubzap.com/draws" Target="_blank" Icon="@Icons.Material.Filled.Money" Match="NavLinkMatch.All">Lotto</MudNavLink>
+        <MudNavLink Href="https://www.oneills.com/uk_en/shop-by-team/gaa/ireland/silverbridge-harps.html" Target="_blank" Icon="@Icons.Material.Filled.ShoppingCart" Match="NavLinkMatch.All">O'Neills Club Shop</MudNavLink>
+        <MudNavLink Href="https://playr-fit.com/collections/silverbridge-clg" Target="_blank" Icon="@Icons.Material.Filled.ShoppingCart" Match="NavLinkMatch.All">PlayrFit Club Shop</MudNavLink>
+    </MudNavGroup>
 </MudNavMenu>
+

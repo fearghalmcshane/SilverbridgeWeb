@@ -2,6 +2,19 @@
 
 <PageTitle>Gym</PageTitle>
 
-<MudText Typo="Typo.h3" Class="px-4">Gym</MudText>
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudText Typo="Typo.h3" Class="px-4">Gym</MudText>
+        </MudItem>
+        <MudItem xs="12">
+            <MudElement>
+                <iframe style="width: 100%; height: 80vh;" src="https://app.glofox.com/portal/#/branch/674f0d1768c6bdb869034ac6/classes-week-view" frameborder="0"></iframe>
+            </MudElement>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
 
-<MudElement><iframe style="width: 100vw;height: 100vw;" src="https://app.glofox.com/portal/#/branch/674f0d1768c6bdb869034ac6/classes-week-view" frameborder="0"></iframe></MudElement>
+@code {
+
+}
