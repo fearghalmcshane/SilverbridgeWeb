@@ -2,15 +2,33 @@
 
 <PageTitle>Home</PageTitle>
 
-<MudCarousel Class="mud-width-full" Style="height: 30vh;" ShowArrows="true" ShowBullets="true" EnableSwipeGesture="true" AutoCycle="true" TData="object">
-    <MudCarouselItem Transition="Transition.Slide">
-        <div class="d-flex justify-content-center" style="height:100%">
-            <MudImage Fluid="true" Src="/images/aerial_view.jpg" Alt="bridge_aerial" Elevation="25" Class="rounded-lg mx-auto my-auto"/>
-        </div>
-    </MudCarouselItem>
-    <MudCarouselItem Transition="Transition.Slide">
-        <div class="d-flex justify-content-center" style="height:100%">
-            <MudImage Fluid="true" Src="/images/aerial_view.jpg" Alt="bridge_aerial" Elevation="25" Class="rounded-lg mx-auto my-auto"/>
-        </div>
-    </MudCarouselItem>
-</MudCarousel>
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudCarousel Class="mud-width-full" Style="height: 30vh;" ShowArrows="true" ShowBullets="true" EnableSwipeGesture="true" AutoCycle="true" TData="object">
+                <MudCarouselItem Transition="Transition.Slide">
+                    <div class="d-flex justify-content-center" style="height:100%">
+                        <MudImage Fluid="true" Src="/images/aerial_view.jpg" Alt="bridge_aerial" Elevation="25" Class="rounded-lg mx-auto my-auto" />
+                    </div>
+                </MudCarouselItem>
+                <MudCarouselItem Transition="Transition.Slide">
+                    <div class="d-flex justify-content-center" style="height:100%">
+                        <MudImage Fluid="true" Src="/images/aerial_view.jpg" Alt="bridge_aerial" Elevation="25" Class="rounded-lg mx-auto my-auto" />
+                    </div>
+                </MudCarouselItem>
+            </MudCarousel>
+        </MudItem>
+        <MudItem xs="12" class="mt-4">
+            <MudText Typo="Typo.h4" Align="Align.Center">Welcome to Silverbridge Harps</MudText>
+        </MudItem>
+        <MudItem xs="12" class="mt-2">
+            <MudText Typo="Typo.body1" Align="Align.Center">
+                Silverbridge Harps is a community-focused club dedicated to promoting Gaelic Games and activities for all ages and abilities. Join us and be a part of our vibrant community.
+            </MudText>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+
+}

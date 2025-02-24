@@ -28,17 +28,20 @@
         @Body
     </MudMainContent>
     <MudAppBar Bottom="true" Elevation="1">
-        <MudStack Row="true">
-            <MudIconButton Icon="@Icons.Custom.Brands.Facebook" Color="Color.Inherit" Href="https://www.facebook.com/SilverbridgeGaa" />
-            <MudIconButton Icon="@Icons.Custom.Brands.Instagram" Color="Color.Inherit" Href="https://www.instagram.com/silverbridgegaa" />
-            <MudIconButton Icon="@Icons.Custom.Brands.X" Color="Color.Inherit" Href="https://x.com/silverbridgegaa" />
-            <MudIconButton Icon="@Icons.Custom.Brands.YouTube" Color="Color.Inherit" Href=@youtubeUrl />
-        </MudStack>
-        <MudSpacer />
-        <MudStack Row="true">
-            <MudIcon Icon="@Icons.Material.Filled.Copyright" Color="Color.Inherit" />
-            <MudText Typo="Typo.subtitle1">@DateTime.Now.Year Silverbridge GAC </MudText>
-        </MudStack>
+        <MudContainer MaxWidth="MaxWidth.Large">
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.body2">© @DateTime.Now.Year Silverbridge Harps GAC</MudText>
+                </MudItem>
+                <MudItem xs="12" sm="6" Class="d-flex justify-content-end">
+                    <MudIconButton Icon="@Icons.Custom.Brands.Facebook" Color="Color.Inherit" Href="https://www.facebook.com/SilverbridgeGaa" />
+                    <MudIconButton Icon="@Icons.Custom.Brands.Instagram" Color="Color.Inherit" Href="https://www.instagram.com/silverbridgegaa" />
+                    <MudIconButton Icon="@Icons.Custom.Brands.X" Color="Color.Inherit" Href="https://x.com/silverbridgegaa" />
+                    <MudIconButton Icon="@Icons.Custom.Brands.YouTube" Color="Color.Inherit" Href=@youtubeUrl />
+                    <MudIconButton Icon="@Icons.Custom.Brands.WhatsApp" Color="Color.Inherit" Href="https://chat.whatsapp.com/LSLEuKCokSm5UCbqDRNMIt" />
+                </MudItem>
+            </MudGrid>
+        </MudContainer>
     </MudAppBar>
 </MudLayout>
 
