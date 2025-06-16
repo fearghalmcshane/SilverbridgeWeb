@@ -1,0 +1,27 @@
+﻿@page "/ping"
+
+@inject PingApiClient apiClient
+
+<PageTitle>Backend Test</PageTitle>
+
+<h3>Backend Connectivity Test</h3>
+
+<MudButton @onclick="PingBackend">Ping Backend</MudButton>
+
+<p>@pingResult</p>
+
+@code {
+    private string pingResult = "";
+
+    private async Task PingBackend()
+    {
+        try
+        {
+            pingResult = await apiClient.PingAsync();
+        }
+        catch (Exception ex)
+        {
+            pingResult = $"Error: {ex.Message}";
+        }
+    }
+}
