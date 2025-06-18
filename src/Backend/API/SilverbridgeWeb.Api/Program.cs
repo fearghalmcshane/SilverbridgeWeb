@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using SilverbridgeWeb.Api.Database;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<AppDbContext>("silverbridgeDb");
@@ -12,7 +12,7 @@ builder.Services.AddCors();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 app.UseCors("AllowBlazorFrontend");
 app.MapDefaultEndpoints();
@@ -29,4 +29,4 @@ app.UseHttpsRedirection();
 
 app.MapGet("/api/ping", () => Results.Ok("Pong from Backend API 🚀"));
 
-app.Run();
+await app.RunAsync().ConfigureAwait(false);
