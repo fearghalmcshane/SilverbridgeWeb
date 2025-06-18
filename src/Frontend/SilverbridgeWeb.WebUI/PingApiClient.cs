@@ -1,10 +1,10 @@
-﻿namespace SilverbridgeWeb;
+﻿namespace SilverbridgeWeb.WebUI;
 
-public class PingApiClient(HttpClient httpClient)
+internal sealed class PingApiClient(HttpClient httpClient)
 {
     public async Task<string> PingAsync()
     {
-        var response = await httpClient.GetAsync("/api/ping");
+        HttpResponseMessage response = await httpClient.GetAsync("/api/ping");
         
         if (!response.IsSuccessStatusCode)
         {

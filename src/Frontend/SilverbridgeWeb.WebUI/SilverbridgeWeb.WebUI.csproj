@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <PackageReference Include="MudBlazor" Version="8.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Aspire\SilverbridgeWeb.ServiceDefaults\SilverbridgeWeb.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+</Project>

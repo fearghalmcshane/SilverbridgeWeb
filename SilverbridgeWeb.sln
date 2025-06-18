@@ -3,17 +3,31 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb", "src\SilverbridgeWeb\SilverbridgeWeb.csproj", "{EAEB1CD3-7CC7-4206-9CA4-972D6B26AED7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.WebUI", "src\Frontend\SilverbridgeWeb.WebUI\SilverbridgeWeb.WebUI.csproj", "{EAEB1CD3-7CC7-4206-9CA4-972D6B26AED7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Api", "src\SilverbridgeWeb.Api\SilverbridgeWeb.Api.csproj", "{625D39E2-D3FD-49EA-B1A0-0DA34F200C44}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Api", "src\Backend\API\SilverbridgeWeb.Api\SilverbridgeWeb.Api.csproj", "{625D39E2-D3FD-49EA-B1A0-0DA34F200C44}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.AppHost", "src\SilverbridgeWeb.AppHost\SilverbridgeWeb.AppHost.csproj", "{16645FEF-EAA8-4C9E-9165-AA7F5076F463}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.AppHost", "src\Aspire\SilverbridgeWeb.AppHost\SilverbridgeWeb.AppHost.csproj", "{16645FEF-EAA8-4C9E-9165-AA7F5076F463}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.ServiceDefaults", "src\SilverbridgeWeb.ServiceDefaults\SilverbridgeWeb.ServiceDefaults.csproj", "{EDA5FAB6-F9E9-C14D-DCB9-4D79CD6A4363}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "aspire", "aspire", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.ServiceDefaults", "src\Aspire\SilverbridgeWeb.ServiceDefaults\SilverbridgeWeb.ServiceDefaults.csproj", "{EDA5FAB6-F9E9-C14D-DCB9-4D79CD6A4363}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2F907B31-354D-4528-AF39-0267A3900793}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		Directory.Build.props = Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{A7B271D2-212D-4FEE-B266-862D49BC9F4F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{D394B4DF-A804-4095-B913-4991F3F976EB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{512D5841-756A-4B3C-AE53-41BD7A3A1C84}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{768DDD56-B80E-4F49-B5BF-334E14E66BBA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Aspire", "Aspire", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,10 +56,15 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{EAEB1CD3-7CC7-4206-9CA4-972D6B26AED7} = {2F907B31-354D-4528-AF39-0267A3900793}
-		{625D39E2-D3FD-49EA-B1A0-0DA34F200C44} = {2F907B31-354D-4528-AF39-0267A3900793}
+		{EAEB1CD3-7CC7-4206-9CA4-972D6B26AED7} = {768DDD56-B80E-4F49-B5BF-334E14E66BBA}
+		{625D39E2-D3FD-49EA-B1A0-0DA34F200C44} = {A7B271D2-212D-4FEE-B266-862D49BC9F4F}
 		{16645FEF-EAA8-4C9E-9165-AA7F5076F463} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{EDA5FAB6-F9E9-C14D-DCB9-4D79CD6A4363} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{A7B271D2-212D-4FEE-B266-862D49BC9F4F} = {D394B4DF-A804-4095-B913-4991F3F976EB}
+		{D394B4DF-A804-4095-B913-4991F3F976EB} = {2F907B31-354D-4528-AF39-0267A3900793}
+		{512D5841-756A-4B3C-AE53-41BD7A3A1C84} = {D394B4DF-A804-4095-B913-4991F3F976EB}
+		{768DDD56-B80E-4F49-B5BF-334E14E66BBA} = {2F907B31-354D-4528-AF39-0267A3900793}
+		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {2F907B31-354D-4528-AF39-0267A3900793}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C09FC64A-81A9-4A62-9197-1CFDEA9C4B34}

@@ -1,7 +1,7 @@
 ﻿using MudBlazor.Services;
-using SilverbridgeWeb;
+using SilverbridgeWeb.WebUI;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
@@ -17,7 +17,7 @@ builder.Services.AddHttpClient<PingApiClient>(client =>
     client.BaseAddress = new Uri("https+http://silverbridgeweb-api/");
 });
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
@@ -36,4 +36,4 @@ app.MapRazorComponents<App>()
 
 app.MapDefaultEndpoints();
 
-app.Run();
+await app.RunAsync().ConfigureAwait(false);

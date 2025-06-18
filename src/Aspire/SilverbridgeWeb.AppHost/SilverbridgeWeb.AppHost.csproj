@@ -13,12 +13,16 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.1" />
-    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.3.1" />
+    <PackageReference Include="Aspire.Hosting.Azure.PostgreSQL" Version="9.3.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SilverbridgeWeb.Api\SilverbridgeWeb.Api.csproj" />
-    <ProjectReference Include="..\SilverbridgeWeb\SilverbridgeWeb.csproj" />
+    <ProjectReference Include="..\..\Backend\API\SilverbridgeWeb.Api\SilverbridgeWeb.Api.csproj" />
+    <ProjectReference Include="..\..\Frontend\SilverbridgeWeb.WebUI\SilverbridgeWeb.WebUI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="SonarAnalyzer.CSharp" Version="10.12.0.118525" />
   </ItemGroup>
 
 </Project>

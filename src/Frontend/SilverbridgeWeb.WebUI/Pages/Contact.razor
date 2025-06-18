@@ -1,0 +1,50 @@
+﻿@page "/contact"
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Contact Us</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudText Typo="Typo.h3" Class="px-4">Contact Us</MudText>
+        </MudItem>
+        <MudItem xs="12" class="mt-4">
+            <MudText Typo="Typo.body1" Class="px-4">
+                If you have any questions or inquiries, please fill out the form below and we will get back to you as soon as possible.
+            </MudText>
+        </MudItem>
+        <MudItem xs="12" class="mt-4">
+            <EditForm Model="@model" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <MudTextField @bind-Value="model.Name" Label="Name" For="@(() => model.Name)" />
+                <MudTextField @bind-Value="model.Email" Label="Email" For="@(() => model.Email)" />
+                <MudTextField @bind-Value="model.Message" Label="Message" Lines="4" For="@(() => model.Message)" />
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" ButtonType="ButtonType.Submit">Submit</MudButton>
+            </EditForm>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private readonly ContactForm model = new ContactForm();
+
+    public class ContactForm
+    {
+        [Required]
+        public string? Name { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string? Email { get; set; }
+
+        [Required]
+        public string? Message { get; set; }
+
+    }
+
+    private void HandleValidSubmit()
+    {
+        // Handle form submission logic here
+        Console.WriteLine($"Name: {model.Name}, Email: {model.Email}, Message: {model.Message}");
+    }
+}
