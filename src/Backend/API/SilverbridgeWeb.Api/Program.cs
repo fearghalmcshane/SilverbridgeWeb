@@ -1,12 +1,12 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Scalar.AspNetCore;
-using SilverbridgeWeb.Api.Database;
+﻿using Scalar.AspNetCore;
+using SilverbridgeWeb.Api.Extensions;
+using SilverbridgeWeb.Modules.Events.Api;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
-builder.AddNpgsqlDbContext<AppDbContext>("silverbridgeDb");
+
+builder.AddEventsModule();
 
 builder.Services.AddCors();
 builder.Services.AddProblemDetails();
@@ -23,10 +23,12 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
     app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+
+    app.ApplyMigrations();
 }
 
 app.UseHttpsRedirection();
 
-app.MapGet("/api/ping", () => Results.Ok("Pong from Backend API 🚀"));
+EventsModule.MapEndpoints(app);
 
 await app.RunAsync().ConfigureAwait(false);

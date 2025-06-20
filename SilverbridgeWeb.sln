@@ -29,6 +29,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{76
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Aspire", "Aspire", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Events", "Events", "{11374546-F0A9-4801-AEBF-4EF76D75AE07}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Events.Api", "src\Backend\Modules\Events\SilverbridgeWeb.Modules.Events.Api\SilverbridgeWeb.Modules.Events.Api.csproj", "{E2CD7FE6-96F7-4B2D-AFFE-11BF225C4F7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,10 @@ Global
 		{EDA5FAB6-F9E9-C14D-DCB9-4D79CD6A4363}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDA5FAB6-F9E9-C14D-DCB9-4D79CD6A4363}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDA5FAB6-F9E9-C14D-DCB9-4D79CD6A4363}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2CD7FE6-96F7-4B2D-AFFE-11BF225C4F7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2CD7FE6-96F7-4B2D-AFFE-11BF225C4F7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2CD7FE6-96F7-4B2D-AFFE-11BF225C4F7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2CD7FE6-96F7-4B2D-AFFE-11BF225C4F7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -65,6 +73,8 @@ Global
 		{512D5841-756A-4B3C-AE53-41BD7A3A1C84} = {D394B4DF-A804-4095-B913-4991F3F976EB}
 		{768DDD56-B80E-4F49-B5BF-334E14E66BBA} = {2F907B31-354D-4528-AF39-0267A3900793}
 		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {2F907B31-354D-4528-AF39-0267A3900793}
+		{11374546-F0A9-4801-AEBF-4EF76D75AE07} = {512D5841-756A-4B3C-AE53-41BD7A3A1C84}
+		{E2CD7FE6-96F7-4B2D-AFFE-11BF225C4F7D} = {11374546-F0A9-4801-AEBF-4EF76D75AE07}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C09FC64A-81A9-4A62-9197-1CFDEA9C4B34}
