@@ -37,6 +37,9 @@ jobs:
             --tenant-id "$Env:AZURE_TENANT_ID"
         shell: pwsh
 
+      - name: Configure azd to not remove custom domain
+        run: azd config set alpha.aca.persistDomains on
+
       - name: Provision Infrastructure
         run: azd provision --no-prompt
 
