@@ -1,0 +1,10 @@
+﻿using MediatR;
+using SilverbridgeWeb.Modules.Events.Domain.Abstractions;
+
+namespace SilverbridgeWeb.Modules.Events.Application.Abstractions.Messaging;
+
+public interface ICommandHandler<in TCommand> : IRequestHandler<TCommand, Result>
+    where TCommand : ICommand;
+
+public interface ICommandHandler<in TCommand, TResponse> : IRequestHandler<TCommand, Result<TResponse>>
+    where TCommand : ICommand<TResponse>;

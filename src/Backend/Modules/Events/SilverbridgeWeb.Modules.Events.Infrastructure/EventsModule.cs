@@ -7,12 +7,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
+using SilverbridgeWeb.Modules.Events.Application.Abstractions.Clock;
 using SilverbridgeWeb.Modules.Events.Application.Abstractions.Data;
+using SilverbridgeWeb.Modules.Events.Domain.Categories;
 using SilverbridgeWeb.Modules.Events.Domain.Events;
+using SilverbridgeWeb.Modules.Events.Domain.TicketTypes;
+using SilverbridgeWeb.Modules.Events.Infrastructure.Categories;
+using SilverbridgeWeb.Modules.Events.Infrastructure.Clock;
 using SilverbridgeWeb.Modules.Events.Infrastructure.Data;
 using SilverbridgeWeb.Modules.Events.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Events.Infrastructure.Events;
+using SilverbridgeWeb.Modules.Events.Infrastructure.TicketTypes;
+using SilverbridgeWeb.Modules.Events.Presentation.Categories;
 using SilverbridgeWeb.Modules.Events.Presentation.Events;
+using SilverbridgeWeb.Modules.Events.Presentation.TicketTypes;
 
 namespace SilverbridgeWeb.Modules.Events.Infrastructure;
 
@@ -20,6 +28,8 @@ public static class EventsModule
 {
     public static void MapEndpoints(IEndpointRouteBuilder app)
     {
+        TicketTypeEndpoints.MapEndpoints(app);
+        CategoryEndpoints.MapEndpoints(app);
         EventEndpoints.MapEndpoints(app);
     }
 
@@ -39,19 +49,23 @@ public static class EventsModule
 
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        string databaseConnectionString = configuration.GetConnectionString("silverbridgeDb");
+        string databaseConnectionString = configuration.GetConnectionString("silverbridgeDb")!;
 
         NpgsqlDataSource npgsqlDataSource = new NpgsqlDataSourceBuilder(databaseConnectionString).Build();
         services.TryAddSingleton(npgsqlDataSource);
 
         services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
 
+        services.TryAddSingleton<IDateTimeProvider, DateTimeProvider>();
+
         services.AddDbContext<EventsDbContext>(options =>
             options.UseNpgsql(databaseConnectionString,
                 npgsqlOptions => npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Events)).UseSnakeCaseNamingConvention());
 
-        services.AddScoped<IEventRepository, EventRepository>();
+        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<EventsDbContext>());
 
-        services.AddScoped<IUnitOfwork>(sp => sp.GetRequiredService<EventsDbContext>());
+        services.AddScoped<IEventRepository, EventRepository>();
+        services.AddScoped<ITicketTypeRepository, TicketTypeRepository>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
     }
 }
