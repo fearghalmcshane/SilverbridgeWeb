@@ -1,4 +1,4 @@
-﻿namespace SilverbridgeWeb.Modules.Events.Api.Events;
+﻿namespace SilverbridgeWeb.Modules.Events.Domain.Events;
 
 public enum EventStatus
 {

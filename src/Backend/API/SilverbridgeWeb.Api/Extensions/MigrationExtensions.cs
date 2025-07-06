@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SilverbridgeWeb.Modules.Events.Api.Database;
+using SilverbridgeWeb.Modules.Events.Infrastructure.Database;
 
 namespace SilverbridgeWeb.Api.Extensions;
 

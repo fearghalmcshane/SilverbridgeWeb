@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using SilverbridgeWeb.Modules.Events.Api.Events;
+using SilverbridgeWeb.Modules.Events.Application.Abstractions.Data;
+using SilverbridgeWeb.Modules.Events.Domain.Events;
 
-namespace SilverbridgeWeb.Modules.Events.Api.Database;
+namespace SilverbridgeWeb.Modules.Events.Infrastructure.Database;
 
-public sealed class EventsDbContext(DbContextOptions<EventsDbContext> options) : DbContext(options)
+public sealed class EventsDbContext(DbContextOptions<EventsDbContext> options) : DbContext(options), IUnitOfwork
 {
     internal DbSet<Event> Events { get; set; }
 
