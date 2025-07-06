@@ -1,4 +1,4 @@
-﻿namespace SilverbridgeWeb.Modules.Events.Api;
+﻿namespace SilverbridgeWeb.Modules.Events.Presentation;
 
 internal static class Tags
 {

@@ -1,4 +1,4 @@
-﻿namespace SilverbridgeWeb.Modules.Events.Api.Database;
+﻿namespace SilverbridgeWeb.Modules.Events.Infrastructure.Database;
 
 internal sealed class Schemas
 {

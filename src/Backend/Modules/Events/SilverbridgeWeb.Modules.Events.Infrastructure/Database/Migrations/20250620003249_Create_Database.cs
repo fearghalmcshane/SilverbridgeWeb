@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace SilverbridgeWeb.Modules.Events.Api.Database.Migrations;
+namespace SilverbridgeWeb.Modules.Events.Infrastructure.Database.Migrations;
 
 /// <inheritdoc />
 public partial class Create_Database : Migration

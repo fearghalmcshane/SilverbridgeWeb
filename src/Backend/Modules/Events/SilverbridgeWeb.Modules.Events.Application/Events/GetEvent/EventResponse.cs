@@ -1,4 +1,4 @@
-﻿namespace SilverbridgeWeb.Modules.Events.Api.Events;
+﻿namespace SilverbridgeWeb.Modules.Events.Application.Events.GetEvent;
 
 public sealed record EventResponse(
     Guid Id,

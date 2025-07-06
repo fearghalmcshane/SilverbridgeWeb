@@ -1,6 +1,6 @@
 ﻿using Scalar.AspNetCore;
 using SilverbridgeWeb.Api.Extensions;
-using SilverbridgeWeb.Modules.Events.Api;
+using SilverbridgeWeb.Modules.Events.Infrastructure;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
