@@ -1,6 +1,6 @@
 ﻿namespace SilverbridgeWeb.Modules.Events.Application.Abstractions.Data;
 
-public  interface IUnitOfwork
+public interface IUnitOfWork
 {
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

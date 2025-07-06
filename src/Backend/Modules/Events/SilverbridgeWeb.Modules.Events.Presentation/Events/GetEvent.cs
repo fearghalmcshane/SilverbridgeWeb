@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SilverbridgeWeb.Modules.Events.Application.Events.GetEvent;
+using SilverbridgeWeb.Modules.Events.Domain.Abstractions;
+using SilverbridgeWeb.Modules.Events.Presentation.ApiResults;
 
 namespace SilverbridgeWeb.Modules.Events.Presentation.Events;
 
@@ -12,9 +14,9 @@ internal static class GetEvent
     {
         app.MapGet("events/{id}", async (Guid id, ISender sender) =>
         {
-            EventResponse @event = await sender.Send(new GetEventQuery(id));
+            Result<EventResponse> result = await sender.Send(new GetEventQuery(id));
 
-            return @event is null ? Results.NotFound() : Results.Ok(@event);
+            return result.Match(Results.Ok, ApiResults.ApiResults.Problem);
         })
         .WithTags(Tags.Events);
     }
