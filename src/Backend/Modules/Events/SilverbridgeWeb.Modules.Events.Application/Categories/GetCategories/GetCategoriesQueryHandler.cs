@@ -1,9 +1,9 @@
 ﻿using System.Data.Common;
 using Dapper;
-using SilverbridgeWeb.Modules.Events.Application.Abstractions.Data;
-using SilverbridgeWeb.Modules.Events.Application.Abstractions.Messaging;
+using SilverbridgeWeb.Common.Application.Data;
+using SilverbridgeWeb.Common.Application.Messaging;
+using SilverbridgeWeb.Common.Domain;
 using SilverbridgeWeb.Modules.Events.Application.Categories.GetCategory;
-using SilverbridgeWeb.Modules.Events.Domain.Abstractions;
 
 namespace SilverbridgeWeb.Modules.Events.Application.Categories.GetCategories;
 

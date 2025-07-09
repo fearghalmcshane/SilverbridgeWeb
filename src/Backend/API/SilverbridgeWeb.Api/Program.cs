@@ -1,10 +1,22 @@
 ﻿using Scalar.AspNetCore;
 using SilverbridgeWeb.Api.Extensions;
+using SilverbridgeWeb.Api.Middleware;
+using SilverbridgeWeb.Common.Application;
+using SilverbridgeWeb.Common.Infrastructure;
 using SilverbridgeWeb.Modules.Events.Infrastructure;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+builder.Services.AddApplication([SilverbridgeWeb.Modules.Events.Application.AssemblyReference.Assembly]);
+
+builder.Services.AddInfrastructure(builder.Configuration.GetConnectionString("silverbridgeDb")!);
+
+builder.Configuration.AddModuleConfiguration(["events"]);
 
 builder.AddEventsModule();
 
@@ -30,5 +42,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 EventsModule.MapEndpoints(app);
+
+app.UseExceptionHandler();
 
 await app.RunAsync().ConfigureAwait(false);

@@ -1,4 +1,4 @@
-﻿namespace SilverbridgeWeb.Modules.Events.Domain.Abstractions;
+﻿namespace SilverbridgeWeb.Common.Domain;
 
 public enum ErrorType
 {

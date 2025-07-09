@@ -1,4 +1,4 @@
-﻿using SilverbridgeWeb.Modules.Events.Application.Abstractions.Messaging;
+﻿using SilverbridgeWeb.Common.Application.Messaging;
 using SilverbridgeWeb.Modules.Events.Application.TicketTypes.GetTicketType;
 
 namespace SilverbridgeWeb.Modules.Events.Application.TicketTypes.GetTicketTypes;

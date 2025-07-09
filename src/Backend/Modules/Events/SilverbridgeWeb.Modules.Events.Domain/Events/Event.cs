@@ -1,4 +1,4 @@
-﻿using SilverbridgeWeb.Modules.Events.Domain.Abstractions;
+﻿using SilverbridgeWeb.Common.Domain;
 using SilverbridgeWeb.Modules.Events.Domain.Categories;
 
 namespace SilverbridgeWeb.Modules.Events.Domain.Events;

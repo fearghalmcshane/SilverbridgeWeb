@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using SilverbridgeWeb.Modules.Events.Domain.Abstractions;
+using SilverbridgeWeb.Common.Domain;
 
 namespace SilverbridgeWeb.Modules.Events.Presentation.ApiResults;
 

@@ -1,4 +1,4 @@
-﻿using SilverbridgeWeb.Modules.Events.Application.Abstractions.Messaging;
+﻿using SilverbridgeWeb.Common.Application.Messaging;
 
 namespace SilverbridgeWeb.Modules.Events.Application.Categories.ArchiveCategory;
 

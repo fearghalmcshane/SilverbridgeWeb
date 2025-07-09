@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using SilverbridgeWeb.Modules.Events.Application.Abstractions.Clock;
+using SilverbridgeWeb.Common.Application.Clock;
+using SilverbridgeWeb.Common.Application.Messaging;
+using SilverbridgeWeb.Common.Domain;
 using SilverbridgeWeb.Modules.Events.Application.Abstractions.Data;
-using SilverbridgeWeb.Modules.Events.Application.Abstractions.Messaging;
-using SilverbridgeWeb.Modules.Events.Domain.Abstractions;
 using SilverbridgeWeb.Modules.Events.Domain.Categories;
 using SilverbridgeWeb.Modules.Events.Domain.Events;
 

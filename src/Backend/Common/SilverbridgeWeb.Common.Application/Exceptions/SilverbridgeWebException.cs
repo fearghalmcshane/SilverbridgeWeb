@@ -1,6 +1,6 @@
-﻿using SilverbridgeWeb.Modules.Events.Domain.Abstractions;
+﻿using SilverbridgeWeb.Common.Domain;
 
-namespace SilverbridgeWeb.Modules.Events.Application.Abstractions.Exceptions;
+namespace SilverbridgeWeb.Common.Application.Exceptions;
 
 public sealed class SilverbridgeWebException : Exception
 {
