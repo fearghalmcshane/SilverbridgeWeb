@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace SilverbridgeWeb.Modules.Events.Domain.Abstractions;
+namespace SilverbridgeWeb.Common.Domain;
 
 public class Result
 {

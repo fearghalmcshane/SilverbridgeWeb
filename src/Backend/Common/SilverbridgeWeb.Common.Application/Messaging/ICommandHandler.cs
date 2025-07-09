@@ -1,7 +1,7 @@
 ﻿using MediatR;
-using SilverbridgeWeb.Modules.Events.Domain.Abstractions;
+using SilverbridgeWeb.Common.Domain;
 
-namespace SilverbridgeWeb.Modules.Events.Application.Abstractions.Messaging;
+namespace SilverbridgeWeb.Common.Application.Messaging;
 
 public interface ICommandHandler<in TCommand> : IRequestHandler<TCommand, Result>
     where TCommand : ICommand;

@@ -1,6 +1,6 @@
 ﻿using System.Data.Common;
 
-namespace SilverbridgeWeb.Modules.Events.Application.Abstractions.Data;
+namespace SilverbridgeWeb.Common.Application.Data;
 
 public interface IDbConnectionFactory
 {

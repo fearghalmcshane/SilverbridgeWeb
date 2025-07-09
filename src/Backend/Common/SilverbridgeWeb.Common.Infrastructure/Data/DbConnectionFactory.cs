@@ -1,8 +1,8 @@
 ﻿using System.Data.Common;
 using Npgsql;
-using SilverbridgeWeb.Modules.Events.Application.Abstractions.Data;
+using SilverbridgeWeb.Common.Application.Data;
 
-namespace SilverbridgeWeb.Modules.Events.Infrastructure.Data;
+namespace SilverbridgeWeb.Common.Infrastructure.Data;
 
 internal sealed class DbConnectionFactory(NpgsqlDataSource dataSource) : IDbConnectionFactory
 {

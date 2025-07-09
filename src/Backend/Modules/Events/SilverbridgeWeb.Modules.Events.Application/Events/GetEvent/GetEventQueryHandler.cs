@@ -1,8 +1,8 @@
 ﻿using System.Data.Common;
 using Dapper;
-using SilverbridgeWeb.Modules.Events.Application.Abstractions.Data;
-using SilverbridgeWeb.Modules.Events.Application.Abstractions.Messaging;
-using SilverbridgeWeb.Modules.Events.Domain.Abstractions;
+using SilverbridgeWeb.Common.Application.Data;
+using SilverbridgeWeb.Common.Application.Messaging;
+using SilverbridgeWeb.Common.Domain;
 using SilverbridgeWeb.Modules.Events.Domain.Events;
 
 namespace SilverbridgeWeb.Modules.Events.Application.Events.GetEvent;

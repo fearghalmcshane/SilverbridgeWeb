@@ -1,4 +1,4 @@
-﻿using SilverbridgeWeb.Modules.Events.Domain.Abstractions;
+﻿using SilverbridgeWeb.Common.Domain;
 using SilverbridgeWeb.Modules.Events.Domain.Events;
 
 namespace SilverbridgeWeb.Modules.Events.Domain.TicketTypes;

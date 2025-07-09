@@ -1,7 +1,7 @@
 ﻿using MediatR;
-using SilverbridgeWeb.Modules.Events.Domain.Abstractions;
+using SilverbridgeWeb.Common.Domain;
 
-namespace SilverbridgeWeb.Modules.Events.Application.Abstractions.Messaging;
+namespace SilverbridgeWeb.Common.Application.Messaging;
 
 public interface IQueryHandler<in TQuery, TResponse> : IRequestHandler<TQuery, Result<TResponse>>
     where TQuery : IQuery<TResponse>;

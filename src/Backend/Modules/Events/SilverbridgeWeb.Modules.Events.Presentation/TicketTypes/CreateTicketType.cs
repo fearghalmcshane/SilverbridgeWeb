@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using SilverbridgeWeb.Common.Domain;
 using SilverbridgeWeb.Modules.Events.Application.TicketTypes.CreateTicketType;
-using SilverbridgeWeb.Modules.Events.Domain.Abstractions;
 using SilverbridgeWeb.Modules.Events.Presentation.ApiResults;
 
 namespace SilverbridgeWeb.Modules.Events.Presentation.TicketTypes;
