@@ -14,7 +14,9 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddApplication([SilverbridgeWeb.Modules.Events.Application.AssemblyReference.Assembly]);
 
-builder.Services.AddInfrastructure(builder.Configuration.GetConnectionString("silverbridgeDb")!);
+builder.Services.AddInfrastructure(
+    builder.Configuration.GetConnectionString("silverbridgeDb")!,
+    builder.Configuration.GetConnectionString("redis")!);
 
 builder.Configuration.AddModuleConfiguration(["events"]);
 

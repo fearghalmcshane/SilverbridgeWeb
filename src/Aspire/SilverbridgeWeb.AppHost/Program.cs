@@ -7,9 +7,13 @@ IResourceBuilder<AzurePostgresFlexibleServerResource> postgres = builder.AddAzur
 
 IResourceBuilder<AzurePostgresFlexibleServerDatabaseResource> silverbridgeDb = postgres.AddDatabase("silverbridgeDb");
 
+IResourceBuilder<RedisResource> redis = builder.AddRedis("redis");
+
 IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.SilverbridgeWeb_Api>("silverbridgeweb-api")
     .WithReference(silverbridgeDb)
+    .WithReference(redis)
     .WaitFor(silverbridgeDb)
+    .WaitFor(redis)
     .WithHttpHealthCheck("/health");
 
 builder.AddProject<Projects.SilverbridgeWeb_WebUI>("silverbridgeweb-webui")
