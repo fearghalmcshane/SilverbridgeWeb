@@ -3,20 +3,21 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SilverbridgeWeb.Common.Domain;
+using SilverbridgeWeb.Common.Presentation.ApiResults;
+using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Events.Application.Events.CancelEvent;
-using SilverbridgeWeb.Modules.Events.Presentation.ApiResults;
 
 namespace SilverbridgeWeb.Modules.Events.Presentation.Events;
 
-internal static class CancelEvent
+internal sealed class CancelEvent : IEndpoint
 {
-    public static void MapEndpoint(IEndpointRouteBuilder app)
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapDelete("events/{id}/cancel", async (Guid id, ISender sender) =>
         {
             Result result = await sender.Send(new CancelEventCommand(id));
 
-            return result.Match(Results.NoContent, ApiResults.ApiResults.Problem);
+            return result.Match(Results.NoContent, Common.Presentation.ApiResults.ApiResults.Problem);
         })
         .WithTags(Tags.Events);
     }

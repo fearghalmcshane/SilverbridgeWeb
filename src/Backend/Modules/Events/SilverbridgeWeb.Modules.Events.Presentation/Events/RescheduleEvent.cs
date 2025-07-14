@@ -3,21 +3,22 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SilverbridgeWeb.Common.Domain;
+using SilverbridgeWeb.Common.Presentation.ApiResults;
+using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Events.Application.Events.RescheduleEvent;
-using SilverbridgeWeb.Modules.Events.Presentation.ApiResults;
 
 namespace SilverbridgeWeb.Modules.Events.Presentation.Events;
 
-internal static class RescheduleEvent
+internal sealed class RescheduleEvent : IEndpoint
 {
-    public static void MapEndpoint(IEndpointRouteBuilder app)
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPut("events/{id}/reschedule", async (Guid id, Request request, ISender sender) =>
         {
             Result result = await sender.Send(
                 new RescheduleEventCommand(id, request.StartsAtUtc, request.EndsAtUtc));
 
-            return result.Match(Results.NoContent, ApiResults.ApiResults.Problem);
+            return result.Match(Results.NoContent, Common.Presentation.ApiResults.ApiResults.Problem);
         })
         .WithTags(Tags.Events);
     }

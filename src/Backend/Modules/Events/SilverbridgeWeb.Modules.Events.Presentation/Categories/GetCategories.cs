@@ -4,15 +4,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SilverbridgeWeb.Common.Application.Caching;
 using SilverbridgeWeb.Common.Domain;
+using SilverbridgeWeb.Common.Presentation.ApiResults;
+using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Events.Application.Categories.GetCategories;
 using SilverbridgeWeb.Modules.Events.Application.Categories.GetCategory;
-using SilverbridgeWeb.Modules.Events.Presentation.ApiResults;
 
 namespace SilverbridgeWeb.Modules.Events.Presentation.Categories;
 
-internal static class GetCategories
+internal sealed class GetCategories : IEndpoint
 {
-    public static void MapEndpoint(IEndpointRouteBuilder app)
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapGet("categories", async (ISender sender, ICacheService cacheService) =>
         {
@@ -30,7 +31,7 @@ internal static class GetCategories
                 await cacheService.SetAsync("categories", result.Value);
             }
 
-            return result.Match(Results.Ok, ApiResults.ApiResults.Problem);
+            return result.Match(Results.Ok, Common.Presentation.ApiResults.ApiResults.Problem);
         })
         .WithTags(Tags.Categories);
     }

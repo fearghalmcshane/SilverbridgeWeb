@@ -3,14 +3,15 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SilverbridgeWeb.Common.Domain;
+using SilverbridgeWeb.Common.Presentation.ApiResults;
+using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Events.Application.TicketTypes.CreateTicketType;
-using SilverbridgeWeb.Modules.Events.Presentation.ApiResults;
 
 namespace SilverbridgeWeb.Modules.Events.Presentation.TicketTypes;
 
-internal static class CreateTicketType
+internal sealed class CreateTicketType : IEndpoint
 {
-    public static void MapEndpoint(IEndpointRouteBuilder app)
+    public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPost("ticket-types", async (Request request, ISender sender) =>
         {
@@ -21,7 +22,7 @@ internal static class CreateTicketType
                 request.Currency,
                 request.Quantity));
 
-            return result.Match(Results.Ok, ApiResults.ApiResults.Problem);
+            return result.Match(Results.Ok, Common.Presentation.ApiResults.ApiResults.Problem);
         })
         .WithTags(Tags.TicketTypes);
     }
