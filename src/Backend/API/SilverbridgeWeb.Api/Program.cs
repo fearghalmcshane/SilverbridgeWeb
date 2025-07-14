@@ -3,6 +3,7 @@ using SilverbridgeWeb.Api.Extensions;
 using SilverbridgeWeb.Api.Middleware;
 using SilverbridgeWeb.Common.Application;
 using SilverbridgeWeb.Common.Infrastructure;
+using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Events.Infrastructure;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,7 @@ builder.Services.AddInfrastructure(
 
 builder.Configuration.AddModuleConfiguration(["events"]);
 
-builder.AddEventsModule();
+builder.Services.AddEventsModule(builder.Configuration);
 
 builder.Services.AddCors();
 builder.Services.AddProblemDetails();
@@ -43,7 +44,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-EventsModule.MapEndpoints(app);
+app.MapEndpoints();
 
 app.UseExceptionHandler();
 

@@ -1,10 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	
 	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-	</ItemGroup>
-	
-	<ItemGroup>
+		<ProjectReference Include="..\..\..\Common\SilverbridgeWeb.Common.Presentation\SilverbridgeWeb.Common.Presentation.csproj" />
 		<ProjectReference Include="..\SilverbridgeWeb.Modules.Events.Application\SilverbridgeWeb.Modules.Events.Application.csproj" />
 	</ItemGroup>
 

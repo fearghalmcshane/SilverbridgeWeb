@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Common.Doma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Common.Infrastructure", "src\Backend\Common\SilverbridgeWeb.Common.Infrastructure\SilverbridgeWeb.Common.Infrastructure.csproj", "{9CD0D0E4-193C-426D-A2BB-841FD15C96A2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Common.Presentation", "src\Backend\Common\SilverbridgeWeb.Common.Presentation\SilverbridgeWeb.Common.Presentation.csproj", "{247D93AD-6BC9-45D6-BC00-4C48CEB4428A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,10 @@ Global
 		{9CD0D0E4-193C-426D-A2BB-841FD15C96A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CD0D0E4-193C-426D-A2BB-841FD15C96A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CD0D0E4-193C-426D-A2BB-841FD15C96A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{247D93AD-6BC9-45D6-BC00-4C48CEB4428A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{247D93AD-6BC9-45D6-BC00-4C48CEB4428A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{247D93AD-6BC9-45D6-BC00-4C48CEB4428A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{247D93AD-6BC9-45D6-BC00-4C48CEB4428A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -120,6 +126,7 @@ Global
 		{796EE724-4251-43BE-8BCF-6778CB883CA1} = {82E9B9BF-F0E1-4872-9C42-8B7D0C3E320D}
 		{B309C17C-7160-4F90-8DBE-943F45FD17A2} = {82E9B9BF-F0E1-4872-9C42-8B7D0C3E320D}
 		{9CD0D0E4-193C-426D-A2BB-841FD15C96A2} = {82E9B9BF-F0E1-4872-9C42-8B7D0C3E320D}
+		{247D93AD-6BC9-45D6-BC00-4C48CEB4428A} = {82E9B9BF-F0E1-4872-9C42-8B7D0C3E320D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C09FC64A-81A9-4A62-9197-1CFDEA9C4B34}
