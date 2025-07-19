@@ -7,6 +7,7 @@ using SilverbridgeWeb.Common.Application.Data;
 using SilverbridgeWeb.Common.Infrastructure.Caching;
 using SilverbridgeWeb.Common.Infrastructure.Clock;
 using SilverbridgeWeb.Common.Infrastructure.Data;
+using SilverbridgeWeb.Common.Infrastructure.Interceptors;
 using StackExchange.Redis;
 
 namespace SilverbridgeWeb.Common.Infrastructure;
@@ -19,6 +20,8 @@ public static class InfrastructureConfiguration
         services.TryAddSingleton(npgsqlDataSource);
 
         services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
+
+        services.TryAddSingleton<PublishDomainEventsInterceptor>();
 
         services.TryAddSingleton<IDateTimeProvider, DateTimeProvider>();
 

@@ -1,6 +1,8 @@
-﻿namespace SilverbridgeWeb.Common.Domain;
+﻿using MediatR;
 
-public interface IDomainEvent
+namespace SilverbridgeWeb.Common.Domain;
+
+public interface IDomainEvent : INotification
 {
     Guid Id { get; }
 

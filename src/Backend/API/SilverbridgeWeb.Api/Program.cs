@@ -5,6 +5,7 @@ using SilverbridgeWeb.Common.Application;
 using SilverbridgeWeb.Common.Infrastructure;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Events.Infrastructure;
+using SilverbridgeWeb.Modules.Ticketing.Infrastructure;
 using SilverbridgeWeb.Modules.Users.Infrastructure;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -16,16 +17,18 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddApplication([
     SilverbridgeWeb.Modules.Events.Application.AssemblyReference.Assembly,
-    SilverbridgeWeb.Modules.Users.Application.AssemblyReference.Assembly]);
+    SilverbridgeWeb.Modules.Users.Application.AssemblyReference.Assembly,
+    SilverbridgeWeb.Modules.Ticketing.Application.AssemblyReference.Assembly,]);
 
 builder.Services.AddInfrastructure(
     builder.Configuration.GetConnectionString("silverbridgeDb")!,
     builder.Configuration.GetConnectionString("redis")!);
 
-builder.Configuration.AddModuleConfiguration(["events", "users"]);
+builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing"]);
 
 builder.Services.AddEventsModule(builder.Configuration);
 builder.Services.AddUsersModule(builder.Configuration);
+builder.Services.AddTicketingModule(builder.Configuration);
 
 builder.Services.AddCors();
 builder.Services.AddProblemDetails();
