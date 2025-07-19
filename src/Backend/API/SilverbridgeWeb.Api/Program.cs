@@ -18,7 +18,7 @@ builder.Services.AddProblemDetails();
 builder.Services.AddApplication([
     SilverbridgeWeb.Modules.Events.Application.AssemblyReference.Assembly,
     SilverbridgeWeb.Modules.Users.Application.AssemblyReference.Assembly,
-    SilverbridgeWeb.Modules.Ticketing.Application.AssemblyReference.Assembly,]);
+    SilverbridgeWeb.Modules.Ticketing.Application.AssemblyReference.Assembly]);
 
 builder.Services.AddInfrastructure(
     builder.Configuration.GetConnectionString("silverbridgeDb")!,
