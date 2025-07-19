@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SilverbridgeWeb.Modules.Events.Infrastructure.Database;
+using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Users.Infrastructure.Database;
 
 namespace SilverbridgeWeb.Api.Extensions;
@@ -12,6 +13,7 @@ internal static class MigrationExtensions
 
         ApplyMigration<EventsDbContext>(scope);
         ApplyMigration<UsersDbContext>(scope);
+        ApplyMigration<TicketingDbContext>(scope);
     }
 
     private static void ApplyMigration<TDbContext>(IServiceScope scope)

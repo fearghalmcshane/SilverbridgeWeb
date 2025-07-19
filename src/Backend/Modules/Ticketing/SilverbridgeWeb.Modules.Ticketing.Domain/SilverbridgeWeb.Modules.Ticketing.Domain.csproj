@@ -1,0 +1,5 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\SilverbridgeWeb.Common.Domain\SilverbridgeWeb.Common.Domain.csproj" />
+  </ItemGroup>
+</Project>

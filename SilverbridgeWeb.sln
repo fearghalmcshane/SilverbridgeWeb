@@ -59,6 +59,22 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Use
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Users.Presentation", "src\Backend\Modules\Users\SilverbridgeWeb.Modules.Users.Presentation\SilverbridgeWeb.Modules.Users.Presentation.csproj", "{FFDCE10F-69DA-46B8-83A0-B20A882F2D3D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ticketing", "Ticketing", "{D30625A2-CAC7-45E4-83AC-A07A6974D9E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Ticketing.Application", "src\Backend\Modules\Ticketing\SilverbridgeWeb.Modules.Ticketing.Application\SilverbridgeWeb.Modules.Ticketing.Application.csproj", "{A8E62D98-44B5-45DF-8812-DD4F690C36CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Ticketing.Domain", "src\Backend\Modules\Ticketing\SilverbridgeWeb.Modules.Ticketing.Domain\SilverbridgeWeb.Modules.Ticketing.Domain.csproj", "{DF454F86-D1B7-498F-8896-9482EE34D57D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Ticketing.Infrastructure", "src\Backend\Modules\Ticketing\SilverbridgeWeb.Modules.Ticketing.Infrastructure\SilverbridgeWeb.Modules.Ticketing.Infrastructure.csproj", "{4CA8FFD1-610C-4A5C-9821-3D85A9203FF3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Ticketing.Presentation", "src\Backend\Modules\Ticketing\SilverbridgeWeb.Modules.Ticketing.Presentation\SilverbridgeWeb.Modules.Ticketing.Presentation.csproj", "{085C803B-65F7-4A30-8FFA-411FFB43128C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Users.PublicApi", "src\Backend\Modules\Users\SilverbridgeWeb.Modules.Users.PublicApi\SilverbridgeWeb.Modules.Users.PublicApi.csproj", "{F31497D3-12B9-467C-B725-12535DBC845A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Events.PublicApi", "src\Backend\Modules\Events\SilverbridgeWeb.Modules.Events.PublicApi\SilverbridgeWeb.Modules.Events.PublicApi.csproj", "{6EABA4AB-11EB-4996-A71A-CCC604DC68E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Ticketing.PublicApi", "src\Backend\Modules\Ticketing\SilverbridgeWeb.Modules.Ticketing.PublicApi\SilverbridgeWeb.Modules.Ticketing.PublicApi.csproj", "{668D80CD-3771-4473-9F5F-3248AA0A122D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -129,6 +145,34 @@ Global
 		{FFDCE10F-69DA-46B8-83A0-B20A882F2D3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFDCE10F-69DA-46B8-83A0-B20A882F2D3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFDCE10F-69DA-46B8-83A0-B20A882F2D3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8E62D98-44B5-45DF-8812-DD4F690C36CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8E62D98-44B5-45DF-8812-DD4F690C36CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8E62D98-44B5-45DF-8812-DD4F690C36CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8E62D98-44B5-45DF-8812-DD4F690C36CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF454F86-D1B7-498F-8896-9482EE34D57D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF454F86-D1B7-498F-8896-9482EE34D57D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF454F86-D1B7-498F-8896-9482EE34D57D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF454F86-D1B7-498F-8896-9482EE34D57D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CA8FFD1-610C-4A5C-9821-3D85A9203FF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CA8FFD1-610C-4A5C-9821-3D85A9203FF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CA8FFD1-610C-4A5C-9821-3D85A9203FF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CA8FFD1-610C-4A5C-9821-3D85A9203FF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{085C803B-65F7-4A30-8FFA-411FFB43128C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{085C803B-65F7-4A30-8FFA-411FFB43128C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{085C803B-65F7-4A30-8FFA-411FFB43128C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{085C803B-65F7-4A30-8FFA-411FFB43128C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F31497D3-12B9-467C-B725-12535DBC845A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F31497D3-12B9-467C-B725-12535DBC845A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F31497D3-12B9-467C-B725-12535DBC845A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F31497D3-12B9-467C-B725-12535DBC845A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EABA4AB-11EB-4996-A71A-CCC604DC68E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EABA4AB-11EB-4996-A71A-CCC604DC68E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EABA4AB-11EB-4996-A71A-CCC604DC68E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EABA4AB-11EB-4996-A71A-CCC604DC68E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{668D80CD-3771-4473-9F5F-3248AA0A122D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{668D80CD-3771-4473-9F5F-3248AA0A122D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{668D80CD-3771-4473-9F5F-3248AA0A122D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{668D80CD-3771-4473-9F5F-3248AA0A122D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -158,6 +202,14 @@ Global
 		{47F92DAC-6A50-428C-ACFD-B7DAD096EF23} = {05B58385-ABE4-42B7-BA20-01F265CA1178}
 		{D1CC1159-FCF8-4F83-9812-C8B99E2162E7} = {05B58385-ABE4-42B7-BA20-01F265CA1178}
 		{FFDCE10F-69DA-46B8-83A0-B20A882F2D3D} = {05B58385-ABE4-42B7-BA20-01F265CA1178}
+		{D30625A2-CAC7-45E4-83AC-A07A6974D9E9} = {512D5841-756A-4B3C-AE53-41BD7A3A1C84}
+		{A8E62D98-44B5-45DF-8812-DD4F690C36CE} = {D30625A2-CAC7-45E4-83AC-A07A6974D9E9}
+		{DF454F86-D1B7-498F-8896-9482EE34D57D} = {D30625A2-CAC7-45E4-83AC-A07A6974D9E9}
+		{4CA8FFD1-610C-4A5C-9821-3D85A9203FF3} = {D30625A2-CAC7-45E4-83AC-A07A6974D9E9}
+		{085C803B-65F7-4A30-8FFA-411FFB43128C} = {D30625A2-CAC7-45E4-83AC-A07A6974D9E9}
+		{F31497D3-12B9-467C-B725-12535DBC845A} = {05B58385-ABE4-42B7-BA20-01F265CA1178}
+		{6EABA4AB-11EB-4996-A71A-CCC604DC68E8} = {11374546-F0A9-4801-AEBF-4EF76D75AE07}
+		{668D80CD-3771-4473-9F5F-3248AA0A122D} = {D30625A2-CAC7-45E4-83AC-A07A6974D9E9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C09FC64A-81A9-4A62-9197-1CFDEA9C4B34}

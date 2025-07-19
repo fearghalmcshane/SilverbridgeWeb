@@ -2,11 +2,14 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SilverbridgeWeb.Common.Infrastructure.Interceptors;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Users.Application.Abstractions.Data;
 using SilverbridgeWeb.Modules.Users.Domain.Users;
 using SilverbridgeWeb.Modules.Users.Infrastructure.Database;
+using SilverbridgeWeb.Modules.Users.Infrastructure.PublicApi;
 using SilverbridgeWeb.Modules.Users.Infrastructure.Users;
+using SilverbridgeWeb.Modules.Users.PublicApi;
 
 namespace SilverbridgeWeb.Modules.Users.Infrastructure;
 
@@ -33,11 +36,13 @@ public static class UsersModule
                     configuration.GetConnectionString(databaseConnectionString),
                     npgsqlOptions => npgsqlOptions
                         .MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Users))
-                //.AddInterceptors(sp.GetRequiredService<PublishDomainEventsInterceptor>())
+                .AddInterceptors(sp.GetRequiredService<PublishDomainEventsInterceptor>())
                 .UseSnakeCaseNamingConvention());
 
         services.AddScoped<IUserRepository, UserRepository>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<UsersDbContext>());
+
+        services.AddScoped<IUsersApi, UsersApi>();
     }
 }
