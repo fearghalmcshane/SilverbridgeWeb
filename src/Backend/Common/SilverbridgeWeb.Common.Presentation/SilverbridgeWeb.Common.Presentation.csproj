@@ -5,6 +5,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="MassTransit.Abstractions" Version="8.5.1" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <ProjectReference Include="..\SilverbridgeWeb.Common.Domain\SilverbridgeWeb.Common.Domain.csproj" />
 	</ItemGroup>
 

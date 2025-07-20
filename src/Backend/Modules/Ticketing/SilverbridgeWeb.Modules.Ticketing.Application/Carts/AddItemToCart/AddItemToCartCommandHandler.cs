@@ -1,15 +1,14 @@
 ﻿using SilverbridgeWeb.Common.Application.Messaging;
 using SilverbridgeWeb.Common.Domain;
-using SilverbridgeWeb.Modules.Events.PublicApi;
 using SilverbridgeWeb.Modules.Ticketing.Domain.Customers;
 using SilverbridgeWeb.Modules.Ticketing.Domain.Events;
 
 namespace SilverbridgeWeb.Modules.Ticketing.Application.Carts.AddItemToCart;
 
 internal sealed class AddItemToCartCommandHandler(
-    CartService cartService,
     ICustomerRepository customerRepository,
-    IEventsApi eventsApi)
+    ITicketTypeRepository ticketTypeRepository,
+    CartService cartService)
     : ICommandHandler<AddItemToCartCommand>
 {
     public async Task<Result> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
@@ -21,22 +20,27 @@ internal sealed class AddItemToCartCommandHandler(
             return Result.Failure(CustomerErrors.NotFound(request.CustomerId));
         }
 
-        TicketTypeResponse? ticketType = await eventsApi.GetTicketTypeAsync(request.TicketTypeId, cancellationToken);
+        TicketType? ticketType = await ticketTypeRepository.GetAsync(request.TicketTypeId, cancellationToken);
 
         if (ticketType is null)
         {
             return Result.Failure(TicketTypeErrors.NotFound(request.TicketTypeId));
         }
 
+        if (ticketType.AvailableQuantity < request.Quantity)
+        {
+            return Result.Failure(TicketTypeErrors.NotEnoughQuantity(ticketType.AvailableQuantity));
+        }
+
         var cartItem = new CartItem
         {
-            TicketTypeId = ticketType.Id,
-            Price = ticketType.Price,
+            TicketTypeId = request.TicketTypeId,
             Quantity = request.Quantity,
+            Price = ticketType.Price,
             Currency = ticketType.Currency
         };
 
-        await cartService.AddItemAsync(customer.Id, cartItem, cancellationToken);
+        await cartService.AddItemAsync(request.CustomerId, cartItem, cancellationToken);
 
         return Result.Success();
     }

@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\SilverbridgeWeb.Common.Presentation\SilverbridgeWeb.Common.Presentation.csproj" />
+    <ProjectReference Include="..\..\Users\SilverbridgeWeb.Modules.Users.IntegrationEvents\SilverbridgeWeb.Modules.Users.IntegrationEvents.csproj" />
     <ProjectReference Include="..\SilverbridgeWeb.Modules.Ticketing.Application\SilverbridgeWeb.Modules.Ticketing.Application.csproj" />
   </ItemGroup>
 </Project>

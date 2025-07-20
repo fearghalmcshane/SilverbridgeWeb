@@ -69,11 +69,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Tic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Ticketing.Presentation", "src\Backend\Modules\Ticketing\SilverbridgeWeb.Modules.Ticketing.Presentation\SilverbridgeWeb.Modules.Ticketing.Presentation.csproj", "{085C803B-65F7-4A30-8FFA-411FFB43128C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Users.PublicApi", "src\Backend\Modules\Users\SilverbridgeWeb.Modules.Users.PublicApi\SilverbridgeWeb.Modules.Users.PublicApi.csproj", "{F31497D3-12B9-467C-B725-12535DBC845A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Events.PublicApi", "src\Backend\Modules\Events\SilverbridgeWeb.Modules.Events.PublicApi\SilverbridgeWeb.Modules.Events.PublicApi.csproj", "{6EABA4AB-11EB-4996-A71A-CCC604DC68E8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Ticketing.PublicApi", "src\Backend\Modules\Ticketing\SilverbridgeWeb.Modules.Ticketing.PublicApi\SilverbridgeWeb.Modules.Ticketing.PublicApi.csproj", "{668D80CD-3771-4473-9F5F-3248AA0A122D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverbridgeWeb.Modules.Users.IntegrationEvents", "src\Backend\Modules\Users\SilverbridgeWeb.Modules.Users.IntegrationEvents\SilverbridgeWeb.Modules.Users.IntegrationEvents.csproj", "{156DF172-3F2F-41B9-A005-052850D4A769}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -161,18 +157,10 @@ Global
 		{085C803B-65F7-4A30-8FFA-411FFB43128C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{085C803B-65F7-4A30-8FFA-411FFB43128C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{085C803B-65F7-4A30-8FFA-411FFB43128C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F31497D3-12B9-467C-B725-12535DBC845A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F31497D3-12B9-467C-B725-12535DBC845A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F31497D3-12B9-467C-B725-12535DBC845A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F31497D3-12B9-467C-B725-12535DBC845A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6EABA4AB-11EB-4996-A71A-CCC604DC68E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6EABA4AB-11EB-4996-A71A-CCC604DC68E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6EABA4AB-11EB-4996-A71A-CCC604DC68E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6EABA4AB-11EB-4996-A71A-CCC604DC68E8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{668D80CD-3771-4473-9F5F-3248AA0A122D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{668D80CD-3771-4473-9F5F-3248AA0A122D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{668D80CD-3771-4473-9F5F-3248AA0A122D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{668D80CD-3771-4473-9F5F-3248AA0A122D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{156DF172-3F2F-41B9-A005-052850D4A769}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{156DF172-3F2F-41B9-A005-052850D4A769}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{156DF172-3F2F-41B9-A005-052850D4A769}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{156DF172-3F2F-41B9-A005-052850D4A769}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -207,9 +195,7 @@ Global
 		{DF454F86-D1B7-498F-8896-9482EE34D57D} = {D30625A2-CAC7-45E4-83AC-A07A6974D9E9}
 		{4CA8FFD1-610C-4A5C-9821-3D85A9203FF3} = {D30625A2-CAC7-45E4-83AC-A07A6974D9E9}
 		{085C803B-65F7-4A30-8FFA-411FFB43128C} = {D30625A2-CAC7-45E4-83AC-A07A6974D9E9}
-		{F31497D3-12B9-467C-B725-12535DBC845A} = {05B58385-ABE4-42B7-BA20-01F265CA1178}
-		{6EABA4AB-11EB-4996-A71A-CCC604DC68E8} = {11374546-F0A9-4801-AEBF-4EF76D75AE07}
-		{668D80CD-3771-4473-9F5F-3248AA0A122D} = {D30625A2-CAC7-45E4-83AC-A07A6974D9E9}
+		{156DF172-3F2F-41B9-A005-052850D4A769} = {05B58385-ABE4-42B7-BA20-01F265CA1178}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C09FC64A-81A9-4A62-9197-1CFDEA9C4B34}

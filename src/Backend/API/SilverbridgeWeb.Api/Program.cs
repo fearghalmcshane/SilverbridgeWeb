@@ -21,6 +21,7 @@ builder.Services.AddApplication([
     SilverbridgeWeb.Modules.Ticketing.Application.AssemblyReference.Assembly]);
 
 builder.Services.AddInfrastructure(
+    [TicketingModule.ConfigureConsumers],
     builder.Configuration.GetConnectionString("silverbridgeDb")!,
     builder.Configuration.GetConnectionString("redis")!);
 
