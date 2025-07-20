@@ -11,9 +11,7 @@ using SilverbridgeWeb.Modules.Events.Domain.TicketTypes;
 using SilverbridgeWeb.Modules.Events.Infrastructure.Categories;
 using SilverbridgeWeb.Modules.Events.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Events.Infrastructure.Events;
-using SilverbridgeWeb.Modules.Events.Infrastructure.PublicApi;
 using SilverbridgeWeb.Modules.Events.Infrastructure.TicketTypes;
-using SilverbridgeWeb.Modules.Events.PublicApi;
 
 namespace SilverbridgeWeb.Modules.Events.Infrastructure;
 
@@ -43,7 +41,5 @@ public static class EventsModule
         services.AddScoped<IEventRepository, EventRepository>();
         services.AddScoped<ITicketTypeRepository, TicketTypeRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
-
-        services.AddScoped<IEventsApi, EventsApi>();
     }
 }

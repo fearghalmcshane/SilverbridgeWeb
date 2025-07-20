@@ -3,6 +3,5 @@
     <ProjectReference Include="..\..\..\Common\SilverbridgeWeb.Common.Infrastructure\SilverbridgeWeb.Common.Infrastructure.csproj" />
     <ProjectReference Include="..\SilverbridgeWeb.Modules.Ticketing.Application\SilverbridgeWeb.Modules.Ticketing.Application.csproj" />
     <ProjectReference Include="..\SilverbridgeWeb.Modules.Ticketing.Presentation\SilverbridgeWeb.Modules.Ticketing.Presentation.csproj" />
-    <ProjectReference Include="..\SilverbridgeWeb.Modules.Ticketing.PublicApi\SilverbridgeWeb.Modules.Ticketing.PublicApi.csproj" />
   </ItemGroup>
 </Project>

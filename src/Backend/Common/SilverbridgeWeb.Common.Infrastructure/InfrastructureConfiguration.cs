@@ -1,12 +1,15 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using MassTransit;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
 using SilverbridgeWeb.Common.Application.Caching;
 using SilverbridgeWeb.Common.Application.Clock;
 using SilverbridgeWeb.Common.Application.Data;
+using SilverbridgeWeb.Common.Application.EventBus;
 using SilverbridgeWeb.Common.Infrastructure.Caching;
 using SilverbridgeWeb.Common.Infrastructure.Clock;
 using SilverbridgeWeb.Common.Infrastructure.Data;
+using SilverbridgeWeb.Common.Infrastructure.Eventbus;
 using SilverbridgeWeb.Common.Infrastructure.Interceptors;
 using StackExchange.Redis;
 
@@ -14,7 +17,11 @@ namespace SilverbridgeWeb.Common.Infrastructure;
 
 public static class InfrastructureConfiguration
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, string databaseConnectionString, string redisConnectionString)
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services,
+        Action<IRegistrationConfigurator>[] moduleConfigureconsumers,
+        string databaseConnectionString,
+        string redisConnectionString)
     {
         NpgsqlDataSource npgsqlDataSource = new NpgsqlDataSourceBuilder(databaseConnectionString).Build();
         services.TryAddSingleton(npgsqlDataSource);
@@ -41,6 +48,22 @@ public static class InfrastructureConfiguration
         }
 
         services.TryAddSingleton<ICacheService, CacheService>();
+        services.TryAddSingleton<IEventBus, EventBus>();
+
+        services.AddMassTransit(configure =>
+        {
+            foreach (Action<IRegistrationConfigurator> configureConsumer in moduleConfigureconsumers)
+            {
+                configureConsumer(configure);
+            }
+
+            configure.SetKebabCaseEndpointNameFormatter();
+
+            configure.UsingInMemory((context, cfg) =>
+            {
+                cfg.ConfigureEndpoints(context);
+            });
+        });
 
         return services;
     }

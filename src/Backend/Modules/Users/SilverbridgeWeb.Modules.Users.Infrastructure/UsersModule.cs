@@ -7,9 +7,7 @@ using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Users.Application.Abstractions.Data;
 using SilverbridgeWeb.Modules.Users.Domain.Users;
 using SilverbridgeWeb.Modules.Users.Infrastructure.Database;
-using SilverbridgeWeb.Modules.Users.Infrastructure.PublicApi;
 using SilverbridgeWeb.Modules.Users.Infrastructure.Users;
-using SilverbridgeWeb.Modules.Users.PublicApi;
 
 namespace SilverbridgeWeb.Modules.Users.Infrastructure;
 
@@ -42,7 +40,5 @@ public static class UsersModule
         services.AddScoped<IUserRepository, UserRepository>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<UsersDbContext>());
-
-        services.AddScoped<IUsersApi, UsersApi>();
     }
 }

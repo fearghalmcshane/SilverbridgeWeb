@@ -4,7 +4,6 @@
 		<ProjectReference Include="..\..\..\Common\SilverbridgeWeb.Common.Infrastructure\SilverbridgeWeb.Common.Infrastructure.csproj" />
 		<ProjectReference Include="..\SilverbridgeWeb.Modules.Events.Application\SilverbridgeWeb.Modules.Events.Application.csproj" />
 		<ProjectReference Include="..\SilverbridgeWeb.Modules.Events.Presentation\SilverbridgeWeb.Modules.Events.Presentation.csproj" />
-		<ProjectReference Include="..\SilverbridgeWeb.Modules.Events.PublicApi\SilverbridgeWeb.Modules.Events.PublicApi.csproj" />
 	</ItemGroup>
 
 </Project>
