@@ -1,5 +1,4 @@
-﻿using System.Net.Sockets;
-using SilverbridgeWeb.Modules.Ticketing.Domain.Events;
+﻿using SilverbridgeWeb.Modules.Ticketing.Domain.Events;
 
 namespace SilverbridgeWeb.Modules.Ticketing.Domain.Tickets;
 
