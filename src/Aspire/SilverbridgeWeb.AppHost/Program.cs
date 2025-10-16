@@ -39,4 +39,6 @@ builder.AddProject<Projects.SilverbridgeWeb_WebUI>("silverbridgeweb-webui")
     .WithReference(api)
     .WaitFor(api);
 
+builder.AddAzureContainerAppEnvironment("silverbridgeweb-env");
+
 await builder.Build().RunAsync().ConfigureAwait(false);
