@@ -39,4 +39,8 @@ builder.AddProject<Projects.SilverbridgeWeb_WebUI>("silverbridgeweb-webui")
     .WithReference(api)
     .WaitFor(api);
 
+string acaEnvironmentName = Environment.GetEnvironmentVariable("ACA_ENVIRONMENT_NAME") ?? "silverbridgeweb-env";
+
+builder.AddAzureContainerAppEnvironment(acaEnvironmentName);
+
 await builder.Build().RunAsync().ConfigureAwait(false);
