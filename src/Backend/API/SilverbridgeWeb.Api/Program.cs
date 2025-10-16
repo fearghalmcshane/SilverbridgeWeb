@@ -23,7 +23,9 @@ builder.Services.AddApplication([
 builder.Services.AddInfrastructure(
     [TicketingModule.ConfigureConsumers],
     builder.Configuration.GetConnectionString("silverbridgeDb")!,
-    builder.Configuration.GetConnectionString("redis")!);
+    builder.Configuration.GetConnectionString("redis")!,
+    builder.Configuration.GetConnectionString("silverbridgeweb-auth")!
+);
 
 builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing"]);
 
@@ -55,5 +57,9 @@ app.UseHttpsRedirection();
 app.MapEndpoints();
 
 app.UseExceptionHandler();
+
+app.UseAuthentication();
+
+app.UseAuthorization();
 
 await app.RunAsync().ConfigureAwait(false);

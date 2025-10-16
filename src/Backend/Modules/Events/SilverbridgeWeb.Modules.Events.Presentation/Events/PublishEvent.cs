@@ -19,6 +19,7 @@ internal sealed class PublishEvent : IEndpoint
 
             return result.Match(Results.NoContent, Common.Presentation.ApiResults.ApiResults.Problem);
         })
+        .RequireAuthorization()
         .WithTags(Tags.Events);
     }
 }

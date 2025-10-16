@@ -6,6 +6,7 @@ using SilverbridgeWeb.Common.Application.Caching;
 using SilverbridgeWeb.Common.Application.Clock;
 using SilverbridgeWeb.Common.Application.Data;
 using SilverbridgeWeb.Common.Application.EventBus;
+using SilverbridgeWeb.Common.Infrastructure.Authentication;
 using SilverbridgeWeb.Common.Infrastructure.Caching;
 using SilverbridgeWeb.Common.Infrastructure.Clock;
 using SilverbridgeWeb.Common.Infrastructure.Data;
@@ -21,8 +22,11 @@ public static class InfrastructureConfiguration
         this IServiceCollection services,
         Action<IRegistrationConfigurator>[] moduleConfigureconsumers,
         string databaseConnectionString,
-        string redisConnectionString)
+        string redisConnectionString,
+        string authConnectionString)
     {
+        services.AddAuthenticationInternal(authConnectionString);
+
         NpgsqlDataSource npgsqlDataSource = new NpgsqlDataSourceBuilder(databaseConnectionString).Build();
         services.TryAddSingleton(npgsqlDataSource);
 
