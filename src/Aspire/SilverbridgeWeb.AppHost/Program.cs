@@ -2,10 +2,9 @@
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
-IResourceBuilder<KeycloakResource> keycloak = builder.AddKeycloak("silverbridgeweb-auth", 8080)
+IResourceBuilder<KeycloakResource> keycloak = builder.AddKeycloak("silverbridgeweb-auth")
     .WithDataVolume()
-    .WithRealmImport("./Realms")
-    .WithExternalHttpEndpoints();
+    .WithRealmImport("./Realms");
 
 IResourceBuilder<AzurePostgresFlexibleServerResource> postgres = builder.AddAzurePostgresFlexibleServer("postgres")
     .RunAsContainer(options => options.WithDataVolume());
