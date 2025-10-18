@@ -2,7 +2,7 @@
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
-IResourceBuilder<KeycloakResource> keycloak = builder.AddKeycloak("silverbridgeweb-auth")
+IResourceBuilder<KeycloakResource> keycloak = builder.AddKeycloak("silverbridgewebAuth")
     .WithDataVolume()
     .WithRealmImport("./Realms");
 
