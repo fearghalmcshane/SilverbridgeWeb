@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" VersionOverride="9.5.2" />
     <ProjectReference Include="..\..\..\Aspire\SilverbridgeWeb.ServiceDefaults\SilverbridgeWeb.ServiceDefaults.csproj" />
     <ProjectReference Include="..\..\Modules\Events\SilverbridgeWeb.Modules.Events.Infrastructure\SilverbridgeWeb.Modules.Events.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Ticketing\SilverbridgeWeb.Modules.Ticketing.Infrastructure\SilverbridgeWeb.Modules.Ticketing.Infrastructure.csproj" />
