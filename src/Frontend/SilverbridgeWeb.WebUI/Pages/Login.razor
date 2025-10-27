@@ -1,0 +1,122 @@
+﻿@page "/login"
+@using SilverbridgeWeb.WebUI.Services.Authentication
+@inject AuthenticationService AuthService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<PageTitle>Login - Silverbridge Harps GAC</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudPaper Elevation="3" Class="pa-6">
+        <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">
+            <MudIcon Icon="@Icons.Material.Filled.Login" Class="mr-2" />
+            Login
+        </MudText>
+        <MudText Typo="Typo.body2" Align="Align.Center" Class="mb-4">
+            Welcome back to Silverbridge Harps GAC
+        </MudText>
+
+        <EditForm Model="@model" OnValidSubmit="HandleLoginAsync">
+            <DataAnnotationsValidator />
+
+            <MudTextField @bind-Value="model.Email"
+                          Label="Email"
+                          Variant="Variant.Outlined"
+                          InputType="InputType.Email"
+                          For="@(() => model.Email)"
+                          Class="mb-4"
+                          Disabled="@isLoading" />
+
+            <MudTextField @bind-Value="model.Password"
+                          Label="Password"
+                          Variant="Variant.Outlined"
+                          InputType="InputType.Password"
+                          For="@(() => model.Password)"
+                          Class="mb-4"
+                          Disabled="@isLoading" />
+
+            <MudCheckBox @bind-Value="model.RememberMe"
+                         Label="Remember me"
+                         Color="Color.Primary"
+                         Class="mb-4"
+                         Disabled="@isLoading" />
+
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       FullWidth="true"
+                       Size="Size.Large"
+                       Disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Logging in...</MudText>
+                }
+                else
+                {
+                    <MudText>Login</MudText>
+                }
+            </MudButton>
+        </EditForm>
+
+        <MudDivider Class="my-4" />
+
+        <MudText Typo="Typo.body2" Align="Align.Center">
+            Don't have an account?
+            <MudLink Href="/register" Color="Color.Primary">Register here</MudLink>
+        </MudText>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private readonly LoginModel model = new();
+    private bool isLoading = false;
+
+    private async Task HandleLoginAsync()
+    {
+        isLoading = true;
+
+        try
+        {
+            bool success = await AuthService.LoginAsync(
+                model.Email,
+                model.Password,
+                model.RememberMe);
+
+            if (success)
+            {
+                Snackbar.Add("Login successful!", Severity.Success);
+
+                // Small delay to ensure cookie is set
+                await Task.Delay(100);
+
+                // Navigate without forceLoad to preserve authentication state
+                Navigation.NavigateTo("/", forceLoad: false);
+            }
+            else
+            {
+                Snackbar.Add("Invalid email or password", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Login failed: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private sealed class LoginModel
+    {
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Password is required")]
+        public string Password { get; set; } = string.Empty;
+
+        public bool RememberMe { get; set; }
+    }
+}

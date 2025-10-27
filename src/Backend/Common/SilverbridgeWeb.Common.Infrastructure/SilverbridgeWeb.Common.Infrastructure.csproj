@@ -5,6 +5,8 @@
 		<PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" />
 		<PackageReference Include="EFCore.NamingConventions" />
 		<PackageReference Include="MassTransit" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -33,6 +33,7 @@ internal sealed class GetCategories : IEndpoint
 
             return result.Match(Results.Ok, Common.Presentation.ApiResults.ApiResults.Problem);
         })
+        .RequireAuthorization()
         .WithTags(Tags.Categories);
     }
 }

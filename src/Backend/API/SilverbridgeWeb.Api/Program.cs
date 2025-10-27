@@ -23,7 +23,10 @@ builder.Services.AddApplication([
 builder.Services.AddInfrastructure(
     [TicketingModule.ConfigureConsumers],
     builder.Configuration.GetConnectionString("silverbridgeDb")!,
-    builder.Configuration.GetConnectionString("redis")!);
+    builder.Configuration.GetConnectionString("redis")!,
+    builder.Configuration["Users:Jwt:Key"]!,
+    builder.Configuration["Users:Jwt:Issuer"]!,
+    builder.Configuration["Users:Jwt:Audience"]!);
 
 builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing"]);
 
@@ -31,7 +34,17 @@ builder.Services.AddEventsModule(builder.Configuration);
 builder.Services.AddUsersModule(builder.Configuration);
 builder.Services.AddTicketingModule(builder.Configuration);
 
-builder.Services.AddCors();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorFrontend", policy =>
+    {
+        policy.WithOrigins("https://localhost:7001", "http://localhost:5001")
+              .AllowCredentials()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 
@@ -45,15 +58,16 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
-    app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
     app.ApplyMigrations();
 }
 
 app.UseHttpsRedirection();
+app.UseExceptionHandler();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapEndpoints();
-
-app.UseExceptionHandler();
 
 await app.RunAsync().ConfigureAwait(false);

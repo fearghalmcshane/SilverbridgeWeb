@@ -1,0 +1,151 @@
+﻿@page "/register"
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+@inject UsersApiClient UsersClient
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<PageTitle>Register - Silverbridge Harps GAC</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudPaper Elevation="3" Class="pa-6">
+        <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">
+            <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Class="mr-2" />
+            Register
+        </MudText>
+        <MudText Typo="Typo.body2" Align="Align.Center" Class="mb-4">
+            Join the Silverbridge Harps GAC community
+        </MudText>
+
+        <EditForm Model="@model" OnValidSubmit="HandleRegisterAsync">
+            <DataAnnotationsValidator />
+
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="model.FirstName"
+                                  Label="First Name"
+                                  Variant="Variant.Outlined"
+                                  For="@(() => model.FirstName)"
+                                  Disabled="@isLoading" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="model.LastName"
+                                  Label="Last Name"
+                                  Variant="Variant.Outlined"
+                                  For="@(() => model.LastName)"
+                                  Disabled="@isLoading" />
+                </MudItem>
+            </MudGrid>
+
+            <MudTextField @bind-Value="model.Email"
+                          Label="Email"
+                          Variant="Variant.Outlined"
+                          InputType="InputType.Email"
+                          For="@(() => model.Email)"
+                          Class="mt-4"
+                          Disabled="@isLoading" />
+
+            <MudTextField @bind-Value="model.Password"
+                          Label="Password"
+                          Variant="Variant.Outlined"
+                          InputType="InputType.Password"
+                          For="@(() => model.Password)"
+                          HelperText="Must be at least 8 characters with uppercase, lowercase, number and special character"
+                          Class="mt-4"
+                          Disabled="@isLoading" />
+
+            <MudTextField @bind-Value="model.ConfirmPassword"
+                          Label="Confirm Password"
+                          Variant="Variant.Outlined"
+                          InputType="InputType.Password"
+                          For="@(() => model.ConfirmPassword)"
+                          Class="mt-4 mb-4"
+                          Disabled="@isLoading" />
+
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       FullWidth="true"
+                       Size="Size.Large"
+                       Disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Creating account...</MudText>
+                }
+                else
+                {
+                    <MudText>Create Account</MudText>
+                }
+            </MudButton>
+        </EditForm>
+
+        <MudDivider Class="my-4" />
+
+        <MudText Typo="Typo.body2" Align="Align.Center">
+            Already have an account?
+            <MudLink Href="/login" Color="Color.Primary">Login here</MudLink>
+        </MudText>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private readonly RegisterModel model = new();
+    private bool isLoading = false;
+
+    private async Task HandleRegisterAsync()
+    {
+        isLoading = true;
+
+        try
+        {
+            var request = new RegisterRequest
+            {
+                Email = model.Email,
+                Password = model.Password,
+                FirstName = model.FirstName,
+                LastName = model.LastName
+            };
+
+            Guid? response = await UsersClient.RegisterAsync(request);
+
+            if (response != null)
+            {
+                Snackbar.Add("Registration successful! Please login.", Severity.Success);
+                Navigation.NavigateTo("/login");
+            }
+            else
+            {
+                Snackbar.Add("Registration failed. Please try again.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Registration failed: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private sealed class RegisterModel
+    {
+        [Required(ErrorMessage = "First name is required")]
+        public string FirstName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Last name is required")]
+        public string LastName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Password is required")]
+        [MinLength(8, ErrorMessage = "Password must be at least 8 characters")]
+        public string Password { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Please confirm your password")]
+        [Compare(nameof(Password), ErrorMessage = "Passwords do not match")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+}

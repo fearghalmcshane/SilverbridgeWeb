@@ -1,20 +1,32 @@
-﻿using SilverbridgeWeb.Common.Domain;
+﻿using Microsoft.AspNetCore.Identity;
+using SilverbridgeWeb.Common.Domain;
 
 namespace SilverbridgeWeb.Modules.Users.Domain.Users;
 
-public sealed class User : Entity
+public sealed class User : IdentityUser<Guid>
 {
+    private readonly List<IDomainEvent> _domainEvents = [];
+
     private User()
     {
     }
 
-    public Guid Id { get; private set; }
+    public string FirstName { get; private set; } = string.Empty;
 
-    public string Email { get; private set; }
+    public string LastName { get; private set; } = string.Empty;
 
-    public string FirstName { get; private set; }
+    // Domain Events implementation (copied from Entity base class)
+    public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.ToList();
 
-    public string LastName { get; private set; }
+    public void ClearDomainEvents()
+    {
+        _domainEvents.Clear();
+    }
+
+    private void Raise(IDomainEvent domainEvent)
+    {
+        _domainEvents.Add(domainEvent);
+    }
 
     public static User Create(string email, string firstName, string lastName)
     {
@@ -22,8 +34,10 @@ public sealed class User : Entity
         {
             Id = Guid.NewGuid(),
             Email = email,
+            UserName = email,
             FirstName = firstName,
             LastName = lastName,
+            EmailConfirmed = false
         };
 
         user.Raise(new UserRegisteredDomainEvent(user.Id));

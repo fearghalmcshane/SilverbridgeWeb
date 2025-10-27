@@ -1,6 +1,12 @@
 ﻿<MudNavMenu>
     <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">Home</MudNavLink>
 
+    <AuthorizeView>
+        <Authorized>
+            <MudNavLink Href="/categories" Icon="@Icons.Material.Filled.Category" Match="NavLinkMatch.Prefix">Categories</MudNavLink>
+        </Authorized>
+    </AuthorizeView>
+
     <MudNavGroup Title="Facilities" Expanded="true">
         <MudNavLink Href="/gym" Icon="@Icons.Material.Filled.FitnessCenter" Match="NavLinkMatch.Prefix">Gym</MudNavLink>
         <MudNavLink Href="/clubkeeley" Icon="@Icons.Material.Filled.WorkspacePremium" Match="NavLinkMatch.Prefix">Club Keeley</MudNavLink>

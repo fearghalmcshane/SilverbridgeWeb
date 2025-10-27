@@ -1,5 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\..\Common\SilverbridgeWeb.Common.Domain\SilverbridgeWeb.Common.Domain.csproj" />
   </ItemGroup>
 </Project>

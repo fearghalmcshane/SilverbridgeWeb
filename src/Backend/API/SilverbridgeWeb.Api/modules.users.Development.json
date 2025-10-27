@@ -1,5 +1,10 @@
 {
   "Users": {
-
+    "Jwt": {
+      "Key": "a-very-long-secret-key-for-us-secure-stuff",
+      "Issuer": "SilverbridgeWeb.Api",
+      "Audience": "SilverbridgeWeb.WebUI",
+      "ExpiryInMinutes": 60
+    }
   }
 }

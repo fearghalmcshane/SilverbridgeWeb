@@ -1,0 +1,53 @@
+﻿@using SilverbridgeWeb.WebUI.Services.Authentication
+@inject AuthenticationService AuthService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<AuthorizeView>
+    <Authorized>
+        <MudMenu AnchorOrigin="Origin.BottomRight"
+                 TransformOrigin="Origin.TopRight">
+            <ActivatorContent>
+                <MudButton Variant="Variant.Text"
+                           Color="Color.Inherit"
+                           StartIcon="@Icons.Material.Filled.AccountCircle">
+                    @context.User.Identity?.Name
+                </MudButton>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem Icon="@Icons.Material.Filled.Email">
+                    @context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                </MudMenuItem>
+                <MudDivider />
+                <MudMenuItem Icon="@Icons.Material.Filled.Settings" Href="/profile">
+                    Profile
+                </MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="HandleLogoutAsync">
+                    Logout
+                </MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+    </Authorized>
+    <NotAuthorized>
+        <MudButton Href="/login"
+                   Variant="Variant.Text"
+                   Color="Color.Inherit"
+                   StartIcon="@Icons.Material.Filled.Login">
+            Login
+        </MudButton>
+        <MudButton Href="/register"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary">
+            Register
+        </MudButton>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private async Task HandleLogoutAsync()
+    {
+        await AuthService.SignOutAsync();
+        Snackbar.Add("You have been logged out", Severity.Info);
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+}
