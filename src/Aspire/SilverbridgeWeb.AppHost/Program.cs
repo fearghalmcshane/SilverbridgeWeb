@@ -1,10 +1,15 @@
 ﻿using Aspire.Hosting.Azure;
 
+const string keycloakRealm = "silverbridge";
+
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
-IResourceBuilder<KeycloakResource> keycloak = builder.AddKeycloak("silverbridgewebAuth")
+IResourceBuilder<KeycloakResource> keycloak = builder.AddKeycloak("silverbridgewebAuth", 8085)
     .WithDataVolume()
     .WithRealmImport("./Realms");
+
+var keycloakEndpoint = ReferenceExpression.Create($"{keycloak.GetEndpoint("http").Property(EndpointProperty.Url)}");
+var keycloakAuthority = ReferenceExpression.Create($"{keycloak.GetEndpoint("http").Property(EndpointProperty.Url)}/realms/{keycloakRealm}");
 
 IResourceBuilder<AzurePostgresFlexibleServerResource> postgres = builder.AddAzurePostgresFlexibleServer("postgres")
     .RunAsContainer(options => options.WithDataVolume());
@@ -20,14 +25,18 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Silverbridge
     .WithReference(keycloak)
     .WithReference(silverbridgeDb)
     .WithReference(redis)
-    .WithEnvironment("KeyCloak__Realm", "silverbridge")
-    .WithEnvironment("KeyCloak__ConfidentialClientId", "silverbridge-confidential-client")
-    .WithEnvironment("KeyCloak__ConfidentialClientSecret", keycloakConfidentialClientSecret)
-    .WithEnvironment("KeyCloak__PublicClientId", "silverbridge-public-client")
     .WaitFor(keycloak)
     .WaitFor(silverbridgeDb)
     .WaitFor(redis)
+    .WithEnvironment("KeyCloak__Url", keycloakEndpoint)
+    .WithEnvironment("KeyCloak__Authority", keycloakAuthority)
+    .WithEnvironment("KeyCloak__Realm", keycloakRealm)
+    .WithEnvironment("KeyCloak__ConfidentialClientId", "silverbridge-confidential-client")
+    .WithEnvironment("KeyCloak__ConfidentialClientSecret", keycloakConfidentialClientSecret)
+    .WithEnvironment("KeyCloak__PublicClientId", "silverbridge-public-client")
     .WithHttpHealthCheck("/health");
+
+IResourceBuilder<ParameterResource> keycloakClientSecret = builder.AddParameter("keycloakClientSecret", secret: true);
 
 builder.AddProject<Projects.SilverbridgeWeb_WebUI>("silverbridgeweb-webui")
     .WithExternalHttpEndpoints()
@@ -36,7 +45,9 @@ builder.AddProject<Projects.SilverbridgeWeb_WebUI>("silverbridgeweb-webui")
     .WithHttpHealthCheck("/health")
     .WithReference(keycloak)
     .WithReference(api)
-    .WaitFor(api);
+    .WaitFor(api)
+    .WithEnvironment("Authentication__Schemes__OpenIdConnect__ClientSecret", keycloakClientSecret)
+    .WithEnvironment("Authentication__Schemes__OpenIdconnect__Authority", keycloakAuthority);
 
 string acaEnvironmentName = Environment.GetEnvironmentVariable("ACA_ENVIRONMENT_NAME") ?? "silverbridgeweb-env";
 

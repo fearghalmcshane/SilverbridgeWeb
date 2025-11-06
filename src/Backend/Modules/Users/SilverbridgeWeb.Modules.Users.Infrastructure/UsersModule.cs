@@ -31,14 +31,14 @@ public static class UsersModule
     {
         string databaseConnectionString = configuration.GetConnectionString("silverbridgeDb")!;
 
-        string keycloakUrl = configuration.GetConnectionString("silverbridgeweb-auth")!;
+        string keycloakUrl = configuration["KeyCloak:Url"]!;
 
         services.AddOptions<KeyCloakOptions>()
             .Configure(options =>
             {
                 string realm = configuration["KeyCloak:Realm"] ?? "silverbridge";
 
-                options.AdminUrl = $"{keycloakUrl}/admin/realms/{realm}";
+                options.AdminUrl = $"{keycloakUrl}/admin/realms/{realm}/";
                 options.TokenUrl = $"{keycloakUrl}/realms/{realm}/protocol/openid-connect/token";
                 options.ConfidentialClientId = configuration["KeyCloak:ConfidentialClientId"]!;
                 options.ConfidentialClientSecret = configuration["KeyCloak:ConfidentialClientSecret"]!;

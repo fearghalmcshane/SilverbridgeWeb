@@ -7,25 +7,19 @@ internal static class AuthenticationExtensions
 {
     internal static IServiceCollection AddAuthenticationInternal(this IServiceCollection services, string authConnectionString)
     {
-        services.AddAuthorization();
+        services.AddAuthorizationBuilder();
 
-        // Get the Keycloak URL from Aspire service discovery
-        string keycloakUrl = authConnectionString ?? "http://localhost:8080";
-
-        string realmUrl = $"{keycloakUrl}/realms/silverbridge";
-
-        services.AddAuthentication().AddKeycloakJwtBearer("silverbridgeweb-auth", "silverbridge", options =>
+        services.AddAuthentication().AddKeycloakJwtBearer("silverbridgewebAuth", "silverbridge", options =>
         {
             options.Audience = "account";
             options.TokenValidationParameters = new()
             {
                 ValidIssuers =
                 [
-                    realmUrl,
-                    "http://localhost:8080/realms/silverbridge"
+                    authConnectionString
                 ]
             };
-            options.MetadataAddress = $"{realmUrl}/.well-known/openid-configuration";
+            options.MetadataAddress = $"{authConnectionString}/.well-known/openid-configuration";
             options.RequireHttpsMetadata = false;
         });
 

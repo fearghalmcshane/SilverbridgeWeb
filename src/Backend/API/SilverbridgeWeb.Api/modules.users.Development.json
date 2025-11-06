@@ -1,11 +1,5 @@
 {
   "Users": {
-    "KeyCloak": {
-    //  "AdminUrl": "http://localhost:8080/admin/realms/silverbridge/",
-    //  "TokenUrl": "http://localhost:8080/realms/silverbridge/protocol/openid-connect/token",
-    //  "ConfidentialClientId": "silverbridge-confidential-client",
-    //  "ConfidentialClientSecret": "IC8t9V0crjeOKFRAXqYzG2RoeiONnAdT",
-    //  "PublicClientId": "silverbridge-public-client"
-    }
+
   }
 }

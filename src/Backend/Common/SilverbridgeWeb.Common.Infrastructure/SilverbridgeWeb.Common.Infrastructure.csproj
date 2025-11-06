@@ -1,18 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<ItemGroup>
-<<<<<<< HEAD
+		<PackageReference Include="Aspire.Keycloak.Authentication" />
 		<PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" />
 		<PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" />
 		<PackageReference Include="EFCore.NamingConventions" />
 		<PackageReference Include="MassTransit" />
-=======
-		<PackageReference Include="Aspire.Keycloak.Authentication" Version="9.5.1-preview.1.25502.11" />
-		<PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.5.1" />
-		<PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="9.5.1" />
-		<PackageReference Include="EFCore.NamingConventions" Version="9.0.0" />
-		<PackageReference Include="MassTransit" Version="8.5.4" />
->>>>>>> 8e7f1c8 (Add initial Auth solution (#84))
 	</ItemGroup>
 
 	<ItemGroup>

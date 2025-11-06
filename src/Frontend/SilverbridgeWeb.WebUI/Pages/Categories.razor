@@ -1,0 +1,115 @@
+﻿@page "/categories"
+@using Microsoft.AspNetCore.Authorization
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+@attribute [Authorize]
+@inject EventsApiClient EventsClient
+@inject ISnackbar Snackbar
+
+<PageTitle>Categories - Silverbridge Harps GAC</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h3" GutterBottom="true">
+        <MudIcon Icon="@Icons.Material.Filled.Category" Class="mr-2" />
+        Event Categories
+    </MudText>
+    <MudText Typo="Typo.body1" Class="mb-4">
+        Browse available event categories
+    </MudText>
+
+    @if (isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+    }
+
+    <AuthorizeView>
+        <Authorized>
+            @if (categories == null && !isLoading)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-4">
+                    Failed to load categories. Please try again.
+                </MudAlert>
+            }
+            else if (categories != null)
+            {
+                <MudGrid>
+                    @foreach (var category in categories.Where(c => !c.IsArchived))
+                    {
+                        <MudItem xs="12" sm="6" md="4">
+                            <MudCard Elevation="2" Class="pa-4">
+                                <MudCardContent>
+                                    <MudText Typo="Typo.h6">
+                                        <MudIcon Icon="@Icons.Material.Filled.Label" Size="Size.Small" Class="mr-2" />
+                                        @category.Name
+                                    </MudText>
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Success" Class="mt-2">Active</MudChip>
+                                </MudCardContent>
+                                <MudCardActions>
+                                    <MudButton Variant="Variant.Text" 
+                                              Color="Color.Primary" 
+                                              StartIcon="@Icons.Material.Filled.Event">
+                                        View Events
+                                    </MudButton>
+                                </MudCardActions>
+                            </MudCard>
+                        </MudItem>
+                    }
+                </MudGrid>
+
+                @if (categories.Any(c => c.IsArchived))
+                {
+                    <MudDivider Class="my-6" />
+                    <MudText Typo="Typo.h5" GutterBottom="true">Archived Categories</MudText>
+                    <MudGrid>
+                        @foreach (var category in categories.Where(c => c.IsArchived))
+                        {
+                            <MudItem xs="12" sm="6" md="4">
+                                <MudCard Elevation="1" Class="pa-4">
+                                    <MudCardContent>
+                                        <MudText Typo="Typo.h6" Color="Color.Default">
+                                            <MudIcon Icon="@Icons.Material.Filled.Archive" Size="Size.Small" Class="mr-2" />
+                                            @category.Name
+                                        </MudText>
+                                        <MudChip T="string" Size="Size.Small" Color="Color.Default" Class="mt-2">Archived</MudChip>
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudItem>
+                        }
+                    </MudGrid>
+                }
+            }
+        </Authorized>
+        <NotAuthorized>
+            <MudAlert Severity="Severity.Warning" Class="mb-4">
+                <MudText>You must be logged in to view categories.</MudText>
+                <MudButton Href="/login" Variant="Variant.Filled" Color="Color.Primary" Class="mt-2">
+                    Login
+                </MudButton>
+            </MudAlert>
+        </NotAuthorized>
+    </AuthorizeView>
+</MudContainer>
+
+@code {
+    private IEnumerable<CategoryResponse>? categories;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            categories = await EventsClient.GetCategoriesAsync();
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            Snackbar.Add("You must be logged in to view categories", Severity.Warning);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to load categories: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
