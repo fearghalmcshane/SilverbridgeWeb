@@ -30,11 +30,6 @@ builder.Services.AddHttpClient<EventsApiClient>(client =>
 })
 .AddHttpMessageHandler<AuthorizationHandler>();
 
-builder.Services.AddHttpClient<PingApiClient>(client =>
-{
-    client.BaseAddress = new Uri("https+http://silverbridgeweb-api/");
-});
-
 builder.Services.AddAuthentication("silverbridgewebAuth")
     .AddKeycloakOpenIdConnect("silverbridgewebAuth", realm: "silverbridge", "silverbridgewebAuth", options =>
     {
