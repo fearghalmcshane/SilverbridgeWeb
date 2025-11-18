@@ -22,26 +22,26 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install azd
-        uses: Azure/setup-azd@v2
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9.x.x
+      # - name: Install azd
+      #   uses: Azure/setup-azd@v2
+      # - name: Setup .NET
+      #   uses: actions/setup-dotnet@v4
+      #   with:
+      #     dotnet-version: 9.x.x
 
-      - name: Log in with Azure (Federated Credentials)
-        run: |
-          azd auth login `
-            --client-id "$Env:AZURE_CLIENT_ID" `
-            --federated-credential-provider "github" `
-            --tenant-id "$Env:AZURE_TENANT_ID"
-        shell: pwsh
+      # - name: Log in with Azure (Federated Credentials)
+      #   run: |
+      #     azd auth login `
+      #       --client-id "$Env:AZURE_CLIENT_ID" `
+      #       --federated-credential-provider "github" `
+      #       --tenant-id "$Env:AZURE_TENANT_ID"
+      #   shell: pwsh
 
-      - name: Configure azd to not remove custom domain
-        run: azd config set alpha.aca.persistDomains on
+      # - name: Configure azd to not remove custom domain
+      #   run: azd config set alpha.aca.persistDomains on
 
-      - name: Provision Infrastructure
-        run: azd provision --no-prompt
+      # - name: Provision Infrastructure
+      #   run: azd provision --no-prompt
 
-      - name: Deploy Application
-        run: azd deploy --no-prompt
+      # - name: Deploy Application
+      #   run: azd deploy --no-prompt
