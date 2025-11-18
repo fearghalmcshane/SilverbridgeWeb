@@ -23,7 +23,9 @@ builder.Services.AddApplication([
 builder.Services.AddInfrastructure(
     [TicketingModule.ConfigureConsumers],
     builder.Configuration.GetConnectionString("silverbridgeDb")!,
-    builder.Configuration.GetConnectionString("redis")!);
+    builder.Configuration.GetConnectionString("redis")!,
+    builder.Configuration["KeyCloak:Authority"]!
+);
 
 builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing"]);
 
@@ -32,7 +34,6 @@ builder.Services.AddUsersModule(builder.Configuration);
 builder.Services.AddTicketingModule(builder.Configuration);
 
 builder.Services.AddCors();
-builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 
 WebApplication app = builder.Build();
@@ -55,5 +56,9 @@ app.UseHttpsRedirection();
 app.MapEndpoints();
 
 app.UseExceptionHandler();
+
+app.UseAuthentication();
+
+app.UseAuthorization();
 
 await app.RunAsync().ConfigureAwait(false);

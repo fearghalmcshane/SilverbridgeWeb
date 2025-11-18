@@ -10,13 +10,19 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.Azure.AppContainers" />
     <PackageReference Include="Aspire.Hosting.Azure.PostgreSQL" />
+	<PackageReference Include="Aspire.Hosting.Keycloak" />
     <PackageReference Include="Aspire.Hosting.Redis" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Backend\API\SilverbridgeWeb.Api\SilverbridgeWeb.Api.csproj" />
     <ProjectReference Include="..\..\Frontend\SilverbridgeWeb.WebUI\SilverbridgeWeb.WebUI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Realms\" />
   </ItemGroup>
 
 </Project>
