@@ -8,7 +8,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.5.2" />
-    <PackageVersion Include="Aspire.Hosting.Azure.AppContainers" Version="9.5.2" />
+    <PackageVersion Include="Aspire.Hosting.Azure.AppContainers" Version="13.0.0" />
     <PackageVersion Include="Aspire.Hosting.Azure.PostgreSQL" Version="9.5.2" />
     <PackageVersion Include="Aspire.Hosting.Keycloak" Version="9.5.2-preview.1.25522.3" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="9.5.2" />
