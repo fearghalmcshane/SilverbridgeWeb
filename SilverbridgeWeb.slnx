@@ -1,0 +1,45 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Aspire/">
+    <Project Path="src/Aspire/SilverbridgeWeb.AppHost/SilverbridgeWeb.AppHost.csproj" />
+    <Project Path="src/Aspire/SilverbridgeWeb.ServiceDefaults/SilverbridgeWeb.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/src/Backend/" />
+  <Folder Name="/src/Backend/API/">
+    <Project Path="src/Backend/API/SilverbridgeWeb.Api/SilverbridgeWeb.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Backend/Common/">
+    <Project Path="src/Backend/Common/SilverbridgeWeb.Common.Application/SilverbridgeWeb.Common.Application.csproj" />
+    <Project Path="src/Backend/Common/SilverbridgeWeb.Common.Domain/SilverbridgeWeb.Common.Domain.csproj" />
+    <Project Path="src/Backend/Common/SilverbridgeWeb.Common.Infrastructure/SilverbridgeWeb.Common.Infrastructure.csproj" />
+    <Project Path="src/Backend/Common/SilverbridgeWeb.Common.Presentation/SilverbridgeWeb.Common.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Backend/Modules/" />
+  <Folder Name="/src/Backend/Modules/Events/">
+    <Project Path="src/Backend/Modules/Events/SilverbridgeWeb.Modules.Events.Application/SilverbridgeWeb.Modules.Events.Application.csproj" />
+    <Project Path="src/Backend/Modules/Events/SilverbridgeWeb.Modules.Events.Domain/SilverbridgeWeb.Modules.Events.Domain.csproj" />
+    <Project Path="src/Backend/Modules/Events/SilverbridgeWeb.Modules.Events.Infrastructure/SilverbridgeWeb.Modules.Events.Infrastructure.csproj" />
+    <Project Path="src/Backend/Modules/Events/SilverbridgeWeb.Modules.Events.Presentation/SilverbridgeWeb.Modules.Events.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Backend/Modules/Ticketing/">
+    <Project Path="src/Backend/Modules/Ticketing/SilverbridgeWeb.Modules.Ticketing.Application/SilverbridgeWeb.Modules.Ticketing.Application.csproj" />
+    <Project Path="src/Backend/Modules/Ticketing/SilverbridgeWeb.Modules.Ticketing.Domain/SilverbridgeWeb.Modules.Ticketing.Domain.csproj" />
+    <Project Path="src/Backend/Modules/Ticketing/SilverbridgeWeb.Modules.Ticketing.Infrastructure/SilverbridgeWeb.Modules.Ticketing.Infrastructure.csproj" />
+    <Project Path="src/Backend/Modules/Ticketing/SilverbridgeWeb.Modules.Ticketing.Presentation/SilverbridgeWeb.Modules.Ticketing.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Backend/Modules/Users/">
+    <Project Path="src/Backend/Modules/Users/SilverbridgeWeb.Modules.Users.Application/SilverbridgeWeb.Modules.Users.Application.csproj" />
+    <Project Path="src/Backend/Modules/Users/SilverbridgeWeb.Modules.Users.Domain/SilverbridgeWeb.Modules.Users.Domain.csproj" />
+    <Project Path="src/Backend/Modules/Users/SilverbridgeWeb.Modules.Users.Infrastructure/SilverbridgeWeb.Modules.Users.Infrastructure.csproj" />
+    <Project Path="src/Backend/Modules/Users/SilverbridgeWeb.Modules.Users.IntegrationEvents/SilverbridgeWeb.Modules.Users.IntegrationEvents.csproj" />
+    <Project Path="src/Backend/Modules/Users/SilverbridgeWeb.Modules.Users.Presentation/SilverbridgeWeb.Modules.Users.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Frontend/">
+    <Project Path="src/Frontend/SilverbridgeWeb.WebUI/SilverbridgeWeb.WebUI.csproj" />
+  </Folder>
+</Solution>
