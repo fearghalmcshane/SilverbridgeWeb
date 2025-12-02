@@ -3,11 +3,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using SilverbridgeWeb.Common.Application.Authorization;
 using SilverbridgeWeb.Common.Infrastructure.Interceptors;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Users.Application.Abstractions.Data;
 using SilverbridgeWeb.Modules.Users.Application.Abstractions.Identity;
 using SilverbridgeWeb.Modules.Users.Domain.Users;
+using SilverbridgeWeb.Modules.Users.Infrastructure.Authorization;
 using SilverbridgeWeb.Modules.Users.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Users.Infrastructure.Identity;
 using SilverbridgeWeb.Modules.Users.Infrastructure.Users;
@@ -29,6 +31,8 @@ public static class UsersModule
 
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<IPermissionService, PermissionService>();
+
         string databaseConnectionString = configuration.GetConnectionString("silverbridgeDb")!;
 
         string keycloakUrl = configuration["KeyCloak:Url"]!;

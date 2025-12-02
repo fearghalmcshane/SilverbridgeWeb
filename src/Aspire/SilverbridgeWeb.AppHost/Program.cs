@@ -4,17 +4,55 @@ const string keycloakRealm = "silverbridge";
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
-IResourceBuilder<KeycloakResource> keycloak = builder.AddKeycloak("silverbridgewebAuth", 8085)
-    .WithDataVolume()
-    .WithRealmImport("./Realms");
+IResourceBuilder<AzurePostgresFlexibleServerResource> postgres = builder.AddAzurePostgresFlexibleServer("postgres")
+    .RunAsContainer(options => {
+        options.WithDataVolume();
+        options.WithPgAdmin(pgadmin =>
+        {
+            pgadmin.WithHostPort(5050);
+        });
+    });
+
+IResourceBuilder<AzurePostgresFlexibleServerDatabaseResource> silverbridgeDb = postgres.AddDatabase("silverbridgeDb");
+
+IResourceBuilder<ParameterResource> keycloakPassword = builder.AddParameter("keycloakPassword", secret: true, value: "admin");
+int? keycloakPort = builder.ExecutionContext.IsRunMode ? 8085 : null;
+
+IResourceBuilder<KeycloakResource> keycloak = builder.AddKeycloak("silverbridgewebAuth", adminPassword: keycloakPassword, port: keycloakPort)
+    .WithLifetime(ContainerLifetime.Persistent);
+
+if (builder.ExecutionContext.IsRunMode)
+{
+    keycloak.WithDataVolume()
+        .WithRealmImport("./Realms");
+}
+
+if (builder.ExecutionContext.IsPublishMode)
+{
+    IResourceBuilder<ParameterResource> postgresUser = builder.AddParameter("PostgresUser", value: "postgres");
+    IResourceBuilder<ParameterResource> postgresPassword = builder.AddParameter("PostgresPassword", secret: true);
+    postgres.WithPasswordAuthentication(postgresUser, postgresPassword);
+
+    IResourceBuilder<AzurePostgresFlexibleServerDatabaseResource> keycloakDb = postgres.AddDatabase("keycloakDb");
+
+    var keycloakDbUrl = ReferenceExpression.Create($"jdbc:postgresql://{postgres.Resource.HostName}/{keycloakDb.Resource.DatabaseName}");
+
+    keycloak.WithEnvironment("KC_HTTP_ENABLED", "true")
+        .WithEnvironment("KC_PROXY_HEADERS", "forwarded")
+        .WithEnvironment("KC_HOSTNAME_STRICT", "false")
+        .WithEnvironment("KC_DB", "postgres")
+        .WithEnvironment("KC_DB_URL", keycloakDbUrl)
+        .WithEnvironment("KC_DB_USERNAME", postgresUser)
+        .WithEnvironment("KC_DB_PASSWORD", postgresPassword)
+        .WithEndpoint("http", e =>
+        {
+            e.IsExternal = true;
+            e.UriScheme = "https";
+        });
+}
 
 var keycloakEndpoint = ReferenceExpression.Create($"{keycloak.GetEndpoint("http").Property(EndpointProperty.Url)}");
 var keycloakAuthority = ReferenceExpression.Create($"{keycloak.GetEndpoint("http").Property(EndpointProperty.Url)}/realms/{keycloakRealm}");
-
-IResourceBuilder<AzurePostgresFlexibleServerResource> postgres = builder.AddAzurePostgresFlexibleServer("postgres")
-    .RunAsContainer(options => options.WithDataVolume());
-
-IResourceBuilder<AzurePostgresFlexibleServerDatabaseResource> silverbridgeDb = postgres.AddDatabase("silverbridgeDb");
 
 IResourceBuilder<RedisResource> redis = builder.AddRedis("redis")
     .WithDataVolume();
