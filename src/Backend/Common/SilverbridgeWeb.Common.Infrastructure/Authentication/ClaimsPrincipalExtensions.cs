@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.Eventing.Reader;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using SilverbridgeWeb.Common.Application.Exceptions;
 
 namespace SilverbridgeWeb.Common.Infrastructure.Authentication;
