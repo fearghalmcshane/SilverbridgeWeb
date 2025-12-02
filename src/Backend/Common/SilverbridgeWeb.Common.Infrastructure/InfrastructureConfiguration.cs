@@ -7,6 +7,7 @@ using SilverbridgeWeb.Common.Application.Clock;
 using SilverbridgeWeb.Common.Application.Data;
 using SilverbridgeWeb.Common.Application.EventBus;
 using SilverbridgeWeb.Common.Infrastructure.Authentication;
+using SilverbridgeWeb.Common.Infrastructure.Authorization;
 using SilverbridgeWeb.Common.Infrastructure.Caching;
 using SilverbridgeWeb.Common.Infrastructure.Clock;
 using SilverbridgeWeb.Common.Infrastructure.Data;
@@ -26,6 +27,8 @@ public static class InfrastructureConfiguration
         string authConnectionString)
     {
         services.AddAuthenticationInternal(authConnectionString);
+
+        services.AddAuthorizationInternal();
 
         NpgsqlDataSource npgsqlDataSource = new NpgsqlDataSourceBuilder(databaseConnectionString).Build();
         services.TryAddSingleton(npgsqlDataSource);

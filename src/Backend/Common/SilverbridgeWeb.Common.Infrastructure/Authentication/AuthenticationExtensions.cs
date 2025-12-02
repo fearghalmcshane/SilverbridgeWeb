@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace SilverbridgeWeb.Common.Infrastructure.Authentication;
 
@@ -11,7 +10,7 @@ internal static class AuthenticationExtensions
 
         services.AddAuthentication().AddKeycloakJwtBearer("silverbridgewebAuth", "silverbridge", options =>
         {
-            options.Audience = "account";
+            options.Audience = "silverbridgeweb-api";
             options.TokenValidationParameters = new()
             {
                 ValidIssuers =

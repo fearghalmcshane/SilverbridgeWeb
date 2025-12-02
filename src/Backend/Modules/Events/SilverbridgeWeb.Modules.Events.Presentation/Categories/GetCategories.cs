@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using SilverbridgeWeb.Common.Application.Caching;
 using SilverbridgeWeb.Common.Domain;
 using SilverbridgeWeb.Common.Presentation.ApiResults;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
