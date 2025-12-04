@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SilverbridgeWeb.Common.Domain;
-using SilverbridgeWeb.Common.Presentation.ApiResults;
+using SilverbridgeWeb.Common.Presentation.Results;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Events.Application.TicketTypes.CreateTicketType;
 
@@ -22,9 +22,9 @@ internal sealed class CreateTicketType : IEndpoint
                 request.Currency,
                 request.Quantity));
 
-            return result.Match(Results.Ok, Common.Presentation.ApiResults.ApiResults.Problem);
+            return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .RequireAuthorization()
+        .RequireAuthorization(Permissions.ModifyTicketTypes)
         .WithTags(Tags.TicketTypes);
     }
 

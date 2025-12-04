@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SilverbridgeWeb.Common.Domain;
-using SilverbridgeWeb.Common.Presentation.ApiResults;
+using SilverbridgeWeb.Common.Presentation.Results;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Events.Application.TicketTypes.UpdateTicketTypePrice;
 
@@ -17,9 +17,9 @@ internal sealed class ChangeTicketTypePrice : IEndpoint
         {
             Result result = await sender.Send(new UpdateTicketTypePriceCommand(id, request.Price));
 
-            return result.Match(Results.NoContent, Common.Presentation.ApiResults.ApiResults.Problem);
+            return result.Match(Results.NoContent, ApiResults.Problem);
         })
-        .RequireAuthorization()
+        .RequireAuthorization(Permissions.ModifyTicketTypes)
         .WithTags(Tags.TicketTypes);
     }
 

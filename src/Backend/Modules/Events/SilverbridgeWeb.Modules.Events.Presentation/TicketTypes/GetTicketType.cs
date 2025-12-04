@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SilverbridgeWeb.Common.Domain;
-using SilverbridgeWeb.Common.Presentation.ApiResults;
+using SilverbridgeWeb.Common.Presentation.Results;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Events.Application.TicketTypes.GetTicketType;
 
@@ -17,9 +17,9 @@ internal sealed class GetTicketType : IEndpoint
         {
             Result<TicketTypeResponse> result = await sender.Send(new GetTicketTypeQuery(id));
 
-            return result.Match(Results.Ok, Common.Presentation.ApiResults.ApiResults.Problem);
+            return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .RequireAuthorization()
+        .RequireAuthorization(Permissions.GetTicketTypes)
         .WithTags(Tags.TicketTypes);
     }
 }

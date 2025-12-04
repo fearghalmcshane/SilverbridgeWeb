@@ -1,0 +1,7 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\SilverbridgeWeb.Common.Infrastructure\SilverbridgeWeb.Common.Infrastructure.csproj" />
+    <ProjectReference Include="..\SilverbridgeWeb.Modules.Attendance.Application\SilverbridgeWeb.Modules.Attendance.Application.csproj" />
+    <ProjectReference Include="..\SilverbridgeWeb.Modules.Attendance.Presentation\SilverbridgeWeb.Modules.Attendance.Presentation.csproj" />
+  </ItemGroup>
+</Project>

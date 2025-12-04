@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SilverbridgeWeb.Common.Domain;
-using SilverbridgeWeb.Common.Presentation.ApiResults;
+using SilverbridgeWeb.Common.Presentation.Results;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Events.Application.Categories.GetCategories;
 using SilverbridgeWeb.Modules.Events.Application.Categories.GetCategory;
@@ -20,7 +20,7 @@ internal sealed class GetCategories : IEndpoint
 
             return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .RequireAuthorization()
+        .RequireAuthorization(Permissions.GetCategories)
         .WithTags(Tags.Categories);
     }
 }
