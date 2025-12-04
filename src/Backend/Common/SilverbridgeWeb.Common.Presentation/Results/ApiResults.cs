@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using SilverbridgeWeb.Common.Domain;
 
-namespace SilverbridgeWeb.Common.Presentation.ApiResults;
+namespace SilverbridgeWeb.Common.Presentation.Results;
 
 public static class ApiResults
 {
@@ -12,7 +12,7 @@ public static class ApiResults
             throw new InvalidOperationException();
         }
 
-        return Results.Problem(
+        return Microsoft.AspNetCore.Http.Results.Problem(
             title: GetTitle(result.Error),
             detail: GetDetail(result.Error),
             type: GetType(result.Error.Type),

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SilverbridgeWeb.Common.Domain;
 using SilverbridgeWeb.Common.Infrastructure.Authentication;
-using SilverbridgeWeb.Common.Presentation.ApiResults;
+using SilverbridgeWeb.Common.Presentation.Results;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Users.Application.Users.GetUser;
 
@@ -21,7 +21,7 @@ internal sealed class GetUserProfile : IEndpoint
 
             return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .RequireAuthorization("users:read")
+        .RequireAuthorization(Permissions.GetUser)
         .WithTags(Tags.Users);
     }
 }

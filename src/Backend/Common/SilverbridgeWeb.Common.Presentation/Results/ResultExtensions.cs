@@ -1,6 +1,6 @@
 ﻿using SilverbridgeWeb.Common.Domain;
 
-namespace SilverbridgeWeb.Common.Presentation.ApiResults;
+namespace SilverbridgeWeb.Common.Presentation.Results;
 
 public static class ResultExtensions
 {

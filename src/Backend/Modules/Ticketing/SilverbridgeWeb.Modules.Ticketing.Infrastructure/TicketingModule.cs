@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SilverbridgeWeb.Common.Infrastructure.Interceptors;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
+using SilverbridgeWeb.Modules.Ticketing.Application.Abstractions.Authentication;
 using SilverbridgeWeb.Modules.Ticketing.Application.Abstractions.Data;
 using SilverbridgeWeb.Modules.Ticketing.Application.Abstractions.Payments;
 using SilverbridgeWeb.Modules.Ticketing.Application.Carts;
@@ -13,6 +14,7 @@ using SilverbridgeWeb.Modules.Ticketing.Domain.Events;
 using SilverbridgeWeb.Modules.Ticketing.Domain.Orders;
 using SilverbridgeWeb.Modules.Ticketing.Domain.Payments;
 using SilverbridgeWeb.Modules.Ticketing.Domain.Tickets;
+using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Authentication;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Customers;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Events;
@@ -62,5 +64,7 @@ public static class TicketingModule
 
         services.AddSingleton<CartService>();
         services.AddSingleton<IPaymentService, PaymentService>();
+
+        services.AddScoped<ICustomerContext, CustomerContext>();
     }
 }

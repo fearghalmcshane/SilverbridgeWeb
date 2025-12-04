@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SilverbridgeWeb.Common.Domain;
-using SilverbridgeWeb.Common.Presentation.ApiResults;
+using SilverbridgeWeb.Common.Presentation.Results;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Events.Application.Categories.ArchiveCategory;
 
@@ -17,9 +17,9 @@ internal sealed class ArchiveCategory : IEndpoint
         {
             Result result = await sender.Send(new ArchiveCategoryCommand(id));
 
-            return result.Match(() => Results.Ok(), Common.Presentation.ApiResults.ApiResults.Problem);
+            return result.Match(() => Results.Ok(), ApiResults.Problem);
         })
-        .RequireAuthorization()
+        .RequireAuthorization(Permissions.ModifyCategories)
         .WithTags(Tags.Categories);
     }
 }

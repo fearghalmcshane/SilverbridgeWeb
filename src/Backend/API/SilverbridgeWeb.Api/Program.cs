@@ -4,6 +4,7 @@ using SilverbridgeWeb.Api.Middleware;
 using SilverbridgeWeb.Common.Application;
 using SilverbridgeWeb.Common.Infrastructure;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
+using SilverbridgeWeb.Modules.Attendance.Infrastructure;
 using SilverbridgeWeb.Modules.Events.Infrastructure;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure;
 using SilverbridgeWeb.Modules.Users.Infrastructure;
@@ -18,7 +19,8 @@ builder.Services.AddProblemDetails();
 builder.Services.AddApplication([
     SilverbridgeWeb.Modules.Events.Application.AssemblyReference.Assembly,
     SilverbridgeWeb.Modules.Users.Application.AssemblyReference.Assembly,
-    SilverbridgeWeb.Modules.Ticketing.Application.AssemblyReference.Assembly]);
+    SilverbridgeWeb.Modules.Ticketing.Application.AssemblyReference.Assembly,
+    SilverbridgeWeb.Modules.Attendance.Application.AssemblyReference.Assembly]);
 
 builder.Services.AddInfrastructure(
     [TicketingModule.ConfigureConsumers],
@@ -32,6 +34,7 @@ builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing"]);
 builder.Services.AddEventsModule(builder.Configuration);
 builder.Services.AddUsersModule(builder.Configuration);
 builder.Services.AddTicketingModule(builder.Configuration);
+builder.Services.AddAttendanceModule(builder.Configuration);
 
 builder.Services.AddCors();
 builder.Services.AddOpenApi();

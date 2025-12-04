@@ -1,9 +1,11 @@
-﻿using MediatR;
+﻿using System.Security.Claims;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SilverbridgeWeb.Common.Domain;
-using SilverbridgeWeb.Common.Presentation.ApiResults;
+using SilverbridgeWeb.Common.Infrastructure.Authentication;
+using SilverbridgeWeb.Common.Presentation.Results;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Users.Application.Users.UpdateUser;
 
@@ -13,16 +15,16 @@ internal sealed class UpdateUserProfile : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPut("users/{id}/profile", async (Guid id, Request request, ISender sender) =>
+        app.MapPut("users/profile", async (Request request, ClaimsPrincipal claims, ISender sender) =>
         {
             Result result = await sender.Send(new UpdateUserCommand(
-                id,
+                claims.GetUserId(),
                 request.FirstName,
                 request.LastName));
 
             return result.Match(Results.NoContent, ApiResults.Problem);
         })
-        .RequireAuthorization()
+        .RequireAuthorization(Permissions.ModifyUser)
         .WithTags(Tags.Users);
     }
 
