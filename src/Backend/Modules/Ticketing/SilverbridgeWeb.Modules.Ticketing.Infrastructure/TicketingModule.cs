@@ -22,6 +22,8 @@ using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Orders;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Payments;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Tickets;
 using SilverbridgeWeb.Modules.Ticketing.Presentation.Customers;
+using SilverbridgeWeb.Modules.Ticketing.Presentation.Events;
+using SilverbridgeWeb.Modules.Ticketing.Presentation.TicketTypes;
 
 namespace SilverbridgeWeb.Modules.Ticketing.Infrastructure;
 
@@ -39,6 +41,9 @@ public static class TicketingModule
     public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator)
     {
         registrationConfigurator.AddConsumer<UserRegisteredIntegrationEventConsumer>();
+        registrationConfigurator.AddConsumer<UserProfileUpdatedIntegrationEventConsumer>();
+        registrationConfigurator.AddConsumer<EventPublishedIntegrationEventConsumer>();
+        registrationConfigurator.AddConsumer<TicketTypePriceChangedIntegrationEventConsumer>();
     }
 
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)

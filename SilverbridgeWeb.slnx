@@ -27,6 +27,9 @@
     <Project Path="src/Backend/Modules/Attendance/SilverbridgeWeb.Modules.Attendance.IntegrationEvents/SilverbridgeWeb.Modules.Attendance.IntegrationEvents.csproj" Id="0ced085e-b9ed-4488-85d0-d67e041a2f17" />
     <Project Path="src/Backend/Modules/Attendance/SilverbridgeWeb.Modules.Attendance.Presentation/SilverbridgeWeb.Modules.Attendance.Presentation.csproj" Id="f20aba73-c30b-4704-a7d5-6011a50cbb96" />
   </Folder>
+  <Folder Name="/src/Backend/Modules/Attendance/test/">
+    <Project Path="src/Backend/Modules/Attendance/test/SilverbridgeWeb.Modules.Attendance.ArchitectureTests/SilverbridgeWeb.Modules.Attendance.ArchitectureTests.csproj" Id="2007494e-d041-4745-8d16-afea885cef43" />
+  </Folder>
   <Folder Name="/src/Backend/Modules/Events/">
     <Project Path="src/Backend/Modules/Events/SilverbridgeWeb.Modules.Events.Application/SilverbridgeWeb.Modules.Events.Application.csproj" />
     <Project Path="src/Backend/Modules/Events/SilverbridgeWeb.Modules.Events.Domain/SilverbridgeWeb.Modules.Events.Domain.csproj" />
@@ -34,12 +37,18 @@
     <Project Path="src/Backend/Modules/Events/SilverbridgeWeb.Modules.Events.IntegrationEvents/SilverbridgeWeb.Modules.Events.IntegrationEvents.csproj" Id="34d0ea33-453b-44c0-9005-ef34ff2f21df" />
     <Project Path="src/Backend/Modules/Events/SilverbridgeWeb.Modules.Events.Presentation/SilverbridgeWeb.Modules.Events.Presentation.csproj" />
   </Folder>
+  <Folder Name="/src/Backend/Modules/Events/test/">
+    <Project Path="src/Backend/Modules/Events/test/SilverbridgeWeb.Modules.Events.ArchitectureTests/SilverbridgeWeb.Modules.Events.ArchitectureTests.csproj" Id="1e67ce8c-9a27-4fa6-90a0-1bb71e65e249" />
+  </Folder>
   <Folder Name="/src/Backend/Modules/Ticketing/">
     <Project Path="src/Backend/Modules/Ticketing/SilverbridgeWeb.Modules.Ticketing.Application/SilverbridgeWeb.Modules.Ticketing.Application.csproj" />
     <Project Path="src/Backend/Modules/Ticketing/SilverbridgeWeb.Modules.Ticketing.Domain/SilverbridgeWeb.Modules.Ticketing.Domain.csproj" />
     <Project Path="src/Backend/Modules/Ticketing/SilverbridgeWeb.Modules.Ticketing.Infrastructure/SilverbridgeWeb.Modules.Ticketing.Infrastructure.csproj" />
     <Project Path="src/Backend/Modules/Ticketing/SilverbridgeWeb.Modules.Ticketing.IntegrationEvents/SilverbridgeWeb.Modules.Ticketing.IntegrationEvents.csproj" Id="3bd86e5c-02d5-485d-b6a3-69743206ea35" />
     <Project Path="src/Backend/Modules/Ticketing/SilverbridgeWeb.Modules.Ticketing.Presentation/SilverbridgeWeb.Modules.Ticketing.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Backend/Modules/Ticketing/test/">
+    <Project Path="src/Backend/Modules/Ticketing/test/SilverbridgeWeb.Modules.Ticketing.ArchitectureTests/SilverbridgeWeb.Modules.Ticketing.ArchitectureTests.csproj" Id="f4a3389a-ecef-4eba-9aa0-51f459332e39" />
   </Folder>
   <Folder Name="/src/Backend/Modules/Users/">
     <Project Path="src/Backend/Modules/Users/SilverbridgeWeb.Modules.Users.Application/SilverbridgeWeb.Modules.Users.Application.csproj" />
