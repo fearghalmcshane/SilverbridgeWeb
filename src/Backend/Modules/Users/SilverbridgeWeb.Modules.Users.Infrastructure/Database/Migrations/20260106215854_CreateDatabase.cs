@@ -9,13 +9,30 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
 {
     /// <inheritdoc />
-    public partial class Create_Database : Migration
+    public partial class CreateDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
                 name: "users");
+
+            migrationBuilder.CreateTable(
+                name: "outbox_messages",
+                schema: "users",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    type = table.Column<string>(type: "text", nullable: false),
+                    content = table.Column<string>(type: "jsonb", maxLength: 2000, nullable: false),
+                    occurred_on_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    processed_on_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    error = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_outbox_messages", x => x.id);
+                });
 
             migrationBuilder.CreateTable(
                 name: "permissions",
@@ -212,6 +229,10 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "outbox_messages",
+                schema: "users");
+
             migrationBuilder.DropTable(
                 name: "role_permissions",
                 schema: "users");

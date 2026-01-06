@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SilverbridgeWeb.Common.Infrastructure.Interceptors;
+using SilverbridgeWeb.Common.Infrastructure.Outbox;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Ticketing.Application.Abstractions.Authentication;
 using SilverbridgeWeb.Modules.Ticketing.Application.Abstractions.Data;
@@ -19,6 +19,7 @@ using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Customers;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Events;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Orders;
+using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Outbox;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Payments;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Tickets;
 using SilverbridgeWeb.Modules.Ticketing.Presentation.Customers;
@@ -55,7 +56,7 @@ public static class TicketingModule
                 .UseNpgsql(databaseConnectionString,
                     npgsqlOptions => npgsqlOptions
                         .MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Ticketing))
-                .AddInterceptors(sp.GetRequiredService<PublishDomainEventsInterceptor>())
+                .AddInterceptors(sp.GetRequiredService<InsertOutboxMessagesInterceptor>())
                 .UseSnakeCaseNamingConvention());
 
         services.AddScoped<ICustomerRepository, CustomerRepository>();
@@ -71,5 +72,9 @@ public static class TicketingModule
         services.AddSingleton<IPaymentService, PaymentService>();
 
         services.AddScoped<ICustomerContext, CustomerContext>();
+
+        services.Configure<OutboxOptions>(configuration.GetSection("Ticketing:Outbox"));
+
+        services.ConfigureOptions<ConfigureProcessOutboxJob>();
     }
 }

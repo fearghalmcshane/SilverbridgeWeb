@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SilverbridgeWeb.Common.Infrastructure.Outbox;
 using SilverbridgeWeb.Modules.Attendance.Application.Abstractions.Data;
 using SilverbridgeWeb.Modules.Attendance.Domain.Attendees;
 using SilverbridgeWeb.Modules.Attendance.Domain.Events;
@@ -22,6 +23,7 @@ public sealed class AttendanceDbContext(DbContextOptions<AttendanceDbContext> op
     {
         modelBuilder.HasDefaultSchema(Schemas.Attendance);
 
+        modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration());
         modelBuilder.ApplyConfiguration(new AttendeeConfiguration());
         modelBuilder.ApplyConfiguration(new EventConfiguration());
         modelBuilder.ApplyConfiguration(new TicketConfiguration());
