@@ -23,13 +23,16 @@ builder.Services.AddApplication([
     SilverbridgeWeb.Modules.Attendance.Application.AssemblyReference.Assembly]);
 
 builder.Services.AddInfrastructure(
-    [TicketingModule.ConfigureConsumers],
+    [
+        TicketingModule.ConfigureConsumers,
+        AttendanceModule.ConfigureConsumers
+    ],
     builder.Configuration.GetConnectionString("silverbridgeDb")!,
     builder.Configuration.GetConnectionString("redis")!,
     builder.Configuration["KeyCloak:Authority"]!
 );
 
-builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing"]);
+builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing", "attendance"]);
 
 builder.Services.AddEventsModule(builder.Configuration);
 builder.Services.AddUsersModule(builder.Configuration);

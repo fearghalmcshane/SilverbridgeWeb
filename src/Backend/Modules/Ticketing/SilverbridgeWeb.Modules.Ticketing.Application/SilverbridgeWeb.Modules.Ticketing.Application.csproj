@@ -2,5 +2,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\SilverbridgeWeb.Common.Application\SilverbridgeWeb.Common.Application.csproj" />
     <ProjectReference Include="..\SilverbridgeWeb.Modules.Ticketing.Domain\SilverbridgeWeb.Modules.Ticketing.Domain.csproj" />
+    <ProjectReference Include="..\SilverbridgeWeb.Modules.Ticketing.IntegrationEvents\SilverbridgeWeb.Modules.Ticketing.IntegrationEvents.csproj" />
   </ItemGroup>
 </Project>

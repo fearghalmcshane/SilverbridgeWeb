@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\SilverbridgeWeb.Common.Application\SilverbridgeWeb.Common.Application.csproj" />
     <ProjectReference Include="..\SilverbridgeWeb.Modules.Events.Domain\SilverbridgeWeb.Modules.Events.Domain.csproj" />
+    <ProjectReference Include="..\SilverbridgeWeb.Modules.Events.IntegrationEvents\SilverbridgeWeb.Modules.Events.IntegrationEvents.csproj" />
   </ItemGroup>
 
 </Project>

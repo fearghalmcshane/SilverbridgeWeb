@@ -3,9 +3,9 @@ using SilverbridgeWeb.Modules.Events.Domain.Events;
 
 namespace SilverbridgeWeb.Modules.Events.Application.Events.RescheduleEvent;
 
-internal sealed class EventRescheduledDomainEventHandler : IDomainEventHandler<EventRescheduledDomainEvent>
+internal sealed class EventRescheduledDomainEventHandler : DomainEventHandler<EventRescheduledDomainEvent>
 {
-    public Task Handle(EventRescheduledDomainEvent domainEvent, CancellationToken cancellationToken)
+    public override Task Handle(EventRescheduledDomainEvent domainEvent, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }

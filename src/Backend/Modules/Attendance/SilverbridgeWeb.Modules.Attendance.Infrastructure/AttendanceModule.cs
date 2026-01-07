@@ -1,8 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SilverbridgeWeb.Common.Infrastructure.Interceptors;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using SilverbridgeWeb.Common.Application.Messaging;
+using SilverbridgeWeb.Common.Infrastructure.Outbox;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Attendance.Application.Abstractions.Authentication;
 using SilverbridgeWeb.Modules.Attendance.Application.Abstractions.Data;
@@ -13,7 +16,11 @@ using SilverbridgeWeb.Modules.Attendance.Infrastructure.Attendees;
 using SilverbridgeWeb.Modules.Attendance.Infrastructure.Authentication;
 using SilverbridgeWeb.Modules.Attendance.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Attendance.Infrastructure.Events;
+using SilverbridgeWeb.Modules.Attendance.Infrastructure.Outbox;
 using SilverbridgeWeb.Modules.Attendance.Infrastructure.Tickets;
+using SilverbridgeWeb.Modules.Attendance.Presentation.Attendees;
+using SilverbridgeWeb.Modules.Attendance.Presentation.Events;
+using SilverbridgeWeb.Modules.Attendance.Presentation.Tickets;
 
 namespace SilverbridgeWeb.Modules.Attendance.Infrastructure;
 
@@ -23,11 +30,21 @@ public static class AttendanceModule
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddDomainEventHandlers();
+
         services.AddInfrastructure(configuration);
 
         services.AddEndpoints(Presentation.AssemblyReference.Assembly);
 
         return services;
+    }
+
+    public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator)
+    {
+        registrationConfigurator.AddConsumer<UserRegisteredIntegrationEventConsumer>();
+        registrationConfigurator.AddConsumer<UserProfileUpdatedIntegrationEventConsumer>();
+        registrationConfigurator.AddConsumer<EventPublishedIntegrationEventConsumer>();
+        registrationConfigurator.AddConsumer<TicketIssuedIntegrationEventConsumer>();
     }
 
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
@@ -37,7 +54,7 @@ public static class AttendanceModule
         services.AddDbContext<AttendanceDbContext>((sp, options) =>
             options.UseNpgsql(databaseConnectionString,
                     npgsqlOptions => npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Attendance))
-                .AddInterceptors(sp.GetRequiredService<PublishDomainEventsInterceptor>())
+                .AddInterceptors(sp.GetRequiredService<InsertOutboxMessagesInterceptor>())
                 .UseSnakeCaseNamingConvention());
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AttendanceDbContext>());
@@ -47,5 +64,32 @@ public static class AttendanceModule
         services.AddScoped<ITicketRepository, TicketRepository>();
 
         services.AddScoped<IAttendanceContext, AttendanceContext>();
+
+        services.Configure<OutboxOptions>(configuration.GetSection("Attendance:Outbox"));
+
+        services.ConfigureOptions<ConfigureProcessOutboxJob>();
+    }
+
+    private static void AddDomainEventHandlers(this IServiceCollection services)
+    {
+        Type[] domainEventHandlers = Application.AssemblyReference.Assembly
+            .GetTypes()
+            .Where(t => t.IsAssignableTo(typeof(IDomainEventHandler)))
+            .ToArray();
+
+        foreach (Type domainEventHandler in domainEventHandlers)
+        {
+            services.TryAddScoped(domainEventHandler);
+
+            Type domainEvent = domainEventHandler
+                .GetInterfaces()
+                .Single(i => i.IsGenericType)
+                .GetGenericArguments()
+                .Single();
+
+            Type closedIdempotentHandler = typeof(IdempotentDomainEventHandler<>).MakeGenericType(domainEvent);
+
+            services.Decorate(domainEventHandler, closedIdempotentHandler);
+        }
     }
 }

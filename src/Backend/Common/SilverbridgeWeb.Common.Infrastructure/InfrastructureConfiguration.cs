@@ -1,7 +1,9 @@
-﻿using MassTransit;
+﻿using Dapper;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
+using Quartz;
 using SilverbridgeWeb.Common.Application.Caching;
 using SilverbridgeWeb.Common.Application.Clock;
 using SilverbridgeWeb.Common.Application.Data;
@@ -12,7 +14,7 @@ using SilverbridgeWeb.Common.Infrastructure.Caching;
 using SilverbridgeWeb.Common.Infrastructure.Clock;
 using SilverbridgeWeb.Common.Infrastructure.Data;
 using SilverbridgeWeb.Common.Infrastructure.Eventbus;
-using SilverbridgeWeb.Common.Infrastructure.Interceptors;
+using SilverbridgeWeb.Common.Infrastructure.Outbox;
 using StackExchange.Redis;
 
 namespace SilverbridgeWeb.Common.Infrastructure;
@@ -35,9 +37,15 @@ public static class InfrastructureConfiguration
 
         services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
 
-        services.TryAddSingleton<PublishDomainEventsInterceptor>();
+        services.TryAddSingleton<InsertOutboxMessagesInterceptor>();
 
         services.TryAddSingleton<IDateTimeProvider, DateTimeProvider>();
+
+        SqlMapper.AddTypeHandler(new GenericArrayHandler<string>());
+
+        services.AddQuartz();
+
+        services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
 
         try
         {
