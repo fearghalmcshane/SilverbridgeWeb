@@ -1,5 +1,5 @@
-﻿using MassTransit;
-using MediatR;
+﻿using MediatR;
+using SilverbridgeWeb.Common.Application.EventBus;
 using SilverbridgeWeb.Common.Application.Exceptions;
 using SilverbridgeWeb.Common.Domain;
 using SilverbridgeWeb.Modules.Attendance.Application.Tickets.CreateTicket;
@@ -7,18 +7,20 @@ using SilverbridgeWeb.Modules.Ticketing.IntegrationEvents;
 
 namespace SilverbridgeWeb.Modules.Attendance.Presentation.Tickets;
 
-public sealed class TicketIssuedIntegrationEventConsumer(ISender sender)
-    : IConsumer<TicketIssuedIntegrationEvent>
+internal sealed class TicketIssuedIntegrationEventHandler(ISender sender)
+    : IntegrationEventHandler<TicketIssuedIntegrationEvent>
 {
-    public async Task Consume(ConsumeContext<TicketIssuedIntegrationEvent> context)
+    public override async Task Handle(
+        TicketIssuedIntegrationEvent integrationEvent,
+        CancellationToken cancellationToken = default)
     {
         Result result = await sender.Send(
             new CreateTicketCommand(
-                context.Message.TicketId,
-                context.Message.CustomerId,
-                context.Message.EventId,
-                context.Message.Code),
-            context.CancellationToken);
+                integrationEvent.TicketId,
+                integrationEvent.CustomerId,
+                integrationEvent.EventId,
+                integrationEvent.Code),
+            cancellationToken);
 
         if (result.IsFailure)
         {

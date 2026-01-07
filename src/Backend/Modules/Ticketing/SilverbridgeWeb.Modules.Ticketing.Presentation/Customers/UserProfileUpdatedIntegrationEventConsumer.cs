@@ -1,5 +1,5 @@
-﻿using MassTransit;
-using MediatR;
+﻿using MediatR;
+using SilverbridgeWeb.Common.Application.EventBus;
 using SilverbridgeWeb.Common.Application.Exceptions;
 using SilverbridgeWeb.Common.Domain;
 using SilverbridgeWeb.Modules.Ticketing.Application.Customers.UpdateCustomer;
@@ -7,17 +7,19 @@ using SilverbridgeWeb.Modules.Users.IntegrationEvents;
 
 namespace SilverbridgeWeb.Modules.Ticketing.Presentation.Customers;
 
-public sealed class UserProfileUpdatedIntegrationEventConsumer(ISender sender)
-    : IConsumer<UserProfileUpdatedIntegrationEvent>
+internal sealed class UserProfileUpdatedIntegrationEventHandler(ISender sender)
+    : IntegrationEventHandler<UserProfileUpdatedIntegrationEvent>
 {
-    public async Task Consume(ConsumeContext<UserProfileUpdatedIntegrationEvent> context)
+    public override async Task Handle(
+        UserProfileUpdatedIntegrationEvent integrationEvent,
+        CancellationToken cancellationToken = default)
     {
         Result result = await sender.Send(
             new UpdateCustomerCommand(
-                context.Message.UserId,
-                context.Message.FirstName,
-                context.Message.LastName),
-            context.CancellationToken);
+                integrationEvent.UserId,
+                integrationEvent.FirstName,
+                integrationEvent.LastName),
+            cancellationToken);
 
         if (result.IsFailure)
         {
