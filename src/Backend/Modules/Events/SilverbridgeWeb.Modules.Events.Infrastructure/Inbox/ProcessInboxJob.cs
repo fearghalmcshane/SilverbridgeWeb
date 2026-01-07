@@ -22,7 +22,7 @@ internal sealed class ProcessInboxJob(
     IOptions<InboxOptions> inboxOptions,
     ILogger<ProcessInboxJob> logger) : IJob
 {
-    private const string ModuleName = "Attendance";
+    private const string ModuleName = "Events";
 
     public async Task Execute(IJobExecutionContext context)
     {

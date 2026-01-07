@@ -3,10 +3,10 @@ using Quartz;
 
 namespace SilverbridgeWeb.Modules.Ticketing.Infrastructure.Inbox;
 
-internal sealed class ConfigureProcessInboxJob(IOptions<InboxOptions> outboxOptions)
+internal sealed class ConfigureProcessInboxJob(IOptions<InboxOptions> inboxOptions)
     : IConfigureOptions<QuartzOptions>
 {
-    private readonly InboxOptions _inboxOptions = outboxOptions.Value;
+    private readonly InboxOptions _inboxOptions = inboxOptions.Value;
 
     public void Configure(QuartzOptions options)
     {
