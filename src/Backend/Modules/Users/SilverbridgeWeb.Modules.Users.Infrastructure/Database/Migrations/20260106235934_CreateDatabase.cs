@@ -18,6 +18,19 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
                 name: "users");
 
             migrationBuilder.CreateTable(
+                name: "outbox_message_consumers",
+                schema: "users",
+                columns: table => new
+                {
+                    outbox_message_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_outbox_message_consumers", x => new { x.outbox_message_id, x.name });
+                });
+
+            migrationBuilder.CreateTable(
                 name: "outbox_messages",
                 schema: "users",
                 columns: table => new
@@ -229,6 +242,10 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "outbox_message_consumers",
+                schema: "users");
+
             migrationBuilder.DropTable(
                 name: "outbox_messages",
                 schema: "users");

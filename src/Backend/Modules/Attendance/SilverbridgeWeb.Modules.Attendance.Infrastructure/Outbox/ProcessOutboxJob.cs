@@ -1,7 +1,6 @@
 ﻿using System.Data;
 using System.Data.Common;
 using Dapper;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -9,7 +8,9 @@ using Newtonsoft.Json;
 using Quartz;
 using SilverbridgeWeb.Common.Application.Clock;
 using SilverbridgeWeb.Common.Application.Data;
+using SilverbridgeWeb.Common.Application.Messaging;
 using SilverbridgeWeb.Common.Domain;
+using SilverbridgeWeb.Common.Infrastructure.Outbox;
 using SilverbridgeWeb.Common.Infrastructure.Serialization;
 
 namespace SilverbridgeWeb.Modules.Attendance.Infrastructure.Outbox;
@@ -44,9 +45,15 @@ internal sealed class ProcessOutboxJob(
 
                 using IServiceScope scope = serviceScopeFactory.CreateScope();
 
-                IPublisher publisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
+                IEnumerable<IDomainEventHandler> domainEventHandlers = DomainEventHandlersFactory.GetHandlers(
+                    domainEvent.GetType(),
+                    scope.ServiceProvider,
+                    Application.AssemblyReference.Assembly);
 
-                await publisher.Publish(domainEvent);
+                foreach (IDomainEventHandler domainEventHandler in domainEventHandlers)
+                {
+                    await domainEventHandler.Handle(domainEvent);
+                }
             }
             catch (Exception caughtException)
             {

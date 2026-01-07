@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using SilverbridgeWeb.Modules.Events.Infrastructure.Database;
+using SilverbridgeWeb.Modules.Attendance.Infrastructure.Database;
 
 #nullable disable
 
-namespace SilverbridgeWeb.Modules.Events.Infrastructure.Database.Migrations
+namespace SilverbridgeWeb.Modules.Attendance.Infrastructure.Database.Migrations
 {
-    [DbContext(typeof(EventsDbContext))]
-    [Migration("20260106223817_CreateDatabase")]
+    [DbContext(typeof(AttendanceDbContext))]
+    [Migration("20260106235740_CreateDatabase")]
     partial class CreateDatabase
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace SilverbridgeWeb.Modules.Events.Infrastructure.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("events")
+                .HasDefaultSchema("attendance")
                 .HasAnnotation("ProductVersion", "10.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -59,41 +59,63 @@ namespace SilverbridgeWeb.Modules.Events.Infrastructure.Database.Migrations
                     b.HasKey("Id")
                         .HasName("pk_outbox_messages");
 
-                    b.ToTable("outbox_messages", "events");
+                    b.ToTable("outbox_messages", "attendance");
                 });
 
-            modelBuilder.Entity("SilverbridgeWeb.Modules.Events.Domain.Categories.Category", b =>
+            modelBuilder.Entity("SilverbridgeWeb.Common.Infrastructure.Outbox.OutboxMessageConsumer", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("OutboxMessageId")
                         .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<bool>("IsArchived")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_archived");
+                        .HasColumnName("outbox_message_id");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("name");
 
-                    b.HasKey("Id")
-                        .HasName("pk_categories");
+                    b.HasKey("OutboxMessageId", "Name")
+                        .HasName("pk_outbox_message_consumers");
 
-                    b.ToTable("categories", "events");
+                    b.ToTable("outbox_message_consumers", "attendance");
                 });
 
-            modelBuilder.Entity("SilverbridgeWeb.Modules.Events.Domain.Events.Event", b =>
+            modelBuilder.Entity("SilverbridgeWeb.Modules.Attendance.Domain.Attendees.Attendee", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("CategoryId")
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("first_name");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("last_name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_attendees");
+
+                    b.ToTable("attendees", "attendance");
+                });
+
+            modelBuilder.Entity("SilverbridgeWeb.Modules.Attendance.Domain.Events.Event", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasColumnName("category_id");
+                        .HasColumnName("id");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -113,10 +135,6 @@ namespace SilverbridgeWeb.Modules.Events.Infrastructure.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("starts_at_utc");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text")
@@ -125,68 +143,65 @@ namespace SilverbridgeWeb.Modules.Events.Infrastructure.Database.Migrations
                     b.HasKey("Id")
                         .HasName("pk_events");
 
-                    b.HasIndex("CategoryId")
-                        .HasDatabaseName("ix_events_category_id");
-
-                    b.ToTable("events", "events");
+                    b.ToTable("events", "attendance");
                 });
 
-            modelBuilder.Entity("SilverbridgeWeb.Modules.Events.Domain.TicketTypes.TicketType", b =>
+            modelBuilder.Entity("SilverbridgeWeb.Modules.Attendance.Domain.Tickets.Ticket", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("Currency")
+                    b.Property<Guid>("AttendeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("attendee_id");
+
+                    b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("currency");
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("code");
 
                     b.Property<Guid>("EventId")
                         .HasColumnType("uuid")
                         .HasColumnName("event_id");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("numeric")
-                        .HasColumnName("price");
-
-                    b.Property<decimal>("Quantity")
-                        .HasColumnType("numeric")
-                        .HasColumnName("quantity");
+                    b.Property<DateTime?>("UsedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("used_at_utc");
 
                     b.HasKey("Id")
-                        .HasName("pk_ticket_types");
+                        .HasName("pk_tickets");
+
+                    b.HasIndex("AttendeeId")
+                        .HasDatabaseName("ix_tickets_attendee_id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tickets_code");
 
                     b.HasIndex("EventId")
-                        .HasDatabaseName("ix_ticket_types_event_id");
+                        .HasDatabaseName("ix_tickets_event_id");
 
-                    b.ToTable("ticket_types", "events");
+                    b.ToTable("tickets", "attendance");
                 });
 
-            modelBuilder.Entity("SilverbridgeWeb.Modules.Events.Domain.Events.Event", b =>
+            modelBuilder.Entity("SilverbridgeWeb.Modules.Attendance.Domain.Tickets.Ticket", b =>
                 {
-                    b.HasOne("SilverbridgeWeb.Modules.Events.Domain.Categories.Category", null)
+                    b.HasOne("SilverbridgeWeb.Modules.Attendance.Domain.Attendees.Attendee", null)
                         .WithMany()
-                        .HasForeignKey("CategoryId")
+                        .HasForeignKey("AttendeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_events_categories_category_id");
-                });
+                        .HasConstraintName("fk_tickets_attendees_attendee_id");
 
-            modelBuilder.Entity("SilverbridgeWeb.Modules.Events.Domain.TicketTypes.TicketType", b =>
-                {
-                    b.HasOne("SilverbridgeWeb.Modules.Events.Domain.Events.Event", null)
+                    b.HasOne("SilverbridgeWeb.Modules.Attendance.Domain.Events.Event", null)
                         .WithMany()
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_ticket_types_events_event_id");
+                        .HasConstraintName("fk_tickets_events_event_id");
                 });
 #pragma warning restore 612, 618
         }
