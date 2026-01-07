@@ -1,5 +1,5 @@
-﻿using MassTransit;
-using MediatR;
+﻿using MediatR;
+using SilverbridgeWeb.Common.Application.EventBus;
 using SilverbridgeWeb.Common.Application.Exceptions;
 using SilverbridgeWeb.Common.Domain;
 using SilverbridgeWeb.Modules.Events.IntegrationEvents;
@@ -7,14 +7,16 @@ using SilverbridgeWeb.Modules.Ticketing.Application.TicketTypes.UpdateTicketType
 
 namespace SilverbridgeWeb.Modules.Ticketing.Presentation.TicketTypes;
 
-public sealed class TicketTypePriceChangedIntegrationEventConsumer(ISender sender)
-    : IConsumer<TicketTypePriceChangedIntegrationEvent>
+internal sealed class TicketTypePriceChangedIntegrationEventHandler(ISender sender)
+    : IntegrationEventHandler<TicketTypePriceChangedIntegrationEvent>
 {
-    public async Task Consume(ConsumeContext<TicketTypePriceChangedIntegrationEvent> context)
+    public override async Task Handle(
+        TicketTypePriceChangedIntegrationEvent integrationEvent,
+        CancellationToken cancellationToken = default)
     {
         Result result = await sender.Send(
-            new UpdateTicketTypePriceCommand(context.Message.TicketTypeId, context.Message.Price),
-            context.CancellationToken);
+            new UpdateTicketTypePriceCommand(integrationEvent.TicketTypeId, integrationEvent.Price),
+            cancellationToken);
 
         if (result.IsFailure)
         {

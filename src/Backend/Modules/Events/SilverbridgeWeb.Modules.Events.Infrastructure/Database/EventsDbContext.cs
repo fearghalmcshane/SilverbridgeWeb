@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using SilverbridgeWeb.Common.Infrastructure.Inbox;
 using SilverbridgeWeb.Common.Infrastructure.Outbox;
 using SilverbridgeWeb.Modules.Events.Application.Abstractions.Data;
 using SilverbridgeWeb.Modules.Events.Domain.Categories;
@@ -29,6 +30,8 @@ public sealed class EventsDbContext(DbContextOptions<EventsDbContext> options) :
 
         modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration());
         modelBuilder.ApplyConfiguration(new OutboxMessageConsumerConfiguration());
+        modelBuilder.ApplyConfiguration(new InboxMessageConfiguration());
+        modelBuilder.ApplyConfiguration(new InboxMessageConsumerConfiguration());
         modelBuilder.ApplyConfiguration(new EventConfiguration());
         modelBuilder.ApplyConfiguration(new TicketTypeConfiguration());
     }

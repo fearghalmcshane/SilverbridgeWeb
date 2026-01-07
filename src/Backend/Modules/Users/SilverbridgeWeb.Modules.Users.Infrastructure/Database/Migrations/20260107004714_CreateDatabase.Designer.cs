@@ -12,7 +12,7 @@ using SilverbridgeWeb.Modules.Users.Infrastructure.Database;
 namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
-    [Migration("20260106235934_CreateDatabase")]
+    [Migration("20260107004714_CreateDatabase")]
     partial class CreateDatabase
     {
         /// <inheritdoc />
@@ -204,6 +204,59 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
                         .HasDatabaseName("ix_user_roles_user_id");
 
                     b.ToTable("user_roles", "users");
+                });
+
+            modelBuilder.Entity("SilverbridgeWeb.Common.Infrastructure.Inbox.InboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("jsonb")
+                        .HasColumnName("content");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text")
+                        .HasColumnName("error");
+
+                    b.Property<DateTime>("OccurredOnUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_on_utc");
+
+                    b.Property<DateTime?>("ProcessedOnUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("processed_on_utc");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_inbox_messages");
+
+                    b.ToTable("inbox_messages", "users");
+                });
+
+            modelBuilder.Entity("SilverbridgeWeb.Common.Infrastructure.Inbox.InboxMessageConsumer", b =>
+                {
+                    b.Property<Guid>("InboxMessageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("inbox_message_id");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("name");
+
+                    b.HasKey("InboxMessageId", "Name")
+                        .HasName("pk_inbox_message_consumers");
+
+                    b.ToTable("inbox_message_consumers", "users");
                 });
 
             modelBuilder.Entity("SilverbridgeWeb.Common.Infrastructure.Outbox.OutboxMessage", b =>

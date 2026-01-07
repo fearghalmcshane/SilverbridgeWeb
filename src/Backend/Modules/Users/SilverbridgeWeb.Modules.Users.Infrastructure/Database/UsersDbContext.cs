@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using SilverbridgeWeb.Common.Infrastructure.Inbox;
 using SilverbridgeWeb.Common.Infrastructure.Outbox;
 using SilverbridgeWeb.Modules.Users.Application.Abstractions.Data;
 using SilverbridgeWeb.Modules.Users.Domain.Users;
@@ -22,6 +23,8 @@ public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options) : D
 
         modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration());
         modelBuilder.ApplyConfiguration(new OutboxMessageConsumerConfiguration());
+        modelBuilder.ApplyConfiguration(new InboxMessageConfiguration());
+        modelBuilder.ApplyConfiguration(new InboxMessageConsumerConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new RoleConfiguration());
         modelBuilder.ApplyConfiguration(new PermissionConfiguration());
