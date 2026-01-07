@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.Eventing.Reader;
-using MassTransit;
+﻿using MassTransit;
 using MediatR;
 using SilverbridgeWeb.Common.Application.Exceptions;
 using SilverbridgeWeb.Common.Domain;
