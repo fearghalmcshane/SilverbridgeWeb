@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SilverbridgeWeb.Modules.Attendance.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Events.Infrastructure.Database;
+using SilverbridgeWeb.Modules.News.Infrastructure.Database;
+using SilverbridgeWeb.Modules.Teams.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Users.Infrastructure.Database;
 
@@ -16,6 +18,8 @@ internal static class MigrationExtensions
         ApplyMigration<UsersDbContext>(scope);
         ApplyMigration<TicketingDbContext>(scope);
         ApplyMigration<AttendanceDbContext>(scope);
+        ApplyMigration<TeamsDbContext>(scope);
+        ApplyMigration<NewsDbContext>(scope);
     }
 
     private static void ApplyMigration<TDbContext>(IServiceScope scope)

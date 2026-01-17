@@ -40,6 +40,18 @@
   <Folder Name="/src/Backend/Modules/Events/test/">
     <Project Path="src/Backend/Modules/Events/test/SilverbridgeWeb.Modules.Events.ArchitectureTests/SilverbridgeWeb.Modules.Events.ArchitectureTests.csproj" Id="1e67ce8c-9a27-4fa6-90a0-1bb71e65e249" />
   </Folder>
+  <Folder Name="/src/Backend/Modules/News/">
+    <Project Path="src/Backend/Modules/News/SilverbridgeWeb.Modules.News.Application/SilverbridgeWeb.Modules.News.Application.csproj" />
+    <Project Path="src/Backend/Modules/News/SilverbridgeWeb.Modules.News.Domain/SilverbridgeWeb.Modules.News.Domain.csproj" />
+    <Project Path="src/Backend/Modules/News/SilverbridgeWeb.Modules.News.Infrastructure/SilverbridgeWeb.Modules.News.Infrastructure.csproj" />
+    <Project Path="src/Backend/Modules/News/SilverbridgeWeb.Modules.News.Presentation/SilverbridgeWeb.Modules.News.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Backend/Modules/Teams/">
+    <Project Path="src/Backend/Modules/Teams/SilverbridgeWeb.Modules.Teams.Application/SilverbridgeWeb.Modules.Teams.Application.csproj" />
+    <Project Path="src/Backend/Modules/Teams/SilverbridgeWeb.Modules.Teams.Domain/SilverbridgeWeb.Modules.Teams.Domain.csproj" />
+    <Project Path="src/Backend/Modules/Teams/SilverbridgeWeb.Modules.Teams.Infrastructure/SilverbridgeWeb.Modules.Teams.Infrastructure.csproj" />
+    <Project Path="src/Backend/Modules/Teams/SilverbridgeWeb.Modules.Teams.Presentation/SilverbridgeWeb.Modules.Teams.Presentation.csproj" />
+  </Folder>
   <Folder Name="/src/Backend/Modules/Ticketing/">
     <Project Path="src/Backend/Modules/Ticketing/SilverbridgeWeb.Modules.Ticketing.Application/SilverbridgeWeb.Modules.Ticketing.Application.csproj" />
     <Project Path="src/Backend/Modules/Ticketing/SilverbridgeWeb.Modules.Ticketing.Domain/SilverbridgeWeb.Modules.Ticketing.Domain.csproj" />

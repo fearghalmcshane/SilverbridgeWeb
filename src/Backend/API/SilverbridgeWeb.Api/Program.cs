@@ -6,6 +6,8 @@ using SilverbridgeWeb.Common.Infrastructure;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Attendance.Infrastructure;
 using SilverbridgeWeb.Modules.Events.Infrastructure;
+using SilverbridgeWeb.Modules.News.Infrastructure;
+using SilverbridgeWeb.Modules.Teams.Infrastructure;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure;
 using SilverbridgeWeb.Modules.Users.Infrastructure;
 
@@ -20,7 +22,9 @@ builder.Services.AddApplication([
     SilverbridgeWeb.Modules.Events.Application.AssemblyReference.Assembly,
     SilverbridgeWeb.Modules.Users.Application.AssemblyReference.Assembly,
     SilverbridgeWeb.Modules.Ticketing.Application.AssemblyReference.Assembly,
-    SilverbridgeWeb.Modules.Attendance.Application.AssemblyReference.Assembly]);
+    SilverbridgeWeb.Modules.Attendance.Application.AssemblyReference.Assembly,
+    SilverbridgeWeb.Modules.Teams.Application.AssemblyReference.Assembly,
+    SilverbridgeWeb.Modules.News.Application.AssemblyReference.Assembly]);
 
 builder.Services.AddInfrastructure(
     [
@@ -32,12 +36,14 @@ builder.Services.AddInfrastructure(
     builder.Configuration["KeyCloak:Authority"]!
 );
 
-builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing", "attendance"]);
+builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing", "attendance", "teams", "news"]);
 
 builder.Services.AddEventsModule(builder.Configuration);
 builder.Services.AddUsersModule(builder.Configuration);
 builder.Services.AddTicketingModule(builder.Configuration);
 builder.Services.AddAttendanceModule(builder.Configuration);
+builder.Services.AddTeamsModule(builder.Configuration);
+builder.Services.AddNewsModule(builder.Configuration);
 
 builder.Services.AddCors();
 builder.Services.AddOpenApi();

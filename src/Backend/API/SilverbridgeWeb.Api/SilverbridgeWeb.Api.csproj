@@ -13,6 +13,8 @@
     <ProjectReference Include="..\..\..\Aspire\SilverbridgeWeb.ServiceDefaults\SilverbridgeWeb.ServiceDefaults.csproj" />
     <ProjectReference Include="..\..\Modules\Attendance\SilverbridgeWeb.Modules.Attendance.Infrastructure\SilverbridgeWeb.Modules.Attendance.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Events\SilverbridgeWeb.Modules.Events.Infrastructure\SilverbridgeWeb.Modules.Events.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\News\SilverbridgeWeb.Modules.News.Infrastructure\SilverbridgeWeb.Modules.News.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Teams\SilverbridgeWeb.Modules.Teams.Infrastructure\SilverbridgeWeb.Modules.Teams.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Ticketing\SilverbridgeWeb.Modules.Ticketing.Infrastructure\SilverbridgeWeb.Modules.Ticketing.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Users\SilverbridgeWeb.Modules.Users.Infrastructure\SilverbridgeWeb.Modules.Users.Infrastructure.csproj" />
   </ItemGroup>

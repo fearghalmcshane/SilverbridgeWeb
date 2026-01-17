@@ -1,0 +1,12 @@
+{
+  "Teams": {
+    "Outbox": {
+      "IntervalInSeconds": 5,
+      "BatchSize": 20
+    },
+    "Inbox": {
+      "IntervalInSeconds": 5,
+      "BatchSize": 20
+    }
+  }
+}
