@@ -18,7 +18,7 @@ namespace SilverbridgeWeb.Modules.Teams.Infrastructure.Database.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("teams")
-                .HasAnnotation("ProductVersion", "10.0.1")
+                .HasAnnotation("ProductVersion", "10.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -153,6 +153,10 @@ namespace SilverbridgeWeb.Modules.Teams.Infrastructure.Database.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("name");
+
+                    b.Property<int>("SportType")
+                        .HasColumnType("integer")
+                        .HasColumnName("sport_type");
 
                     b.HasKey("Id")
                         .HasName("pk_teams");

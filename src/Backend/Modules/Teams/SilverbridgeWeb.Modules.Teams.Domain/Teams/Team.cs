@@ -14,6 +14,8 @@ public sealed class Team : Entity
 
     public string Name { get; private set; }
 
+    public SportType SportType { get; private set; }
+
     public AgeGroup AgeGroup { get; private set; }
 
     public string? CoachName { get; private set; }
@@ -25,6 +27,7 @@ public sealed class Team : Entity
     public static Result<Team> Create(
         string name,
         AgeGroup ageGroup,
+        SportType sportType,
         string? coachName = null)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -37,11 +40,12 @@ public sealed class Team : Entity
             Id = Guid.NewGuid(),
             Name = name,
             AgeGroup = ageGroup,
+            SportType = sportType,
             CoachName = coachName,
             IsActive = true
         };
 
-        team.Raise(new TeamCreatedDomainEvent(team.Id, team.Name, team.AgeGroup));
+        team.Raise(new TeamCreatedDomainEvent(team.Id, team.Name, team.AgeGroup, team.SportType));
 
         return team;
     }

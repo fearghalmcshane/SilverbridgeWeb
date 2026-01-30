@@ -6,6 +6,7 @@ public sealed record TeamResponse(
     Guid Id,
     string Name,
     AgeGroup AgeGroup,
+    SportType SportType,
     string? CoachName,
     bool IsActive,
     int SquadMemberCount);

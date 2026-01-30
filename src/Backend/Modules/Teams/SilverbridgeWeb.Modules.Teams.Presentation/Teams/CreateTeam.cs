@@ -19,6 +19,7 @@ internal sealed class CreateTeam : IEndpoint
             Result<Guid> result = await sender.Send(new CreateTeamCommand(
                 request.Name,
                 request.AgeGroup,
+                request.SportType,
                 request.CoachName));
 
             return result.Match(Results.Ok, ApiResults.Problem);
@@ -32,6 +33,8 @@ internal sealed class CreateTeam : IEndpoint
         public string Name { get; init; } = string.Empty;
 
         public AgeGroup AgeGroup { get; init; }
+
+        public SportType SportType { get; init; }
 
         public string? CoachName { get; init; }
     }

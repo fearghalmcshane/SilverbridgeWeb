@@ -21,6 +21,7 @@ internal sealed class GetTeamsQueryHandler(IDbConnectionFactory dbConnectionFact
                  t.id AS {nameof(TeamResponse.Id)},
                  t.name AS {nameof(TeamResponse.Name)},
                  t.age_group AS {nameof(TeamResponse.AgeGroup)},
+                 t.sport_type AS {nameof(TeamResponse.SportType)},
                  t.coach_name AS {nameof(TeamResponse.CoachName)},
                  t.is_active AS {nameof(TeamResponse.IsActive)},
                  COALESCE(sm_count.count, 0) AS {nameof(TeamResponse.SquadMemberCount)}

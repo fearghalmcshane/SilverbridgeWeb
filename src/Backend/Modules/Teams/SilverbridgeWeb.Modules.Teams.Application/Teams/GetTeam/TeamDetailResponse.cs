@@ -12,6 +12,7 @@ public sealed record TeamDetailResponse(
     Guid Id,
     string Name,
     AgeGroup AgeGroup,
+    SportType SportType,
     string? CoachName,
     bool IsActive,
     IReadOnlyCollection<SquadMemberResponse> SquadMembers);

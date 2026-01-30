@@ -22,6 +22,7 @@ internal sealed class CreateTeamCommandHandler(
         Result<Team> result = Team.Create(
             request.Name,
             request.AgeGroup,
+            request.SportType,
             request.CoachName);
 
         if (result.IsFailure)

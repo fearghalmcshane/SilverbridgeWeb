@@ -6,4 +6,5 @@ namespace SilverbridgeWeb.Modules.Teams.Application.Teams.CreateTeam;
 public sealed record CreateTeamCommand(
     string Name,
     AgeGroup AgeGroup,
+    SportType SportType,
     string? CoachName = null) : ICommand<Guid>;

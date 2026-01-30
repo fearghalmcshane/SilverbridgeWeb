@@ -22,6 +22,7 @@ internal sealed class GetTeamQueryHandler(ITeamRepository teamRepository)
             team.Id,
             team.Name,
             team.AgeGroup,
+            team.SportType,
             team.CoachName,
             team.IsActive,
             team.SquadMembers.Select(m => new SquadMemberResponse(

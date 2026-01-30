@@ -23,6 +23,10 @@ internal sealed class TeamConfiguration : IEntityTypeConfiguration<Team>
             .HasConversion<int>()
             .IsRequired();
 
+        builder.Property(t => t.SportType)
+            .HasConversion<int>()
+            .IsRequired();
+
         builder.Property(t => t.CoachName)
             .HasMaxLength(200);
 

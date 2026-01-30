@@ -83,6 +83,7 @@ namespace SilverbridgeWeb.Modules.Teams.Infrastructure.Database.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    sport_type = table.Column<int>(type: "integer", nullable: false),
                     age_group = table.Column<int>(type: "integer", nullable: false),
                     coach_name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     is_active = table.Column<bool>(type: "boolean", nullable: false)
