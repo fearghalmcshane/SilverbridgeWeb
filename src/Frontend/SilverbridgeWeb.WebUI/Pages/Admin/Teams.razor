@@ -1,0 +1,12 @@
+@page "/admin/teams"
+@layout AdminLayout
+@attribute [Authorize(Policy = "Admin")]
+
+<PageTitle>Teams - Admin - Silverbridge Harps</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4">Teams Management</MudText>
+    <MudAlert Severity="Severity.Info">
+        Teams and squad management will be available here. Manage age groups from U6 to Senior.
+    </MudAlert>
+</MudContainer>

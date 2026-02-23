@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -49,7 +49,12 @@ builder.Services.AddAuthentication("silverbridgewebAuth")
     })
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
 
-builder.Services.AddAuthorizationBuilder();
+builder.Services.AddScoped<IClaimsTransformation, KeycloakRolesClaimsTransformation>();
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("Admin", policy => policy.RequireRole("Admin", "Administrator"))
+    .AddPolicy("Coach", policy => policy.RequireRole("Coach", "Admin", "Administrator"))
+    .AddPolicy("Player", policy => policy.RequireRole("Player", "Coach", "Admin", "Administrator"));
 builder.Services.AddCascadingAuthenticationState();
 
 WebApplication app = builder.Build();

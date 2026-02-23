@@ -1,0 +1,12 @@
+@page "/admin/settings"
+@layout AdminLayout
+@attribute [Authorize(Policy = "Admin")]
+
+<PageTitle>Settings - Admin - Silverbridge Harps</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4">Settings</MudText>
+    <MudAlert Severity="Severity.Info">
+        Portal and club settings will be available here.
+    </MudAlert>
+</MudContainer>

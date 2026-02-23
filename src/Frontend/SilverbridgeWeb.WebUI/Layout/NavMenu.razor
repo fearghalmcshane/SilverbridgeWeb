@@ -1,9 +1,15 @@
-﻿<MudNavMenu>
+<MudNavMenu>
     <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">Home</MudNavLink>
 
     <AuthorizeView>
         <Authorized>
             <MudNavLink Href="/categories" Icon="@Icons.Material.Filled.Category" Match="NavLinkMatch.Prefix">Categories</MudNavLink>
+        </Authorized>
+    </AuthorizeView>
+
+    <AuthorizeView Policy="Admin">
+        <Authorized>
+            <MudNavLink Href="/admin" Icon="@Icons.Material.Filled.AdminPanelSettings" Match="NavLinkMatch.Prefix">Admin</MudNavLink>
         </Authorized>
     </AuthorizeView>
 

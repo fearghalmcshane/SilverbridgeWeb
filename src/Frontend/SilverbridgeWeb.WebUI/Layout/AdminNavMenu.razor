@@ -1,0 +1,26 @@
+<MudNavMenu>
+    <MudNavLink Href="/admin" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.All">
+        Dashboard
+    </MudNavLink>
+
+    <MudNavGroup Title="Content" Expanded="true">
+        <MudNavLink Href="/admin/news" Icon="@Icons.Material.Filled.Article" Match="NavLinkMatch.Prefix">
+            News
+        </MudNavLink>
+    </MudNavGroup>
+
+    <MudNavGroup Title="Club Management" Expanded="true">
+        <MudNavLink Href="/admin/teams" Icon="@Icons.Material.Filled.Groups" Match="NavLinkMatch.Prefix">
+            Teams
+        </MudNavLink>
+        <MudNavLink Href="/admin/events" Icon="@Icons.Material.Filled.Event" Match="NavLinkMatch.Prefix">
+            Events
+        </MudNavLink>
+    </MudNavGroup>
+
+    <MudNavGroup Title="Settings" Expanded="false">
+        <MudNavLink Href="/admin/settings" Icon="@Icons.Material.Filled.Settings" Match="NavLinkMatch.Prefix">
+            Settings
+        </MudNavLink>
+    </MudNavGroup>
+</MudNavMenu>

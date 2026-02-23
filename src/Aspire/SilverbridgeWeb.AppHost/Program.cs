@@ -19,7 +19,8 @@ IResourceBuilder<ParameterResource> keycloakPassword = builder.AddParameter("key
 int? keycloakPort = builder.ExecutionContext.IsRunMode ? 8085 : null;
 
 IResourceBuilder<KeycloakResource> keycloak = builder.AddKeycloak("silverbridgewebAuth", adminPassword: keycloakPassword, port: keycloakPort)
-    .WithLifetime(ContainerLifetime.Persistent);
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithOtlpExporter();
 
 if (builder.ExecutionContext.IsRunMode)
 {

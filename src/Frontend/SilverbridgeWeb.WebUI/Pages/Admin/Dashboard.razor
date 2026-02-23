@@ -1,0 +1,72 @@
+@page "/admin"
+@page "/admin/dashboard"
+@layout AdminLayout
+@attribute [Authorize(Policy = "Admin")]
+
+<PageTitle>Admin Dashboard - Silverbridge Harps</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4">Dashboard</MudText>
+    <MudText Typo="Typo.body1" Class="mb-4">
+        Welcome to the Silverbridge Harps admin portal. Use the menu to manage news, teams, events, and settings.
+    </MudText>
+
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="pa-4">
+                <MudCardContent>
+                    <MudStack Spacing="2">
+                        <MudIcon Icon="@Icons.Material.Filled.Article" Color="Color.Primary" Size="Size.Large" />
+                        <MudText Typo="Typo.h6">News</MudText>
+                        <MudText Typo="Typo.body2">Manage club news and announcements</MudText>
+                        <MudButton Href="/admin/news" Variant="Variant.Text" Color="Color.Primary">
+                            Go to News
+                        </MudButton>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="pa-4">
+                <MudCardContent>
+                    <MudStack Spacing="2">
+                        <MudIcon Icon="@Icons.Material.Filled.Groups" Color="Color.Secondary" Size="Size.Large" />
+                        <MudText Typo="Typo.h6">Teams</MudText>
+                        <MudText Typo="Typo.body2">Manage teams and squad rosters</MudText>
+                        <MudButton Href="/admin/teams" Variant="Variant.Text" Color="Color.Primary">
+                            Go to Teams
+                        </MudButton>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="pa-4">
+                <MudCardContent>
+                    <MudStack Spacing="2">
+                        <MudIcon Icon="@Icons.Material.Filled.Event" Color="Color.Tertiary" Size="Size.Large" />
+                        <MudText Typo="Typo.h6">Events</MudText>
+                        <MudText Typo="Typo.body2">Manage events and categories</MudText>
+                        <MudButton Href="/admin/events" Variant="Variant.Text" Color="Color.Primary">
+                            Go to Events
+                        </MudButton>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="pa-4">
+                <MudCardContent>
+                    <MudStack Spacing="2">
+                        <MudIcon Icon="@Icons.Material.Filled.Settings" Color="Color.Info" Size="Size.Large" />
+                        <MudText Typo="Typo.h6">Settings</MudText>
+                        <MudText Typo="Typo.body2">Portal and club settings</MudText>
+                        <MudButton Href="/admin/settings" Variant="Variant.Text" Color="Color.Primary">
+                            Go to Settings
+                        </MudButton>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
