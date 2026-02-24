@@ -18,17 +18,26 @@ internal sealed class RequestLoggingPipelineBehavior<TRequest, TResponse>(
         string moduleName = GetModuleName(typeof(TRequest).FullName!);
         string requestName = typeof(TRequest).Name;
 
-        logger.LogInformation("{ModuleName} Module: Processing request {RequestName}", moduleName, requestName);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("{ModuleName} Module: Processing request {RequestName}", moduleName, requestName);
+        }
 
         TResponse result = await next(cancellationToken);
 
         if (result.IsSuccess)
         {
-            logger.LogInformation("{ModuleName} Module: Completed request {RequestName}", moduleName, requestName);
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation("{ModuleName} Module: Completed request {RequestName}", moduleName, requestName);
+            }
         }
         else
         {
-            logger.LogError("{ModuleName} Module: Completed request {RequestName} with error", moduleName, requestName);
+            if (logger.IsEnabled(LogLevel.Error))
+            {
+                logger.LogError("{ModuleName} Module: Completed request {RequestName} with error", moduleName, requestName);
+            }
         }
 
         return result;
