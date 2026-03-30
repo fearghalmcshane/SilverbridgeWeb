@@ -5,7 +5,8 @@ const string keycloakRealm = "silverbridge";
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
 IResourceBuilder<AzurePostgresFlexibleServerResource> postgres = builder.AddAzurePostgresFlexibleServer("postgres")
-    .RunAsContainer(options => {
+    .RunAsContainer(options =>
+    {
         options.WithDataVolume();
         options.WithPgAdmin(pgadmin =>
         {
@@ -86,6 +87,10 @@ builder.AddProject<Projects.SilverbridgeWeb_WebUI>("silverbridgeweb-webui")
     .WaitFor(api)
     .WithEnvironment("Authentication__Schemes__OpenIdConnect__ClientSecret", keycloakClientSecret)
     .WithEnvironment("Authentication__Schemes__OpenIdconnect__Authority", keycloakAuthority);
+
+builder.AddViteApp(name: "silverbridgeweb-site", appDirectory: "../../Frontend/SilverbridgeWeb.Site")
+    .WithReference(api)
+    .WaitFor(api);
 
 string acaEnvironmentName = Environment.GetEnvironmentVariable("ACA_ENVIRONMENT_NAME") ?? "silverbridgeweb-env";
 

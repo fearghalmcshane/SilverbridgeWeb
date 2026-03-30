@@ -61,6 +61,10 @@
     <Project Path="src/Backend/Modules/Users/test/SilverbridgeWeb.Modules.Users.ArchitectureTests/SilverbridgeWeb.Modules.Users.ArchitectureTests.csproj" Id="c8bd39df-03a5-44b7-9f06-3b0edd2e1f6c" />
   </Folder>
   <Folder Name="/src/Frontend/">
+    <Project Path="src/Frontend/SilverbridgeWeb.Site/SilverbridgeWeb.Site.esproj">
+      <Build />
+      <Deploy />
+    </Project>
     <Project Path="src/Frontend/SilverbridgeWeb.WebUI/SilverbridgeWeb.WebUI.csproj" />
   </Folder>
   <Folder Name="/test/">
