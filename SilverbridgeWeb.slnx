@@ -50,6 +50,11 @@
   <Folder Name="/src/Backend/Modules/Ticketing/test/">
     <Project Path="src/Backend/Modules/Ticketing/test/SilverbridgeWeb.Modules.Ticketing.ArchitectureTests/SilverbridgeWeb.Modules.Ticketing.ArchitectureTests.csproj" Id="f4a3389a-ecef-4eba-9aa0-51f459332e39" />
   </Folder>
+  <Folder Name="/src/Backend/Modules/Foireann/">
+    <Project Path="src/Backend/Modules/Foireann/SilverbridgeWeb.Modules.Foireann.Application/SilverbridgeWeb.Modules.Foireann.Application.csproj" />
+    <Project Path="src/Backend/Modules/Foireann/SilverbridgeWeb.Modules.Foireann.Infrastructure/SilverbridgeWeb.Modules.Foireann.Infrastructure.csproj" />
+    <Project Path="src/Backend/Modules/Foireann/SilverbridgeWeb.Modules.Foireann.Presentation/SilverbridgeWeb.Modules.Foireann.Presentation.csproj" />
+  </Folder>
   <Folder Name="/src/Backend/Modules/Users/">
     <Project Path="src/Backend/Modules/Users/SilverbridgeWeb.Modules.Users.Application/SilverbridgeWeb.Modules.Users.Application.csproj" />
     <Project Path="src/Backend/Modules/Users/SilverbridgeWeb.Modules.Users.Domain/SilverbridgeWeb.Modules.Users.Domain.csproj" />

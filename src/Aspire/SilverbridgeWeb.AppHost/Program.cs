@@ -5,7 +5,8 @@ const string keycloakRealm = "silverbridge";
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
 IResourceBuilder<AzurePostgresFlexibleServerResource> postgres = builder.AddAzurePostgresFlexibleServer("postgres")
-    .RunAsContainer(options => {
+    .RunAsContainer(options =>
+    {
         options.WithDataVolume();
         options.WithPgAdmin(pgadmin =>
         {
@@ -59,6 +60,9 @@ IResourceBuilder<RedisResource> redis = builder.AddRedis("redis")
 
 IResourceBuilder<ParameterResource> keycloakConfidentialClientSecret = builder.AddParameter("keycloak-confidential-client-secret", secret: true);
 
+IResourceBuilder<ParameterResource> foireannPrimaryKey = builder.AddParameter("foireann-primary-api-key", secret: true);
+IResourceBuilder<ParameterResource> foireannSecondaryKey = builder.AddParameter("foireann-secondary-api-key", secret: true);
+
 IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.SilverbridgeWeb_Api>("silverbridgeweb-api")
     .WithReference(keycloak)
     .WithReference(silverbridgeDb)
@@ -72,6 +76,8 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Silverbridge
     .WithEnvironment("KeyCloak__ConfidentialClientId", "silverbridge-confidential-client")
     .WithEnvironment("KeyCloak__ConfidentialClientSecret", keycloakConfidentialClientSecret)
     .WithEnvironment("KeyCloak__PublicClientId", "silverbridge-public-client")
+    .WithEnvironment("Foireann__PrimaryApiKey", foireannPrimaryKey)
+    .WithEnvironment("Foireann__SecondaryApiKey", foireannSecondaryKey)
     .WithHttpHealthCheck("/health");
 
 IResourceBuilder<ParameterResource> keycloakClientSecret = builder.AddParameter("keycloakClientSecret", secret: true);

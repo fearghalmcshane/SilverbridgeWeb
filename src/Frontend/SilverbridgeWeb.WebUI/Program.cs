@@ -27,6 +27,11 @@ builder.Services.AddHttpClient<EventsApiClient>(client =>
 })
 .AddHttpMessageHandler<AuthorizationHandler>();
 
+builder.Services.AddHttpClient<FoireannApiClient>(client =>
+{
+    client.BaseAddress = new("https+http://silverbridgeweb-api/");
+});
+
 builder.Services.AddAuthentication("silverbridgewebAuth")
     .AddKeycloakOpenIdConnect("silverbridgewebAuth", realm: "silverbridge", "silverbridgewebAuth", options =>
     {
@@ -78,7 +83,7 @@ app.MapGet("/authentication/login", () =>
     return TypedResults.Challenge(new AuthenticationProperties
     {
         RedirectUri = "/"
-    }, [ "silverbridgewebAuth" ] );
+    }, ["silverbridgewebAuth"]);
 })
 .AllowAnonymous();
 

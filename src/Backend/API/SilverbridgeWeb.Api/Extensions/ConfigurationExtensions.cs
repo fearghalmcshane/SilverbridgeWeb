@@ -9,5 +9,10 @@ internal static class ConfigurationExtensions
             configurationBuilder.AddJsonFile($"modules.{module}.json", optional: false, reloadOnChange: true);
             configurationBuilder.AddJsonFile($"modules.{module}.Development.json", optional: true, reloadOnChange: true);
         }
+
+        // Re-add environment variables so they take precedence over module JSON files.
+        // This ensures values injected by Aspire (e.g. Foireann__PrimaryApiKey) are not
+        // overridden by placeholder values in the module config files.
+        configurationBuilder.AddEnvironmentVariables();
     }
 }

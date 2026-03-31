@@ -1,0 +1,6 @@
+{
+  "Foireann": {
+    "BaseUrl": "https://api.foireann.ie/open-data/",
+    "CacheTtlMinutes": 60
+  }
+}
