@@ -1,0 +1,382 @@
+@page "/fixtures"
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+@inject FoireannApiClient FoireannClient
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<PageTitle>Fixtures & Results - Silverbridge Harps GAC</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudText Typo="Typo.h3" GutterBottom="true">
+        <MudIcon Icon="@Icons.Material.Filled.SportsSoccer" Class="mr-2" />
+        Fixtures &amp; Results
+    </MudText>
+
+    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" Class="mb-4"
+             ActivePanelIndexChanged="OnTabChanged">
+
+        <!-- ───────────── UPCOMING FIXTURES TAB ───────────── -->
+        <MudTabPanel Text="Upcoming Fixtures" Icon="@Icons.Material.Filled.CalendarMonth">
+            @RenderFilters()
+            @if (fixturesLoading)
+            {
+                <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+            }
+            else
+            {
+                @RenderCards(upcomingFixtures, "No upcoming fixtures in the next 30 days.")
+                @RenderPagination(upcomingFixtures, upcomingPage, OnUpcomingPageChanged)
+            }
+        </MudTabPanel>
+
+        <!-- ───────────── RESULTS TAB ───────────── -->
+        <MudTabPanel Text="Results" Icon="@Icons.Material.Filled.EmojiEvents">
+            @RenderFilters()
+            @if (resultsLoading)
+            {
+                <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+            }
+            else
+            {
+                @RenderCards(recentResults, "No results in the past 14 days.")
+                @RenderPagination(recentResults, resultsPage, OnResultsPageChanged)
+            }
+        </MudTabPanel>
+
+    </MudTabs>
+</MudContainer>
+
+@* ── Shared filter bar (re-used by both tabs via RenderFragments) ── *@
+@code {
+    // ── Tab state ──────────────────────────────────────────────────
+    private int activeTab;
+
+    // ── Filter state ───────────────────────────────────────────────
+    private string? activityFilter;
+    private string? competitionId;
+
+    // ── Data state ─────────────────────────────────────────────────
+    private FoireannPagedResponse<FoireannFixtureDto>? upcomingFixtures;
+    private FoireannPagedResponse<FoireannFixtureDto>? recentResults;
+
+    private IEnumerable<FoireannCompetitionDto> AvailableCompetitions =>
+        (upcomingFixtures?.Data ?? [])
+            .Concat(recentResults?.Data ?? [])
+            .Where(f => f.Competition is not null)
+            .Select(f => f.Competition!)
+            .DistinctBy(c => c.Id)
+            .OrderBy(c => c.Name);
+
+    private bool fixturesLoading = true;
+    private bool resultsLoading = true;
+
+    private int upcomingPage;
+    private int resultsPage;
+
+    // ── Lifecycle ──────────────────────────────────────────────────
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.WhenAll(LoadUpcomingAsync(), LoadResultsAsync());
+    }
+
+    // ── Data loading ───────────────────────────────────────────────
+    private async Task LoadUpcomingAsync()
+    {
+        try
+        {
+            fixturesLoading = true;
+            string from = DateTime.Today.ToString("yyyy-MM-dd") + "T00:00:00Z";
+            string to = DateTime.Today.AddDays(30).ToString("yyyy-MM-dd") + "T23:59:59Z";
+            upcomingFixtures = await FoireannClient.GetFixturesAsync(
+                isResult: false,
+                startDateFrom: from,
+                startDateTo: to,
+                competitionId: competitionId,
+                activity: activityFilter,
+                page: upcomingPage,
+                size: 50,
+                sort: "startDate,asc");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to load fixtures: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            fixturesLoading = false;
+        }
+    }
+
+    private async Task LoadResultsAsync()
+    {
+        try
+        {
+            resultsLoading = true;
+            string from = DateTime.Today.AddDays(-14).ToString("yyyy-MM-dd") + "T00:00:00Z";
+            string to = DateTime.Today.ToString("yyyy-MM-dd") + "T23:59:59Z";
+            recentResults = await FoireannClient.GetFixturesAsync(
+                isResult: true,
+                startDateFrom: from,
+                startDateTo: to,
+                competitionId: competitionId,
+                activity: activityFilter,
+                page: resultsPage,
+                size: 50,
+                sort: "startDate,desc");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to load results: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            resultsLoading = false;
+        }
+    }
+
+    private Task ReloadActiveTab()
+    {
+        upcomingPage = 0;
+        resultsPage = 0;
+        return activeTab == 0 ? LoadUpcomingAsync() : LoadResultsAsync();
+    }
+
+    // ── Event handlers ─────────────────────────────────────────────
+    private async Task OnTabChanged(int index)
+    {
+        activeTab = index;
+        // Lazily kick off load only when switching if data already stale
+        // (data is pre-loaded on init so no extra call needed in most cases)
+        await Task.CompletedTask;
+    }
+
+    private async Task OnActivityFilterChanged(string? value)
+    {
+        activityFilter = value;
+        await ReloadActiveTab();
+    }
+
+    private async Task OnCompetitionChanged(string value)
+    {
+        competitionId = value;
+        await ReloadActiveTab();
+    }
+
+    private async Task OnUpcomingPageChanged(int newPage)
+    {
+        upcomingPage = newPage - 1;
+        await LoadUpcomingAsync();
+    }
+
+    private async Task OnResultsPageChanged(int newPage)
+    {
+        resultsPage = newPage - 1;
+        await LoadResultsAsync();
+    }
+
+    // ── Render fragments ───────────────────────────────────────────
+    private RenderFragment RenderFilters() => __builder =>
+    {
+        <div class="d-flex flex-wrap align-center gap-2 mb-3 mt-2 px-1">
+            <MudChipSet T="string" SelectionMode="SelectionMode.SingleSelection" SelectedValue="@activityFilter"
+                        SelectedValueChanged="OnActivityFilterChanged">
+                <MudChip T="string" Value="@((string?)null)" Default="true" Color="Color.Primary" Variant="Variant.Filled">All
+                </MudChip>
+                <MudChip T="string" Value="@("football")" Color="Color.Primary" Variant="Variant.Outlined">Football</MudChip>
+                <MudChip T="string" Value="@("ladies_football")" Color="Color.Secondary" Variant="Variant.Outlined">Ladies
+                    Football</MudChip>
+                </MudChipSet>
+
+                <MudSpacer />
+
+                <MudSelect T="string" Label="Competition" Value="competitionId" ValueChanged="OnCompetitionChanged"
+                           ToStringFunc="@(id => AvailableCompetitions.FirstOrDefault(c => c.Id == id)?.Name ?? id)" Clearable="true"
+                           Dense="true" Style="min-width:260px">
+                    @foreach (var comp in AvailableCompetitions)
+                    {
+                        <MudSelectItem T="string" Value="@comp.Id">@comp.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            </div>
+        }
+        ;
+
+    private static RenderFragment RenderCards(FoireannPagedResponse<FoireannFixtureDto>? data, string emptyMessage) =>
+__builder =>
+    {
+        if (data == null || data.Data.Count == 0)
+        {
+            <MudAlert Severity="Severity.Info" Class="mb-4">@emptyMessage</MudAlert>
+        }
+        else
+        {
+            // Group by date
+            var grouped = data.Data
+                .GroupBy(f => f.StartDate.HasValue
+                    ? f.StartDate.Value.LocalDateTime.Date
+                    : DateTime.MaxValue.Date)
+                .OrderBy(g => g.Key);
+
+            @foreach (var group in grouped)
+            {
+                string dateLabel = group.Key == DateTime.MaxValue.Date
+                    ? "Date TBC"
+                    : group.Key.ToString("dddd, d MMMM yyyy");
+
+                <MudText Typo="Typo.subtitle1" Class="mt-4 mb-2 px-1 mud-text-secondary text-uppercase"
+                         Style="font-size:0.78rem;letter-spacing:0.08em;font-weight:600">
+                    @dateLabel
+                </MudText>
+
+                @foreach (var fixture in group)
+                {
+                    <MudCard Elevation="1" Class="mb-3">
+                        <MudCardContent Class="pa-3">
+
+                            @* ── Competition / meta row ── *@
+                            <div class="d-flex align-center justify-space-between mb-2 flex-wrap gap-1">
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                    @(fixture.Competition?.Name ?? fixture.Division?.Name)
+                                    @if (!string.IsNullOrEmpty(fixture.Round))
+                                    {
+                                        <span> · @fixture.Round</span>
+                                    }
+                                </MudText>
+                                <div class="d-flex align-center gap-1">
+                                    @if (fixture.IsPostponed == true)
+                                    {
+                                        <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Filled">Postponed</MudChip>
+                                    }
+                                    @if (fixture.IsAbandoned == true)
+                                    {
+                                        <MudChip T="string" Size="Size.Small" Color="Color.Error" Variant="Variant.Filled">Abandoned</MudChip>
+                                    }
+                                    @if (fixture.IsReplay == true)
+                                    {
+                                        <MudChip T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Filled">Replay</MudChip>
+                                    }
+                                    @if (fixture.StartDate.HasValue)
+                                    {
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                            @fixture.StartDate.Value.LocalDateTime.ToString("HH:mm")
+                                        </MudText>
+                                    }
+                                </div>
+                            </div>
+
+                            @* ── Match row ── *@
+                            <div class="d-flex align-center justify-space-between gap-2">
+
+                                @* Home team *@
+                                <div class="d-flex flex-column align-center" style="flex:1;min-width:0">
+                                    <MudAvatar Style="width:52px;height:52px;margin-bottom:6px" Color="Color.Primary"
+                                               Variant="@(string.IsNullOrEmpty(fixture.HomeTeam?.Logo) ? Variant.Filled : Variant.Text)">
+                                        @if (!string.IsNullOrEmpty(fixture.HomeTeam?.Logo))
+                                        {
+                                            <img src="@fixture.HomeTeam.Logo" alt="@(fixture.HomeTeam?.Name ?? fixture.HomeTeamFallbackName)"
+                                                 style="width:100%;height:100%;object-fit:contain" />
+                                        }
+                                        else
+                                        {
+                                            @GetInitials(fixture.HomeTeam?.Name ?? fixture.HomeTeamFallbackName)
+                                        }
+                                    </MudAvatar>
+                                    <MudText Typo="Typo.body2" Align="Align.Center" Style="font-weight:600;word-break:break-word">
+                                        @(fixture.HomeTeam?.Name ?? fixture.HomeTeamFallbackName ?? "TBC")
+                                    </MudText>
+                                </div>
+
+                                @* Score / versus *@
+                                <div class="d-flex flex-column align-center" style="min-width:140px">
+                                    @if (fixture.IsResult)
+                                    {
+                                        <div class="d-flex align-center gap-2">
+                                            <MudText Typo="Typo.h5" Style="font-weight:700;line-height:1">
+                                                @FormatScore(fixture.HomeTeam)
+                                            </MudText>
+                                            <MudText Typo="Typo.caption" Class="mud-text-secondary px-1">FT</MudText>
+                                            <MudText Typo="Typo.h5" Style="font-weight:700;line-height:1">
+                                                @FormatScore(fixture.AwayTeam)
+                                            </MudText>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <MudText Typo="Typo.h5" Style="font-weight:300;color:var(--mud-palette-text-secondary)">
+                                            vs
+                                        </MudText>
+                                    }
+                                </div>
+
+                                @* Away team *@
+                                <div class="d-flex flex-column align-center" style="flex:1;min-width:0">
+                                    <MudAvatar Style="width:52px;height:52px;margin-bottom:6px" Color="Color.Secondary"
+                                               Variant="@(string.IsNullOrEmpty(fixture.AwayTeam?.Logo) ? Variant.Filled : Variant.Text)">
+                                        @if (!string.IsNullOrEmpty(fixture.AwayTeam?.Logo))
+                                        {
+                                            <img src="@fixture.AwayTeam.Logo" alt="@(fixture.AwayTeam?.Name ?? fixture.AwayTeamFallbackName)"
+                                                 style="width:100%;height:100%;object-fit:contain" />
+                                        }
+                                        else
+                                        {
+                                            @GetInitials(fixture.AwayTeam?.Name ?? fixture.AwayTeamFallbackName)
+                                        }
+                                    </MudAvatar>
+                                    <MudText Typo="Typo.body2" Align="Align.Center" Style="font-weight:600;word-break:break-word">
+                                        @(fixture.AwayTeam?.Name ?? fixture.AwayTeamFallbackName ?? "TBC")
+                                    </MudText>
+                                </div>
+
+                            </div>
+
+                            @* ── Venue / referee row ── *@
+                            @if (!string.IsNullOrEmpty(fixture.Place?.Name) || !string.IsNullOrEmpty(fixture.RefereeName))
+                            {
+                                <div class="d-flex align-center gap-2 mt-2 mud-text-secondary">
+                                    @if (!string.IsNullOrEmpty(fixture.Place?.Name))
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Outlined.Place" Size="Size.Small" />
+                                        <MudText Typo="Typo.caption">@fixture.Place!.Name</MudText>
+                                    }
+                                    @if (!string.IsNullOrEmpty(fixture.RefereeName))
+                                    {
+                                        <MudText Typo="Typo.caption" Class="ml-2">Ref: @fixture.RefereeName</MudText>
+                                    }
+                                </div>
+                            }
+
+                        </MudCardContent>
+                    </MudCard>
+                }
+            }
+        }
+    };
+
+    private RenderFragment RenderPagination(
+        FoireannPagedResponse<FoireannFixtureDto>? data,
+        int page,
+        Func<int, Task> onPageChanged) => __builder =>
+    {
+        if (data != null && data.Page.TotalPages > 1)
+        {
+            <MudPagination Class="mt-4 mb-2 d-flex justify-center" Count="@((int)data.Page.TotalPages)" Selected="@(page + 1)"
+                           SelectedChanged="onPageChanged" />
+        }
+    };
+
+    // ── Helpers ────────────────────────────────────────────────────
+    private static string FormatScore(FoireannTeamDto? team)
+    {
+        if (team == null) return "-";
+        return $"{team.Goals ?? 0}-{(team.Points ?? 0):D2}";
+    }
+
+    private static string GetInitials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length >= 2
+            ? $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant()
+            : name[..Math.Min(2, name.Length)].ToUpperInvariant();
+    }
+}

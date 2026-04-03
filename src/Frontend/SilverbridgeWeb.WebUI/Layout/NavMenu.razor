@@ -1,6 +1,11 @@
 ﻿<MudNavMenu>
     <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">Home</MudNavLink>
 
+    <MudNavGroup Title="Fixtures & Results" Expanded="true">
+        <MudNavLink Href="/fixtures" Icon="@Icons.Material.Filled.SportsSoccer" Match="NavLinkMatch.Prefix">Fixtures</MudNavLink>
+        @* <MudNavLink Href="/competitions" Icon="@Icons.Material.Filled.EmojiEvents" Match="NavLinkMatch.Prefix">Competitions</MudNavLink> *@
+    </MudNavGroup>
+
     <AuthorizeView>
         <Authorized>
             <MudNavLink Href="/categories" Icon="@Icons.Material.Filled.Category" Match="NavLinkMatch.Prefix">Categories</MudNavLink>

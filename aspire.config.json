@@ -1,0 +1,5 @@
+{
+    "appHost": {
+        "path": "src\\Aspire\\SilverbridgeWeb.AppHost\\SilverbridgeWeb.AppHost.csproj"
+    }
+}

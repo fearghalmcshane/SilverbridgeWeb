@@ -1,0 +1,166 @@
+@page "/competitions"
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+@inject FoireannApiClient FoireannClient
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<PageTitle>Competitions - Silverbridge Harps GAC</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudText Typo="Typo.h3" GutterBottom="true">
+        <MudIcon Icon="@Icons.Material.Filled.EmojiEvents" Class="mr-2" />
+        Competitions
+    </MudText>
+
+    <MudGrid Class="mb-4">
+        <MudItem xs="12" sm="6" md="3">
+            <MudTextField T="string" Label="Activity" @bind-Value="activity" Clearable="true"
+                          Placeholder="e.g. Football, Hurling" Immediate="false"
+                          OnKeyDown="OnSearchKeyDown" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudTextField T="string" Label="Grade" @bind-Value="grade" Clearable="true"
+                          Placeholder="e.g. Senior, Minor" Immediate="false"
+                          OnKeyDown="OnSearchKeyDown" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudTextField T="string" Label="Season" @bind-Value="season" Clearable="true"
+                          Placeholder="e.g. 2026" Immediate="false"
+                          OnKeyDown="OnSearchKeyDown" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3" Class="d-flex align-end">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadDataAsync"
+                       StartIcon="@Icons.Material.Filled.Search">
+                Search
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+
+    @if (isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+    }
+
+    @if (competitions == null && !isLoading)
+    {
+        <MudAlert Severity="Severity.Info" Class="mb-4">
+            No competitions found. Try adjusting your filters.
+        </MudAlert>
+    }
+    else if (competitions != null)
+    {
+        <MudGrid>
+            @foreach (var competition in competitions.Data)
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    <MudCard Elevation="2" Class="pa-4">
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6">@competition.Name</MudText>
+                            @if (!string.IsNullOrEmpty(competition.Sponsor))
+                            {
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                    @competition.Sponsor
+                                </MudText>
+                            }
+                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                @if (!string.IsNullOrEmpty(competition.Activity))
+                                {
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Primary">@competition.Activity</MudChip>
+                                }
+                                @if (!string.IsNullOrEmpty(competition.Grade))
+                                {
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Info">@competition.Grade</MudChip>
+                                }
+                                @if (!string.IsNullOrEmpty(competition.Season))
+                                {
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Default">@competition.Season</MudChip>
+                                }
+                                @if (!string.IsNullOrEmpty(competition.Gender))
+                                {
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Default">@competition.Gender</MudChip>
+                                }
+                                @if (!string.IsNullOrEmpty(competition.Status))
+                                {
+                                    <MudChip T="string" Size="Size.Small"
+                                             Color="@(competition.Status == "active" ? Color.Success : Color.Default)">
+                                        @competition.Status
+                                    </MudChip>
+                                }
+                            </div>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton Variant="Variant.Text" Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.SportsSoccer"
+                                       OnClick="@(() => ViewFixtures(competition.Id))">
+                                View Fixtures
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+
+        @if (competitions.Page.TotalPages > 1)
+        {
+            <MudPagination Class="mt-4 d-flex justify-center"
+                           Count="@((int)competitions.Page.TotalPages)"
+                           Selected="@(currentPage + 1)"
+                           SelectedChanged="OnPageChanged" />
+        }
+    }
+</MudContainer>
+
+@code {
+    private FoireannPagedResponse<FoireannCompetitionDto>? competitions;
+    private bool isLoading = true;
+    private string? activity;
+    private string? grade;
+    private string? season;
+    private int currentPage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            competitions = await FoireannClient.GetCompetitionsAsync(
+                activity: activity,
+                grade: grade,
+                season: season,
+                page: currentPage);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to load competitions: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task OnPageChanged(int newPage)
+    {
+        currentPage = newPage - 1;
+        await LoadDataAsync();
+    }
+
+    private async Task OnSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            currentPage = 0;
+            await LoadDataAsync();
+        }
+    }
+
+    private void ViewFixtures(string competitionId)
+    {
+        Navigation.NavigateTo($"/fixtures?competitionId={Uri.EscapeDataString(competitionId)}");
+    }
+}
