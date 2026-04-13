@@ -12,6 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+  	<PackageReference Include="OpenTelemetry.Extensions.Hosting" />
 		<ProjectReference Include="..\SilverbridgeWeb.Common.Application\SilverbridgeWeb.Common.Application.csproj" />
 	</ItemGroup>
 </Project>
