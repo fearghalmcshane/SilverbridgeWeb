@@ -51,8 +51,6 @@ builder.Services.AddAuthentication("silverbridgewebAuth")
         var authority = builder.Configuration["KeyCloak:Authority"];
         if (!string.IsNullOrEmpty(authority))
             options.Authority = authority;
-
-        options.RequireHttpsMetadata = false;
     })
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
 
