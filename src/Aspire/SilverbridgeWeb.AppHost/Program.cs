@@ -95,7 +95,7 @@ builder.AddProject<Projects.SilverbridgeWeb_WebUI>("silverbridgeweb-webui")
     .WithReference(api)
     .WaitFor(api)
     .WithEnvironment("Authentication__Schemes__OpenIdConnect__ClientSecret", keycloakClientSecret)
-    .WithEnvironment("Authentication__Schemes__OpenIdconnect__Authority", keycloakAuthority);
+    .WithEnvironment("KeyCloak__Authority", keycloakAuthority);
 
 string acaEnvironmentName = Environment.GetEnvironmentVariable("ACA_ENVIRONMENT_NAME") ?? "silverbridgeweb-env";
 

@@ -45,8 +45,13 @@ builder.Services.AddAuthentication("silverbridgewebAuth")
         options.SignOutScheme = "silverbridgewebAuth";
         options.MapInboundClaims = false;
 
-        // ACA container-to-container traffic is HTTP internally — the public endpoints are
-        // still HTTPS. KC_HOSTNAME ensures Keycloak issues correct external HTTPS URLs.
+        // Aspire service discovery uses https+http:// which doesn't satisfy RequireHttpsMetadata.
+        // Explicitly set Authority from config so the external HTTPS URL is used for token
+        // validation and browser redirects (KC_HOSTNAME ensures Keycloak issues matching URLs).
+        var authority = builder.Configuration["KeyCloak:Authority"];
+        if (!string.IsNullOrEmpty(authority))
+            options.Authority = authority;
+
         options.RequireHttpsMetadata = false;
     })
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
