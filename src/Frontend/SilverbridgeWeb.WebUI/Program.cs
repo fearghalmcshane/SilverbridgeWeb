@@ -45,8 +45,15 @@ builder.Services.AddAuthentication("silverbridgewebAuth")
         options.SignOutScheme = "silverbridgewebAuth";
         options.MapInboundClaims = false;
 
-        // For development only - disable HTTPS metadata validation
-        // In production, use explicit Authority configuration instead
+        // Explicitly set Authority from config so the external HTTPS URL is used for
+        // token validation and browser redirects (overrides Aspire service discovery
+        // which injects an internal http:// URL that fails RequireHttpsMetadata in prod).
+        string? authority = builder.Configuration["KeyCloak:Authority"];
+        if (!string.IsNullOrEmpty(authority))
+        {
+            options.Authority = authority;
+        }
+
         if (builder.Environment.IsDevelopment())
         {
             options.RequireHttpsMetadata = false;

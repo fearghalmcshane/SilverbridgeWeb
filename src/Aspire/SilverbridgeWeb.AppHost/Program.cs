@@ -28,6 +28,11 @@ if (builder.ExecutionContext.IsRunMode)
         .WithRealmImport("./Realms");
 }
 
+// These are lazy ReferenceExpressions — captured before IsPublishMode so they can be
+// referenced inside it, but evaluated at deploy time after WithEndpoint has run.
+var keycloakEndpoint = ReferenceExpression.Create($"{keycloak.GetEndpoint("http").Property(EndpointProperty.Url)}");
+var keycloakAuthority = ReferenceExpression.Create($"{keycloak.GetEndpoint("http").Property(EndpointProperty.Url)}/realms/{keycloakRealm}");
+
 if (builder.ExecutionContext.IsPublishMode)
 {
     IResourceBuilder<ParameterResource> postgresUser = builder.AddParameter("PostgresUser", value: "postgres");
@@ -40,7 +45,8 @@ if (builder.ExecutionContext.IsPublishMode)
 
     keycloak.WithEnvironment("KC_HTTP_ENABLED", "true")
         .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
-        .WithEnvironment("KC_HOSTNAME_STRICT", "false")
+        .WithEnvironment("KC_HOSTNAME", keycloakEndpoint)
+        .WithEnvironment("KC_HOSTNAME_STRICT", "true")
         .WithEnvironment("KC_DB", "postgres")
         .WithEnvironment("KC_DB_URL", keycloakDbUrl)
         .WithEnvironment("KC_DB_USERNAME", postgresUser)
@@ -51,9 +57,6 @@ if (builder.ExecutionContext.IsPublishMode)
             e.UriScheme = "https";
         });
 }
-
-var keycloakEndpoint = ReferenceExpression.Create($"{keycloak.GetEndpoint("http").Property(EndpointProperty.Url)}");
-var keycloakAuthority = ReferenceExpression.Create($"{keycloak.GetEndpoint("http").Property(EndpointProperty.Url)}/realms/{keycloakRealm}");
 
 IResourceBuilder<RedisResource> redis = builder.AddRedis("redis")
     .WithDataVolume();
@@ -91,7 +94,7 @@ builder.AddProject<Projects.SilverbridgeWeb_WebUI>("silverbridgeweb-webui")
     .WithReference(api)
     .WaitFor(api)
     .WithEnvironment("Authentication__Schemes__OpenIdConnect__ClientSecret", keycloakClientSecret)
-    .WithEnvironment("Authentication__Schemes__OpenIdconnect__Authority", keycloakAuthority);
+    .WithEnvironment("KeyCloak__Authority", keycloakAuthority);
 
 string acaEnvironmentName = Environment.GetEnvironmentVariable("ACA_ENVIRONMENT_NAME") ?? "silverbridgeweb-env";
 
