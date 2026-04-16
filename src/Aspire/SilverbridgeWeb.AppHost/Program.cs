@@ -39,7 +39,7 @@ if (builder.ExecutionContext.IsPublishMode)
     var keycloakDbUrl = ReferenceExpression.Create($"jdbc:postgresql://{postgres.Resource.HostName}/{keycloakDb.Resource.DatabaseName}");
 
     keycloak.WithEnvironment("KC_HTTP_ENABLED", "true")
-        .WithEnvironment("KC_PROXY_HEADERS", "forwarded")
+        .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
         .WithEnvironment("KC_HOSTNAME_STRICT", "false")
         .WithEnvironment("KC_DB", "postgres")
         .WithEnvironment("KC_DB_URL", keycloakDbUrl)
