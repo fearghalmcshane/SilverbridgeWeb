@@ -45,12 +45,9 @@ builder.Services.AddAuthentication("silverbridgewebAuth")
         options.SignOutScheme = "silverbridgewebAuth";
         options.MapInboundClaims = false;
 
-        // For development only - disable HTTPS metadata validation
-        // In production, use explicit Authority configuration instead
-        if (builder.Environment.IsDevelopment())
-        {
-            options.RequireHttpsMetadata = false;
-        }
+        // ACA container-to-container traffic is HTTP internally — the public endpoints are
+        // still HTTPS. KC_HOSTNAME ensures Keycloak issues correct external HTTPS URLs.
+        options.RequireHttpsMetadata = false;
     })
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
 
