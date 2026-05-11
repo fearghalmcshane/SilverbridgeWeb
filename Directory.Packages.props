@@ -18,7 +18,7 @@
     <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.2.4-preview.1.26224.4" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.2.4" />
     <PackageVersion Include="Aspire.Keycloak.Authentication" Version="13.2.4-preview.1.26224.4" />
-    <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.2.4" />
+    <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.3.0" />
     <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.2.4" />
     <PackageVersion Include="coverlet.collector" Version="10.0.0" />
     <PackageVersion Include="Dapper" Version="2.1.72" />
