@@ -3,13 +3,15 @@ using SilverbridgeWeb.Common.Application.EventBus;
 
 namespace SilverbridgeWeb.Common.Infrastructure.Eventbus;
 
-internal sealed class EventBus(IServiceProvider serviceProvider) : IEventBus
+internal sealed class EventBus(IServiceScopeFactory serviceScopeFactory) : IEventBus
 {
     public async Task PublishAsync<T>(T integrationEvent, CancellationToken cancellationToken = default)
         where T : IIntegrationEvent
     {
+        await using AsyncServiceScope scope = serviceScopeFactory.CreateAsyncScope();
+
         IEnumerable<IIntegrationEventConsumer<T>> consumers =
-            serviceProvider.GetServices<IIntegrationEventConsumer<T>>();
+            scope.ServiceProvider.GetServices<IIntegrationEventConsumer<T>>();
 
         foreach (IIntegrationEventConsumer<T> consumer in consumers)
         {
