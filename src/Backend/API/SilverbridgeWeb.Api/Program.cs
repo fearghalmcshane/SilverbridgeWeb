@@ -25,10 +25,6 @@ builder.Services.AddApplication([
     SilverbridgeWeb.Modules.Foireann.Application.AssemblyReference.Assembly]);
 
 builder.Services.AddInfrastructure(
-    [
-        TicketingModule.ConfigureConsumers,
-        AttendanceModule.ConfigureConsumers
-    ],
     builder.Configuration.GetConnectionString("silverbridgeDb")!,
     builder.Configuration.GetConnectionString("redis")!,
     builder.Configuration["KeyCloak:Authority"]!

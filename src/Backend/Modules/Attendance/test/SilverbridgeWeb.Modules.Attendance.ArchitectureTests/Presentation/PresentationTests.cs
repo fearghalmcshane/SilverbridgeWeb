@@ -1,5 +1,5 @@
-﻿using MassTransit;
-using NetArchTest.Rules;
+﻿using NetArchTest.Rules;
+using SilverbridgeWeb.Common.Application.EventBus;
 using SilverbridgeWeb.Modules.Attendance.ArchitectureTests.Abstractions;
 
 namespace SilverbridgeWeb.Modules.Attendance.ArchitectureTests.Presentation;
@@ -7,11 +7,11 @@ namespace SilverbridgeWeb.Modules.Attendance.ArchitectureTests.Presentation;
 public class PresentationTests : BaseTest
 {
     [Fact]
-    public void IntegrationEventConsumer_Should_BeSealed()
+    public void IntegrationEventHandler_Should_BeSealed()
     {
         Types.InAssembly(PresentationAssembly)
             .That()
-            .ImplementInterface(typeof(IConsumer<>))
+            .ImplementInterface(typeof(IIntegrationEventHandler<>))
             .Should()
             .BeSealed()
             .GetResult()
@@ -19,13 +19,13 @@ public class PresentationTests : BaseTest
     }
 
     [Fact]
-    public void IntegrationEventConsumer_ShouldHave_NameEndingWith_IntegrationEventConsumer()
+    public void IntegrationEventHandler_ShouldHave_NameEndingWith_Handler()
     {
         Types.InAssembly(PresentationAssembly)
             .That()
-            .ImplementInterface(typeof(IConsumer<>))
+            .ImplementInterface(typeof(IIntegrationEventHandler<>))
             .Should()
-            .HaveNameEndingWith("IntegrationEventConsumer")
+            .HaveNameEndingWith("Handler")
             .GetResult()
             .ShouldBeSuccessful();
     }

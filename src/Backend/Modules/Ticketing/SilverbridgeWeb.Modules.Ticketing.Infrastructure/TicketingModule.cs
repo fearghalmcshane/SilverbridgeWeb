@@ -1,11 +1,11 @@
-﻿using MassTransit;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SilverbridgeWeb.Common.Application.EventBus;
 using SilverbridgeWeb.Common.Application.Messaging;
+using SilverbridgeWeb.Common.Infrastructure.Eventbus;
 using SilverbridgeWeb.Common.Infrastructure.Outbox;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Events.IntegrationEvents;
@@ -39,6 +39,8 @@ public static class TicketingModule
 
         services.AddIntegrationEventHandlers();
 
+        services.AddConsumers();
+
         services.AddInfrastructure(configuration);
 
         services.AddEndpoints(Presentation.AssemblyReference.Assembly);
@@ -46,12 +48,12 @@ public static class TicketingModule
         return services;
     }
 
-    public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator)
+    private static void AddConsumers(this IServiceCollection services)
     {
-        registrationConfigurator.AddConsumer<IntegrationEventConsumer<UserRegisteredIntegrationEvent>>();
-        registrationConfigurator.AddConsumer<IntegrationEventConsumer<UserProfileUpdatedIntegrationEvent>>();
-        registrationConfigurator.AddConsumer<IntegrationEventConsumer<EventPublishedIntegrationEvent>>();
-        registrationConfigurator.AddConsumer<IntegrationEventConsumer<TicketTypePriceChangedIntegrationEvent>>();
+        services.AddScoped<IIntegrationEventConsumer<UserRegisteredIntegrationEvent>, IntegrationEventConsumer<UserRegisteredIntegrationEvent>>();
+        services.AddScoped<IIntegrationEventConsumer<UserProfileUpdatedIntegrationEvent>, IntegrationEventConsumer<UserProfileUpdatedIntegrationEvent>>();
+        services.AddScoped<IIntegrationEventConsumer<EventPublishedIntegrationEvent>, IntegrationEventConsumer<EventPublishedIntegrationEvent>>();
+        services.AddScoped<IIntegrationEventConsumer<TicketTypePriceChangedIntegrationEvent>, IntegrationEventConsumer<TicketTypePriceChangedIntegrationEvent>>();
     }
 
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)

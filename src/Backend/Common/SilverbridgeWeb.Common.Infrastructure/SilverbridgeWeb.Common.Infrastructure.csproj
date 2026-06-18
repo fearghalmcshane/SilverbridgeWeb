@@ -5,7 +5,6 @@
 		<PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" />
 		<PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" />
 		<PackageReference Include="EFCore.NamingConventions" />
-		<PackageReference Include="MassTransit" />
 		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="Quartz.Extensions.Hosting" />
 		<PackageReference Include="Scrutor" />

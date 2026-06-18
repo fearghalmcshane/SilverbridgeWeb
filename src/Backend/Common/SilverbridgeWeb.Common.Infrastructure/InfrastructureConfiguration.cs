@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
@@ -23,7 +22,6 @@ public static class InfrastructureConfiguration
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
-        Action<IRegistrationConfigurator>[] moduleConfigureconsumers,
         string databaseConnectionString,
         string redisConnectionString,
         string authConnectionString)
@@ -64,21 +62,6 @@ public static class InfrastructureConfiguration
 
         services.TryAddSingleton<ICacheService, CacheService>();
         services.TryAddSingleton<IEventBus, EventBus>();
-
-        services.AddMassTransit(configure =>
-        {
-            foreach (Action<IRegistrationConfigurator> configureConsumer in moduleConfigureconsumers)
-            {
-                configureConsumer(configure);
-            }
-
-            configure.SetKebabCaseEndpointNameFormatter();
-
-            configure.UsingInMemory((context, cfg) =>
-            {
-                cfg.ConfigureEndpoints(context);
-            });
-        });
 
         return services;
     }

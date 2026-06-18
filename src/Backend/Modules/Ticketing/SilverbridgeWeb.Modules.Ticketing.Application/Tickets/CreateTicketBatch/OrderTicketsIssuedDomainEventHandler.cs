@@ -1,4 +1,3 @@
-﻿using MediatR;
 using SilverbridgeWeb.Common.Application.Exceptions;
 using SilverbridgeWeb.Common.Application.Messaging;
 using SilverbridgeWeb.Common.Domain;
