@@ -9,7 +9,7 @@ namespace SilverbridgeWeb.Common.Application.Behaviours;
 internal sealed class ValidationPipelineBehavior<TRequest, TResponse>(
     IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IBaseCommand
+    where TRequest : notnull
 {
     public async Task<TResponse> Handle(
         TRequest request,
