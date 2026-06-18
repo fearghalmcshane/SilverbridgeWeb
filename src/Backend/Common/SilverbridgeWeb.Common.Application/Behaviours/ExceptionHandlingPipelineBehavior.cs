@@ -1,6 +1,6 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SilverbridgeWeb.Common.Application.Exceptions;
+using SilverbridgeWeb.Common.Application.Messaging;
 
 namespace SilverbridgeWeb.Common.Application.Behaviours;
 

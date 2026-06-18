@@ -1,5 +1,5 @@
-﻿using System.Security.Claims;
-using MediatR;
+using System.Security.Claims;
+using SilverbridgeWeb.Common.Application.Messaging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;

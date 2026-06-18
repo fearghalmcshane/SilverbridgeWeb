@@ -1,5 +1,4 @@
-﻿using MediatR;
-using SilverbridgeWeb.Common.Domain;
+﻿using SilverbridgeWeb.Common.Domain;
 
 namespace SilverbridgeWeb.Common.Application.Messaging;
 

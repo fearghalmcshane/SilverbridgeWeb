@@ -1,4 +1,4 @@
-using MediatR;
+using SilverbridgeWeb.Common.Application.Messaging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;

@@ -1,4 +1,4 @@
-﻿using MediatR;
+using SilverbridgeWeb.Common.Application.Messaging;
 using SilverbridgeWeb.Common.Application.Authorization;
 using SilverbridgeWeb.Common.Domain;
 using SilverbridgeWeb.Modules.Users.Application.Users.GetUserPermissions;

@@ -1,23 +1,21 @@
 ﻿using System.Data.Common;
 using Dapper;
-using MassTransit;
 using Newtonsoft.Json;
 using SilverbridgeWeb.Common.Application.Data;
 using SilverbridgeWeb.Common.Application.EventBus;
+using SilverbridgeWeb.Common.Infrastructure.Eventbus;
 using SilverbridgeWeb.Common.Infrastructure.Inbox;
 using SilverbridgeWeb.Common.Infrastructure.Serialization;
 
 namespace SilverbridgeWeb.Modules.Users.Infrastructure.Inbox;
 
 internal sealed class IntegrationEventConsumer<TIntegrationEvent>(IDbConnectionFactory dbConnectionFactory)
-    : IConsumer<TIntegrationEvent>
+    : IIntegrationEventConsumer<TIntegrationEvent>
     where TIntegrationEvent : IntegrationEvent
 {
-    public async Task Consume(ConsumeContext<TIntegrationEvent> context)
+    public async Task ConsumeAsync(TIntegrationEvent integrationEvent, CancellationToken cancellationToken = default)
     {
         await using DbConnection connection = await dbConnectionFactory.OpenConnectionAsync();
-
-        TIntegrationEvent integrationEvent = context.Message;
 
         var inboxMessage = new InboxMessage
         {

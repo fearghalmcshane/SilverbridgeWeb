@@ -1,4 +1,3 @@
-﻿using MediatR;
 using SilverbridgeWeb.Common.Application.Clock;
 using SilverbridgeWeb.Common.Application.Messaging;
 using SilverbridgeWeb.Common.Domain;

@@ -1,5 +1,5 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using SilverbridgeWeb.Common.Application.Messaging;
 using SilverbridgeWeb.Common.Domain;
 
 namespace SilverbridgeWeb.Common.Application.Behaviours;
