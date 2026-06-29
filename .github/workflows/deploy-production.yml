@@ -30,7 +30,7 @@ jobs:
         run: curl -sSL https://aspire.dev/install.sh | bash
 
       - name: Log in to Azure (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
