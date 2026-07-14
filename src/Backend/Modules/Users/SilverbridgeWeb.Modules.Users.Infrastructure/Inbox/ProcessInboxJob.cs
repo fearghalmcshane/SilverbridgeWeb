@@ -81,23 +81,24 @@ internal sealed class ProcessInboxJob(
     }
 
     private async Task<IReadOnlyList<InboxMessageResponse>> GetInboxMessagesAsync(
-        IDbConnection connection,
-        IDbTransaction transaction)
+    IDbConnection connection,
+    IDbTransaction transaction)
     {
         string sql =
-            $"""
-             SELECT
-                id AS {nameof(InboxMessageResponse.Id)},
-                content AS {nameof(InboxMessageResponse.Content)}
-             FROM users.inbox_messages
-             WHERE processed_on_utc IS NULL
-             ORDER BY occurred_on_utc
-             LIMIT {inboxOptions.Value.BatchSize}
-             FOR UPDATE
-             """;
+            """
+        SELECT
+           id AS Id,
+           content AS Content
+        FROM users.inbox_messages
+        WHERE processed_on_utc IS NULL
+        ORDER BY occurred_on_utc
+        LIMIT @BatchSize
+        FOR UPDATE
+        """;
 
         IEnumerable<InboxMessageResponse> inboxMessages = await connection.QueryAsync<InboxMessageResponse>(
             sql,
+            new { inboxOptions.Value.BatchSize },
             transaction: transaction);
 
         return inboxMessages.AsList();

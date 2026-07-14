@@ -55,6 +55,13 @@
     <Project Path="src/Backend/Modules/Foireann/SilverbridgeWeb.Modules.Foireann.Infrastructure/SilverbridgeWeb.Modules.Foireann.Infrastructure.csproj" />
     <Project Path="src/Backend/Modules/Foireann/SilverbridgeWeb.Modules.Foireann.Presentation/SilverbridgeWeb.Modules.Foireann.Presentation.csproj" />
   </Folder>
+  <Folder Name="/src/Backend/Modules/Bookings/">
+    <Project Path="src/Backend/Modules/Bookings/SilverbridgeWeb.Modules.Bookings.Application/SilverbridgeWeb.Modules.Bookings.Application.csproj" />
+    <Project Path="src/Backend/Modules/Bookings/SilverbridgeWeb.Modules.Bookings.Domain/SilverbridgeWeb.Modules.Bookings.Domain.csproj" />
+    <Project Path="src/Backend/Modules/Bookings/SilverbridgeWeb.Modules.Bookings.Infrastructure/SilverbridgeWeb.Modules.Bookings.Infrastructure.csproj" />
+    <Project Path="src/Backend/Modules/Bookings/SilverbridgeWeb.Modules.Bookings.IntegrationEvents/SilverbridgeWeb.Modules.Bookings.IntegrationEvents.csproj" />
+    <Project Path="src/Backend/Modules/Bookings/SilverbridgeWeb.Modules.Bookings.Presentation/SilverbridgeWeb.Modules.Bookings.Presentation.csproj" />
+  </Folder>
   <Folder Name="/src/Backend/Modules/Users/">
     <Project Path="src/Backend/Modules/Users/SilverbridgeWeb.Modules.Users.Application/SilverbridgeWeb.Modules.Users.Application.csproj" />
     <Project Path="src/Backend/Modules/Users/SilverbridgeWeb.Modules.Users.Domain/SilverbridgeWeb.Modules.Users.Domain.csproj" />
