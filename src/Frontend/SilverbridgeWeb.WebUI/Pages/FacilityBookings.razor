@@ -1,0 +1,387 @@
+@page "/facility-bookings"
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+@inject BookingsApiClient BookingsClient
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Facility Bookings - Silverbridge Harps GAC</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+        <MudText Typo="Typo.h4">
+            <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Class="mr-2" />
+            Facility Bookings
+        </MudText>
+        <MudStack Row="true" Spacing="2">
+            <MudButton Variant="Variant.Outlined" Color="Color.Secondary"
+                       StartIcon="@Icons.Material.Filled.AddBusiness"
+                       OnClick="OpenAddFacilityDialog">
+                Add Facility
+            </MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.EventAvailable"
+                       OnClick="OpenCreateBookingDialog"
+                       Disabled="@(facilities == null || !facilities.Any())">
+                Book Facility
+            </MudButton>
+        </MudStack>
+    </MudStack>
+
+    @if (isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+    }
+
+    @* Facility legend *@
+    @if (facilities != null && facilities.Any())
+    {
+        <MudPaper Elevation="1" Class="pa-3 mb-4">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Wrap="Wrap.Wrap">
+                <MudText Typo="Typo.subtitle2" Class="mr-2">Facilities:</MudText>
+                @foreach (var facility in facilities)
+                {
+                    <MudChip T="string" Size="Size.Small"
+                             Style="@($"background-color: {facility.Color}; color: white;")"
+                             Text="@facility.Name" />
+                }
+            </MudStack>
+        </MudPaper>
+    }
+
+    @* Week navigation *@
+    <MudPaper Elevation="1" Class="pa-3 mb-4">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <MudIconButton Icon="@Icons.Material.Filled.ChevronLeft" Color="Color.Primary"
+                           OnClick="PreviousWeek" />
+            <MudText Typo="Typo.h6">
+                @weekStart.ToString("dd MMM yyyy") – @weekStart.AddDays(6).ToString("dd MMM yyyy")
+            </MudText>
+            <MudStack Row="true" Spacing="1">
+                <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small"
+                           OnClick="GoToToday">Today</MudButton>
+                <MudIconButton Icon="@Icons.Material.Filled.ChevronRight" Color="Color.Primary"
+                               OnClick="NextWeek" />
+            </MudStack>
+        </MudStack>
+    </MudPaper>
+
+    @* 7-column calendar grid *@
+    <MudGrid Spacing="1">
+        @for (int dayOffset = 0; dayOffset < 7; dayOffset++)
+        {
+            var day = weekStart.AddDays(dayOffset);
+            var dayBookings = GetBookingsForDay(day);
+            var isToday = day.Date == DateTime.Today;
+
+            <MudItem xs="12" sm="6" md="@(12 / 7)" style="min-width: 120px;">
+                <MudPaper Elevation="@(isToday ? 4 : 1)" Class="pa-2"
+                          Style="@(isToday ? "border: 2px solid var(--mud-palette-primary);" : "")">
+                    <MudText Typo="Typo.subtitle2" Align="Align.Center"
+                             Color="@(isToday ? Color.Primary : Color.Default)">
+                        @day.ToString("ddd")
+                    </MudText>
+                    <MudText Typo="Typo.h6" Align="Align.Center"
+                             Color="@(isToday ? Color.Primary : Color.Default)" Class="mb-2">
+                        @day.Day
+                    </MudText>
+
+                    @if (dayBookings.Any())
+                    {
+                        @foreach (var booking in dayBookings)
+                        {
+                            var facilityColor = GetFacilityColor(booking.FacilityId);
+                            var chipStyle = booking.IsPublic
+                                ? $"background-color: {facilityColor}; color: white; margin: 2px 0; width: 100%; justify-content: flex-start;"
+                                : "background-color: #9E9E9E; color: white; margin: 2px 0; width: 100%; justify-content: flex-start;";
+
+                            <MudTooltip Text="@GetBookingTooltip(booking)">
+                                <MudChip T="string" Size="Size.Small" Style="@chipStyle"
+                                         Text="@(booking.IsPublic ? TruncateTitle(booking.Title) : "Private")" />
+                            </MudTooltip>
+                        }
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.caption" Align="Align.Center" Color="Color.Tertiary">No bookings</MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+</MudContainer>
+
+@* Add Facility Dialog *@
+<MudDialog @bind-Visible="showAddFacilityDialog" Options="dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.AddBusiness" Class="mr-2" />
+            Add Facility
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudTextField @bind-Value="newFacilityName" Label="Facility Name" Required="true"
+                          Placeholder="e.g. Football Pitch, Hall, Gym" />
+            <MudTextField @bind-Value="newFacilityDescription" Label="Description"
+                          Lines="3" Placeholder="Brief description of the facility" />
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudTextField @bind-Value="newFacilityColor" Label="Colour (hex)"
+                              Placeholder="#4CAF50" Style="flex: 1;" />
+                <MudPaper Elevation="0" Style="@($"width:40px; height:40px; background-color:{newFacilityColor}; border-radius:4px; border: 1px solid #ccc;")" />
+            </MudStack>
+            <MudText Typo="Typo.caption" Color="Color.Tertiary">
+                Suggested colours: #4CAF50 (green), #2196F3 (blue), #FF9800 (orange), #9C27B0 (purple), #F44336 (red)
+            </MudText>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseAddFacilityDialog">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   OnClick="SubmitAddFacility" Disabled="@isSaving">
+            @if (isSaving)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            }
+            Add Facility
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@* Create Booking Dialog *@
+<MudDialog @bind-Visible="showCreateBookingDialog" Options="dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.EventAvailable" Class="mr-2" />
+            Create Booking
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudSelect T="Guid" @bind-Value="newBookingFacilityId" Label="Facility" Required="true">
+                @if (facilities != null)
+                {
+                    @foreach (var facility in facilities)
+                    {
+                        <MudSelectItem Value="@facility.Id">@facility.Name</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+            <MudTextField @bind-Value="newBookingTitle" Label="Booking Title" Required="true"
+                          Placeholder="e.g. Training Session, Dance Class" />
+            <MudTextField @bind-Value="newBookingBookerName" Label="Booked By" Required="true"
+                          Placeholder="Name of person / group making the booking" />
+            <MudDatePicker @bind-Date="newBookingStartDate" Label="Start Date" Required="true" />
+            <MudTimePicker @bind-Time="newBookingStartTime" Label="Start Time" Required="true" />
+            <MudDatePicker @bind-Date="newBookingEndDate" Label="End Date" Required="true" />
+            <MudTimePicker @bind-Time="newBookingEndTime" Label="End Time" Required="true" />
+            <MudSwitch @bind-Value="newBookingIsPublic" Color="Color.Primary"
+                       Label="@(newBookingIsPublic ? "Public booking (visible to all)" : "Private booking (hidden)")" />
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseCreateBookingDialog">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   OnClick="SubmitCreateBooking" Disabled="@isSaving">
+            @if (isSaving)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            }
+            Create Booking
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private IList<FacilityBookingResponse>? facilities;
+    private IList<BookingItemResponse>? bookings;
+    private bool isLoading = true;
+    private bool isSaving;
+    private DateTime weekStart = GetWeekStart(DateTime.Today);
+
+    // Add Facility dialog state
+    private bool showAddFacilityDialog;
+    private string newFacilityName = string.Empty;
+    private string newFacilityDescription = string.Empty;
+    private string newFacilityColor = "#4CAF50";
+
+    // Create Booking dialog state
+    private bool showCreateBookingDialog;
+    private Guid newBookingFacilityId;
+    private string newBookingTitle = string.Empty;
+    private string newBookingBookerName = string.Empty;
+    private DateTime? newBookingStartDate = DateTime.Today;
+    private TimeSpan? newBookingStartTime = TimeSpan.FromHours(9);
+    private DateTime? newBookingEndDate = DateTime.Today;
+    private TimeSpan? newBookingEndTime = TimeSpan.FromHours(10);
+    private bool newBookingIsPublic = true;
+
+    private static readonly DialogOptions dialogOptions = new()
+    {
+        MaxWidth = MaxWidth.Small,
+        FullWidth = true,
+        CloseOnEscapeKey = true
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+        try
+        {
+            facilities = (await BookingsClient.GetFacilitiesAsync())?.ToList();
+            bookings = (await BookingsClient.GetBookingsAsync())?.ToList();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to load bookings: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private IEnumerable<BookingItemResponse> GetBookingsForDay(DateTime day)
+    {
+        if (bookings is null)
+        {
+            return [];
+        }
+
+        return bookings.Where(b => b.StartsAtUtc.Date == day.Date);
+    }
+
+    private string GetFacilityColor(Guid facilityId)
+    {
+        FacilityBookingResponse? facility = facilities?.FirstOrDefault(f => f.Id == facilityId);
+        return facility?.Color ?? "#757575";
+    }
+
+    private static string GetBookingTooltip(BookingItemResponse booking)
+    {
+        if (!booking.IsPublic)
+        {
+            return $"Private Booking | {booking.StartsAtUtc:HH:mm} – {booking.EndsAtUtc:HH:mm}";
+        }
+
+        return $"{booking.Title}\n{booking.BookerName}\n{booking.StartsAtUtc:HH:mm} – {booking.EndsAtUtc:HH:mm}\nStatus: {booking.Status}";
+    }
+
+    private static string TruncateTitle(string title) =>
+        title.Length > 14 ? title[..11] + "…" : title;
+
+    private void PreviousWeek() => weekStart = weekStart.AddDays(-7);
+
+    private void NextWeek() => weekStart = weekStart.AddDays(7);
+
+    private void GoToToday() => weekStart = GetWeekStart(DateTime.Today);
+
+    private static DateTime GetWeekStart(DateTime date)
+    {
+        int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
+        return date.AddDays(-diff).Date;
+    }
+
+    // Add Facility dialog
+    private void OpenAddFacilityDialog()
+    {
+        newFacilityName = string.Empty;
+        newFacilityDescription = string.Empty;
+        newFacilityColor = "#4CAF50";
+        showAddFacilityDialog = true;
+    }
+
+    private void CloseAddFacilityDialog() => showAddFacilityDialog = false;
+
+    private async Task SubmitAddFacility()
+    {
+        if (string.IsNullOrWhiteSpace(newFacilityName))
+        {
+            Snackbar.Add("Facility name is required.", Severity.Warning);
+            return;
+        }
+
+        isSaving = true;
+        try
+        {
+            await BookingsClient.AddFacilityAsync(new AddFacilityRequest(
+                newFacilityName.Trim(),
+                newFacilityDescription.Trim(),
+                newFacilityColor));
+
+            Snackbar.Add($"Facility '{newFacilityName}' added!", Severity.Success);
+            showAddFacilityDialog = false;
+            await LoadDataAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to add facility: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    // Create Booking dialog
+    private void OpenCreateBookingDialog()
+    {
+        newBookingFacilityId = facilities?.FirstOrDefault()?.Id ?? Guid.Empty;
+        newBookingTitle = string.Empty;
+        newBookingBookerName = string.Empty;
+        newBookingStartDate = DateTime.Today;
+        newBookingStartTime = TimeSpan.FromHours(9);
+        newBookingEndDate = DateTime.Today;
+        newBookingEndTime = TimeSpan.FromHours(10);
+        newBookingIsPublic = true;
+        showCreateBookingDialog = true;
+    }
+
+    private void CloseCreateBookingDialog() => showCreateBookingDialog = false;
+
+    private async Task SubmitCreateBooking()
+    {
+        if (string.IsNullOrWhiteSpace(newBookingTitle) || string.IsNullOrWhiteSpace(newBookingBookerName))
+        {
+            Snackbar.Add("Title and booker name are required.", Severity.Warning);
+            return;
+        }
+
+        if (newBookingStartDate is null || newBookingStartTime is null || newBookingEndDate is null || newBookingEndTime is null)
+        {
+            Snackbar.Add("Start and end date/time are required.", Severity.Warning);
+            return;
+        }
+
+        DateTime startsAt = newBookingStartDate.Value.Add(newBookingStartTime.Value).ToUniversalTime();
+        DateTime endsAt = newBookingEndDate.Value.Add(newBookingEndTime.Value).ToUniversalTime();
+
+        isSaving = true;
+        try
+        {
+            await BookingsClient.CreateBookingAsync(new CreateBookingRequest(
+                newBookingFacilityId,
+                newBookingTitle.Trim(),
+                newBookingBookerName.Trim(),
+                startsAt,
+                endsAt,
+                newBookingIsPublic));
+
+            Snackbar.Add($"Booking '{newBookingTitle}' created!", Severity.Success);
+            showCreateBookingDialog = false;
+            await LoadDataAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to create booking: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+}

@@ -32,6 +32,11 @@ builder.Services.AddHttpClient<FoireannApiClient>(client =>
     client.BaseAddress = new("https+http://silverbridgeweb-api/");
 });
 
+builder.Services.AddHttpClient<BookingsApiClient>(client =>
+{
+    client.BaseAddress = new("https+http://silverbridgeweb-api/");
+});
+
 builder.Services.AddAuthentication("silverbridgewebAuth")
     .AddKeycloakOpenIdConnect("silverbridgewebAuth", realm: "silverbridge", "silverbridgewebAuth", options =>
     {
