@@ -81,23 +81,24 @@ internal sealed class ProcessOutboxJob(
     }
 
     private async Task<IReadOnlyList<OutboxMessageResponse>> GetOutboxMessagesAsync(
-        IDbConnection connection,
-        IDbTransaction transaction)
+    IDbConnection connection,
+    IDbTransaction transaction)
     {
         string sql =
             $"""
-             SELECT
-                id AS {nameof(OutboxMessageResponse.Id)},
-                content AS {nameof(OutboxMessageResponse.Content)}
-             FROM ticketing.outbox_messages
-             WHERE processed_on_utc IS NULL
-             ORDER BY occurred_on_utc
-             LIMIT {outboxOptions.Value.BatchSize}
-             FOR UPDATE
-             """;
+         SELECT
+            id AS {nameof(OutboxMessageResponse.Id)},
+            content AS {nameof(OutboxMessageResponse.Content)}
+         FROM ticketing.outbox_messages
+         WHERE processed_on_utc IS NULL
+         ORDER BY occurred_on_utc
+         LIMIT @BatchSize
+         FOR UPDATE
+         """;
 
         IEnumerable<OutboxMessageResponse> outboxMessages = await connection.QueryAsync<OutboxMessageResponse>(
             sql,
+            new { outboxOptions.Value.BatchSize },
             transaction: transaction);
 
         return outboxMessages.ToList();

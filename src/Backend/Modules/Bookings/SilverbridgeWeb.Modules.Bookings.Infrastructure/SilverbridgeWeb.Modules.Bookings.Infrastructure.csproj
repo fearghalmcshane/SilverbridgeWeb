@@ -4,4 +4,7 @@
     <ProjectReference Include="..\SilverbridgeWeb.Modules.Bookings.Application\SilverbridgeWeb.Modules.Bookings.Application.csproj" />
     <ProjectReference Include="..\SilverbridgeWeb.Modules.Bookings.Presentation\SilverbridgeWeb.Modules.Bookings.Presentation.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Database\Migrations\" />
+  </ItemGroup>
 </Project>
