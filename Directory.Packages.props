@@ -15,9 +15,10 @@
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.4.6" />
     <PackageVersion Include="Aspire.Hosting.Azure.AppContainers" Version="13.4.6" />
     <PackageVersion Include="Aspire.Hosting.Azure.PostgreSQL" Version="13.4.6" />
-    <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.4.6-preview.1.26319.6" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.10" />
+    <PackageVersion Include="Svix" Version="1.98.0" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.4.6" />
-    <PackageVersion Include="Aspire.Keycloak.Authentication" Version="13.4.6-preview.1.26319.6" />
     <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.4.6" />
     <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.4.6" />
     <PackageVersion Include="coverlet.collector" Version="10.0.1" />

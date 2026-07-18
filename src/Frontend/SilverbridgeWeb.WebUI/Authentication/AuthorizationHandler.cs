@@ -14,7 +14,7 @@ internal sealed class AuthorizationHandler(IHttpContextAccessor httpContextAcces
                 No HttpContext available from the IHttpContextAccessor.
                 """);
 
-        string? accessToken = await httpContext!.GetTokenAsync("silverbridgewebAuth", "access_token");
+        string? accessToken = await httpContext!.GetTokenAsync("Clerk", "access_token");
 
         if (!string.IsNullOrWhiteSpace(accessToken))
         {

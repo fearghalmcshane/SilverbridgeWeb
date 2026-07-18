@@ -29,7 +29,7 @@ builder.Services.AddApplication([
 builder.Services.AddInfrastructure(
     builder.Configuration.GetConnectionString("silverbridgeDb")!,
     builder.Configuration.GetConnectionString("redis")!,
-    builder.Configuration["KeyCloak:Authority"]!
+    builder.Configuration["Clerk:Authority"]!
 );
 
 builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing", "attendance", "foireann", "bookings"]);
