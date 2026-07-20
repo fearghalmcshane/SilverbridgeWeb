@@ -17,6 +17,7 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
         builder.HasData(
             Permission.GetUser,
             Permission.ModifyUser,
+            Permission.ModifyRoles,
             Permission.GetEvents,
             Permission.SearchEvents,
             Permission.ModifyEvents,
@@ -56,6 +57,7 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
                     // Admin permissions
                     CreateRolePermission(Role.Administrator, Permission.GetUser),
                     CreateRolePermission(Role.Administrator, Permission.ModifyUser),
+                    CreateRolePermission(Role.Administrator, Permission.ModifyRoles),
                     CreateRolePermission(Role.Administrator, Permission.GetEvents),
                     CreateRolePermission(Role.Administrator, Permission.SearchEvents),
                     CreateRolePermission(Role.Administrator, Permission.ModifyEvents),

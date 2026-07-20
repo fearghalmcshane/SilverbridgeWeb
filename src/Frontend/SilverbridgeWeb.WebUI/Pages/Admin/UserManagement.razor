@@ -1,0 +1,144 @@
+@page "/admin/users"
+@attribute [Authorize]
+@inject UsersApiClient UsersApiClient
+
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+
+<PageTitle>User Management</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+    @if (_loading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="mb-4" />
+    }
+    else if (!_isAdmin)
+    {
+        <MudAlert Severity="Severity.Error">You do not have permission to access this page.</MudAlert>
+    }
+    else
+    {
+        <MudText Typo="Typo.h5" GutterBottom="true">User Management</MudText>
+
+        <MudCard Elevation="2">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Role Assignment</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Assign or remove roles for a user by their ID.</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                @if (_actionMessage is not null)
+                {
+                    <MudAlert Severity="@_actionSeverity" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="@(() => _actionMessage = null)">@_actionMessage</MudAlert>
+                }
+                <MudTextField @bind-Value="_userIdInput"
+                              Label="User ID"
+                              Placeholder="e.g. 00000000-0000-0000-0000-000000000000"
+                              HelperText="The GUID of the user to manage"
+                              Class="mb-3" />
+                <MudSelect @bind-Value="_selectedRole" Label="Role" Class="mb-2">
+                    <MudSelectItem Value="@("Administrator")">Administrator</MudSelectItem>
+                    <MudSelectItem Value="@("Member")">Member</MudSelectItem>
+                </MudSelect>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="AssignRoleAsync"
+                           Disabled="@_actionLoading">
+                    Assign Role
+                </MudButton>
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Error"
+                           OnClick="RemoveRoleAsync"
+                           Disabled="@_actionLoading"
+                           Class="ml-2">
+                    Remove Role
+                </MudButton>
+            </MudCardActions>
+        </MudCard>
+    }
+</MudContainer>
+
+@code {
+    private bool _loading = true;
+    private bool _isAdmin;
+    private bool _actionLoading;
+    private string? _actionMessage;
+    private Severity _actionSeverity = Severity.Info;
+    private string _userIdInput = string.Empty;
+    private string _selectedRole = "Administrator";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            UserRolesResponse? rolesResponse = await UsersApiClient.GetRolesAsync();
+            _isAdmin = rolesResponse?.Roles.Contains("Administrator") ?? false;
+        }
+        catch (Exception)
+        {
+            _isAdmin = false;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task AssignRoleAsync()
+    {
+        if (!Guid.TryParse(_userIdInput, out Guid userId))
+        {
+            _actionMessage = "Please enter a valid user ID.";
+            _actionSeverity = Severity.Warning;
+            return;
+        }
+
+        _actionLoading = true;
+        _actionMessage = null;
+        try
+        {
+            await UsersApiClient.AssignRoleAsync(userId, _selectedRole);
+            _actionMessage = $"Successfully assigned '{_selectedRole}' role to user.";
+            _actionSeverity = Severity.Success;
+        }
+        catch (Exception)
+        {
+            _actionMessage = "Failed to assign role. The user may not exist or already has this role.";
+            _actionSeverity = Severity.Error;
+        }
+        finally
+        {
+            _actionLoading = false;
+        }
+    }
+
+    private async Task RemoveRoleAsync()
+    {
+        if (!Guid.TryParse(_userIdInput, out Guid userId))
+        {
+            _actionMessage = "Please enter a valid user ID.";
+            _actionSeverity = Severity.Warning;
+            return;
+        }
+
+        _actionLoading = true;
+        _actionMessage = null;
+        try
+        {
+            await UsersApiClient.RemoveRoleAsync(userId, _selectedRole);
+            _actionMessage = $"Successfully removed '{_selectedRole}' role from user.";
+            _actionSeverity = Severity.Success;
+        }
+        catch (Exception)
+        {
+            _actionMessage = "Failed to remove role. The user may not exist or does not have this role.";
+            _actionSeverity = Severity.Error;
+        }
+        finally
+        {
+            _actionLoading = false;
+        }
+    }
+}

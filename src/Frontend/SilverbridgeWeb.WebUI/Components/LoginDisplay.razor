@@ -6,9 +6,15 @@
 
 <AuthorizeView>
     <Authorized>
-        <MudMenu Icon="@Icons.Material.Filled.Person" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+        <MudMenu Icon="@Icons.Material.Filled.Person" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight"
+                 TransformOrigin="Origin.TopRight">
             <MudMenuItem>
                 <MudText Typo="Typo.body2">@context.User.Identity?.Name</MudText>
+            </MudMenuItem>
+            <MudDivider />
+            <MudMenuItem Href="/profile">
+                <MudIcon Icon="@Icons.Material.Filled.ManageAccounts" Class="mr-2" />
+                My Profile
             </MudMenuItem>
             <MudDivider />
             <MudMenuItem Href="/authentication/logout">

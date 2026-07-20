@@ -25,7 +25,6 @@ IResourceBuilder<RedisResource> redis = builder.AddRedis("redis")
     .WithDataVolume();
 
 IResourceBuilder<ParameterResource> clerkAuthority = builder.AddParameter("clerk-authority");
-IResourceBuilder<ParameterResource> clerkSecretKey = builder.AddParameter("clerk-secret-key", secret: true);
 IResourceBuilder<ParameterResource> clerkWebhookSigningSecret = builder.AddParameter("clerk-webhook-signing-secret", secret: true);
 IResourceBuilder<ParameterResource> clerkClientId = builder.AddParameter("clerk-client-id");
 IResourceBuilder<ParameterResource> clerkClientSecret = builder.AddParameter("clerk-client-secret", secret: true);
@@ -39,7 +38,6 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Silverbridge
     .WaitFor(silverbridgeDb)
     .WaitFor(redis)
     .WithEnvironment("Clerk__Authority", clerkAuthority)
-    .WithEnvironment("Clerk__SecretKey", clerkSecretKey)
     .WithEnvironment("Clerk__WebhookSigningSecret", clerkWebhookSigningSecret)
     .WithEnvironment("Foireann__PrimaryApiKey", foireannPrimaryKey)
     .WithEnvironment("Foireann__SecondaryApiKey", foireannSecondaryKey)

@@ -37,13 +37,18 @@ builder.Services.AddHttpClient<BookingsApiClient>(client =>
     client.BaseAddress = new("https+http://silverbridgeweb-api/");
 });
 
+builder.Services.AddHttpClient<UsersApiClient>(client =>
+{
+    client.BaseAddress = new("https+http://silverbridgeweb-api/");
+})
+.AddHttpMessageHandler<AuthorizationHandler>();
+
 const string clerkOidcScheme = "Clerk";
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddOpenIdConnect(clerkOidcScheme, options =>
     {
         options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.SignOutScheme = clerkOidcScheme;
         options.Authority = builder.Configuration["Clerk:Authority"];
         options.ClientId = builder.Configuration["Clerk:ClientId"];
         options.ClientSecret = builder.Configuration["Clerk:ClientSecret"];
@@ -98,10 +103,6 @@ app.MapGet("/authentication/login", () =>
 app.MapGet("/authentication/logout", async (HttpContext context) =>
 {
     await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    await context.SignOutAsync(clerkOidcScheme, new AuthenticationProperties
-    {
-        RedirectUri = "/"
-    });
     return TypedResults.Redirect("/");
 })
 .RequireAuthorization();

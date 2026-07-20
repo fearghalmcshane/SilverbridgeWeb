@@ -12,6 +12,8 @@ public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options) : D
 {
     internal DbSet<User> Users { get; set; }
 
+    internal DbSet<Role> Roles { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));

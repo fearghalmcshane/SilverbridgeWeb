@@ -40,6 +40,29 @@ public sealed class User : Entity
         return user;
     }
 
+    public void AssignRole(Role role)
+    {
+        if (_roles.Any(r => r.Name == role.Name))
+        {
+            return;
+        }
+
+        _roles.Add(role);
+    }
+
+    public Result RemoveRole(Role role)
+    {
+        Role? existing = _roles.FirstOrDefault(r => r.Name == role.Name);
+
+        if (existing is null)
+        {
+            return Result.Failure(UserErrors.RoleNotAssigned(role.Name));
+        }
+
+        _roles.Remove(existing);
+        return Result.Success();
+    }
+
     public void Update(string firstName, string lastName)
     {
         if (FirstName == firstName && LastName == lastName)
