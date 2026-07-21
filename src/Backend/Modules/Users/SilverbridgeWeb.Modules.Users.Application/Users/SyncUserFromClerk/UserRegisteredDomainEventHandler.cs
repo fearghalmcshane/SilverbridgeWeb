@@ -6,7 +6,7 @@ using SilverbridgeWeb.Modules.Users.Application.Users.GetUser;
 using SilverbridgeWeb.Modules.Users.Domain.Users;
 using SilverbridgeWeb.Modules.Users.IntegrationEvents;
 
-namespace SilverbridgeWeb.Modules.Users.Application.Users.RegisterUser;
+namespace SilverbridgeWeb.Modules.Users.Application.Users.SyncUserFromClerk;
 
 internal sealed class UserRegisteredDomainEventHandler(ISender sender, IEventBus eventBus)
     : DomainEventHandler<UserRegisteredDomainEvent>

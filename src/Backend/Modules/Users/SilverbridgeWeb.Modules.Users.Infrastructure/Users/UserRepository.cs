@@ -11,6 +11,11 @@ internal sealed class UserRepository(UsersDbContext context) : IUserRepository
         return await context.Users.SingleOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
+    public async Task<User?> GetByIdentityIdAsync(string identityId, CancellationToken cancellationToken = default)
+    {
+        return await context.Users.SingleOrDefaultAsync(u => u.IdentityId == identityId, cancellationToken);
+    }
+
     public void Insert(User user)
     {
         foreach (Role role in user.Roles)

@@ -29,7 +29,7 @@ builder.Services.AddApplication([
 builder.Services.AddInfrastructure(
     builder.Configuration.GetConnectionString("silverbridgeDb")!,
     builder.Configuration.GetConnectionString("redis")!,
-    builder.Configuration["KeyCloak:Authority"]!
+    builder.Configuration["Clerk:Authority"]!
 );
 
 builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing", "attendance", "foireann", "bookings"]);
@@ -59,7 +59,10 @@ if (app.Environment.IsDevelopment())
     app.ApplyMigrations();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.MapEndpoints();
 

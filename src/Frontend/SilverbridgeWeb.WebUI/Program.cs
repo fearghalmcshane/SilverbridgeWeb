@@ -1,6 +1,6 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using MudBlazor.Services;
 using SilverbridgeWeb.WebUI;
@@ -37,27 +37,28 @@ builder.Services.AddHttpClient<BookingsApiClient>(client =>
     client.BaseAddress = new("https+http://silverbridgeweb-api/");
 });
 
-builder.Services.AddAuthentication("silverbridgewebAuth")
-    .AddKeycloakOpenIdConnect("silverbridgewebAuth", realm: "silverbridge", "silverbridgewebAuth", options =>
-    {
-        options.ClientId = "silverbridgeweb-webui";
-        options.ResponseType = OpenIdConnectResponseType.Code;
-        options.Scope.Add("silverbridgeweb_api.all");
-        options.ResponseType = OpenIdConnectResponseType.Code;
-        options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
-        options.SaveTokens = true;
-        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.SignOutScheme = "silverbridgewebAuth";
-        options.MapInboundClaims = false;
+builder.Services.AddHttpClient<UsersApiClient>(client =>
+{
+    client.BaseAddress = new("https+http://silverbridgeweb-api/");
+})
+.AddHttpMessageHandler<AuthorizationHandler>();
 
-        // Explicitly set Authority from config so the external HTTPS URL is used for
-        // token validation and browser redirects (overrides Aspire service discovery
-        // which injects an internal http:// URL that fails RequireHttpsMetadata in prod).
-        string? authority = builder.Configuration["KeyCloak:Authority"];
-        if (!string.IsNullOrEmpty(authority))
-        {
-            options.Authority = authority;
-        }
+const string clerkOidcScheme = "Clerk";
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddOpenIdConnect(clerkOidcScheme, options =>
+    {
+        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.Authority = builder.Configuration["Clerk:Authority"];
+        options.ClientId = builder.Configuration["Clerk:ClientId"];
+        options.ClientSecret = builder.Configuration["Clerk:ClientSecret"];
+        options.ResponseType = OpenIdConnectResponseType.Code;
+        options.Scope.Add("openid");
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
+        options.SaveTokens = true;
+        options.TokenValidationParameters.NameClaimType = "name";
+        options.MapInboundClaims = false;
 
         if (builder.Environment.IsDevelopment())
         {
@@ -95,17 +96,13 @@ app.MapGet("/authentication/login", () =>
     return TypedResults.Challenge(new AuthenticationProperties
     {
         RedirectUri = "/"
-    }, ["silverbridgewebAuth"]);
+    }, [clerkOidcScheme]);
 })
 .AllowAnonymous();
 
 app.MapGet("/authentication/logout", async (HttpContext context) =>
 {
     await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    await context.SignOutAsync("silverbridgewebAuth", new AuthenticationProperties
-    {
-        RedirectUri = "/"
-    });
     return TypedResults.Redirect("/");
 })
 .RequireAuthorization();

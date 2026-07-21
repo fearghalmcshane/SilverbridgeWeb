@@ -1,26 +1,26 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace SilverbridgeWeb.Common.Infrastructure.Authentication;
 
 internal static class AuthenticationExtensions
 {
-    internal static IServiceCollection AddAuthenticationInternal(this IServiceCollection services, string authConnectionString)
+    internal static IServiceCollection AddAuthenticationInternal(this IServiceCollection services, string clerkAuthority)
     {
         services.AddAuthorizationBuilder();
 
-        services.AddAuthentication().AddKeycloakJwtBearer("silverbridgewebAuth", "silverbridge", options =>
-        {
-            options.Audience = "silverbridgeweb-api";
-            options.TokenValidationParameters = new()
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
             {
-                ValidIssuers =
-                [
-                    authConnectionString
-                ]
-            };
-            options.MetadataAddress = $"{authConnectionString}/.well-known/openid-configuration";
-            options.RequireHttpsMetadata = false;
-        });
+                options.Authority = clerkAuthority;
+#pragma warning disable CA5404 // Clerk tokens do not include an audience claim by default; configure ValidAudiences once known
+                options.TokenValidationParameters = new()
+                {
+                    ValidateAudience = false
+                };
+#pragma warning restore CA5404
+                options.RequireHttpsMetadata = false;
+            });
 
         services.AddHttpContextAccessor();
 

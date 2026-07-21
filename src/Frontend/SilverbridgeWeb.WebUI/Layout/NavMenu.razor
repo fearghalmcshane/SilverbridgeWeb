@@ -1,4 +1,7 @@
-﻿<MudNavMenu>
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+@inject UsersApiClient UsersApiClient
+
+<MudNavMenu>
     <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">Home</MudNavLink>
 
     <MudNavGroup Title="Fixtures & Results" Expanded="true">
@@ -8,7 +11,16 @@
 
     <AuthorizeView>
         <Authorized>
-            <MudNavLink Href="/categories" Icon="@Icons.Material.Filled.Category" Match="NavLinkMatch.Prefix">Categories</MudNavLink>
+            <MudNavGroup Title="Authorised" Expanded="true">
+                <MudNavLink Href="/categories" Icon="@Icons.Material.Filled.Category" Match="NavLinkMatch.Prefix">Categories</MudNavLink>
+            </MudNavGroup>
+
+            @if (_isAdmin)
+            {
+                <MudNavGroup Title="Administration" Expanded="true">
+                    <MudNavLink Href="/admin/users" Icon="@Icons.Material.Filled.AdminPanelSettings" Match="NavLinkMatch.Prefix">User Management</MudNavLink>
+                </MudNavGroup>
+            }
         </Authorized>
     </AuthorizeView>
 
@@ -30,4 +42,35 @@
         <MudNavLink Href="https://playr-fit.com/collections/silverbridge-clg" Target="_blank" Icon="@Icons.Material.Filled.ShoppingCart" Match="NavLinkMatch.All">PlayrFit Club Shop</MudNavLink>
     </MudNavGroup>
 </MudNavMenu>
+
+@code {
+    private bool _isAdmin;
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthenticationState is null)
+        {
+            return;
+        }
+
+        AuthenticationState authState = await AuthenticationState;
+        if (authState.User.Identity?.IsAuthenticated != true)
+        {
+            return;
+        }
+
+        try
+        {
+            UserRolesResponse? rolesResponse = await UsersApiClient.GetRolesAsync();
+            _isAdmin = rolesResponse?.Roles.Contains("Administrator") ?? false;
+        }
+        catch (Exception)
+        {
+            _isAdmin = false;
+        }
+    }
+}
 

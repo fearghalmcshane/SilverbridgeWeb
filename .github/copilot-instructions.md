@@ -73,6 +73,7 @@ Module.ArchitectureTests/  # NetArchTest rules
 ```
 
 **Layer dependency rules** (enforced by tests):
+
 - Domain → None
 - Application → Domain
 - Infrastructure → Application, Domain
@@ -80,12 +81,13 @@ Module.ArchitectureTests/  # NetArchTest rules
 
 ### CQRS Pattern
 
-All operations use **CQRS with MediatR**:
+All operations use **CQRS** with a custom message dispatcher (`ISender` from `Common.Application`):
 
 - **Commands** modify state, return `Result<T>`
 - **Queries** read state, return data or `Result<T>`
 - Command/Query handlers are in the `Application` layer
 - Validators use `FluentValidation`
+- `ISender` is a custom interface backed by `MessageDispatcher` (not MediatR)
 
 **Naming convention**: `{Action}{Entity}Command/Query` (e.g., `RegisterUserCommand`, `GetUserQuery`)
 
@@ -128,14 +130,14 @@ return result.Match(Results.Ok, ApiResults.Problem);
 
 ### Module Communication
 
-Modules communicate via **integration events** using MassTransit:
+Modules communicate via **integration events** using a custom `IEventBus` (defined in `Common.Application`, implemented in `Common.Infrastructure`):
 
 1. Domain events are raised within aggregates
-2. Domain event handlers publish integration events to the message bus
-3. Other modules consume integration events via inbox/outbox pattern
+2. Domain event handlers publish integration events via `IEventBus`
+3. Other modules consume integration events via `IIntegrationEventHandler<T>` and the inbox pattern
 
-**Outbox pattern**: Domain events → OutboxMessages → Background processing → Message bus
-**Inbox pattern**: Integration events → InboxMessages → Idempotent processing
+**Outbox pattern**: Domain events → OutboxMessages → Background processing → `IEventBus.PublishAsync`
+**Inbox pattern**: Integration events → InboxMessages → Idempotent processing via `IIntegrationEventConsumer<T>`
 
 ### Database Schema Isolation
 
@@ -153,6 +155,7 @@ Migrations are per-module in `Module.Infrastructure/Database/Migrations/`.
 ### Common Layer
 
 Shared abstractions in `Common.*` projects:
+
 - `Common.Domain` - Result, Error, Entity, DomainEvent base classes
 - `Common.Application` - ICommand, IQuery, ICommandHandler, IQueryHandler, behaviors
 - `Common.Infrastructure` - Authentication, authorization, caching, inbox/outbox
@@ -186,10 +189,12 @@ public Guid Id { get; private set; } = Ulid.NewUlid().ToGuid();
 ### Configuration Files
 
 Modules use separate JSON config files:
+
 - `modules.{module}.json` - Production settings
 - `modules.{module}.Development.json` - Development overrides
 
 Loaded via:
+
 ```csharp
 builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing", "attendance", "foireann"]);
 ```
@@ -197,6 +202,7 @@ builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing", "a
 ### Code Style
 
 Enforced via `.editorconfig`:
+
 - **No** `this.` qualification (error level)
 - Required accessibility modifiers for non-interface members
 - Prefer `string` over `String`, `int` over `Int32`
@@ -211,19 +217,21 @@ Enforced via `.editorconfig`:
 
 ### Authentication
 
-Uses **Keycloak** for authentication:
-- AppHost configures Keycloak container with realm import
-- API validates JWT tokens from Keycloak authority
-- Frontend uses OpenID Connect with Keycloak
+Uses **Clerk** for authentication:
+
+- API validates JWT bearer tokens using the Clerk authority (`Clerk:Authority` config)
+- Frontend uses OpenID Connect with Clerk (cookie-based session, `Clerk:Authority` config)
 
 ## Aspire Configuration
 
 AppHost (`SilverbridgeWeb.AppHost`) orchestrates:
+
 - PostgreSQL (with pgAdmin on port 5050)
 - Redis
-- Keycloak (port 8085 in run mode, persistent container with data volume)
 - API project
 - Blazor WebUI project
+
+Clerk authentication is configured via the `clerk-authority` parameter (external service, not a container).
 
 Service discovery and configuration automatically wired between projects.
 
@@ -232,11 +240,13 @@ Service discovery and configuration automatically wired between projects.
 ### Architecture Tests
 
 Use **NetArchTest.Rules** to enforce architectural constraints:
+
 - Layer dependencies
 - Domain purity (no infrastructure references)
 - Naming conventions
 
 Run architecture tests to validate changes:
+
 ```bash
 dotnet test test/SilverbridgeWeb.ArchitectureTests
 ```
@@ -244,6 +254,7 @@ dotnet test test/SilverbridgeWeb.ArchitectureTests
 ### Test Project Structure
 
 Each module can have:
+
 - `{Module}.ArchitectureTests` - Layer and naming rules
 - Integration tests (to be added)
 - Unit tests (to be added)
@@ -251,14 +262,14 @@ Each module can have:
 ## Package Management
 
 Uses **Central Package Management** (`Directory.Packages.props`):
+
 - All package versions defined centrally
 - Projects reference packages without version attributes
 - Update versions in one place for all projects
 
 Key packages:
+
 - **Aspire** 13.2.4
-- **MediatR** 14.1.0
-- **MassTransit** 9.1.0
 - **FluentValidation** 12.1.1
 - **EF Core** 10.0.7
 - **MudBlazor** 9.4.0 (frontend)

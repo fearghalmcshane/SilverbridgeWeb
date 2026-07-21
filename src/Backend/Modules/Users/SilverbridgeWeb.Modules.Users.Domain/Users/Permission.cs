@@ -4,6 +4,7 @@ public sealed class Permission
 {
     public static readonly Permission GetUser = new("users:read");
     public static readonly Permission ModifyUser = new("users:update");
+    public static readonly Permission ModifyRoles = new("users:roles:update");
     public static readonly Permission GetEvents = new("events:read");
     public static readonly Permission SearchEvents = new("events:search");
     public static readonly Permission ModifyEvents = new("events:update");
