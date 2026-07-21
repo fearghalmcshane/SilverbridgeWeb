@@ -42,9 +42,10 @@ jobs:
           Azure__SubscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           Azure__Location: ${{ vars.AZURE_LOCATION }}
           Azure__ResourceGroup: ${{ vars.AZURE_RESOURCE_GROUP_PROD }}
-          Parameters__keycloakPassword: ${{ secrets.ASPIRE_KEYCLOAK_PASSWORD }}
           Parameters__PostgresPassword: ${{ secrets.ASPIRE_POSTGRES_PASSWORD }}
-          Parameters__keycloak-confidential-client-secret: ${{ secrets.ASPIRE_KEYCLOAK_CONFIDENTIAL_CLIENT_SECRET }}
           Parameters__foireann-primary-api-key: ${{ secrets.ASPIRE_FOIREANN_PRIMARY_API_KEY }}
           Parameters__foireann-secondary-api-key: ${{ secrets.ASPIRE_FOIREANN_SECONDARY_API_KEY }}
-          Parameters__keycloakClientSecret: ${{ secrets.ASPIRE_KEYCLOAK_CLIENT_SECRET }}
+          Parameters__clerk-authority: ${{ secrets.ASPIRE_CLERK_AUTHORITY }}
+          Parameters__clerk-webhook-signing-secret: ${{ secrets.ASPIRE_CLERK_WEBHOOK_SIGNING_SECRET }}
+          Parameters__clerk-client-id: ${{ secrets.ASPIRE_CLERK_CLIENT_ID }}
+          Parameters__clerk-client-secret: ${{ secrets.ASPIRE_CLERK_CLIENT_SECRET }}
