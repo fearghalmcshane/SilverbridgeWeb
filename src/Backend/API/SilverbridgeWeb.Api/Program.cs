@@ -55,8 +55,6 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
     app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod());
-
-    app.ApplyMigrations();
 }
 
 if (!app.Environment.IsDevelopment())

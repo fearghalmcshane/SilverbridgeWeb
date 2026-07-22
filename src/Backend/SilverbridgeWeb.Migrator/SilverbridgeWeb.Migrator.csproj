@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Aspire\SilverbridgeWeb.ServiceDefaults\SilverbridgeWeb.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Modules\Attendance\SilverbridgeWeb.Modules.Attendance.Infrastructure\SilverbridgeWeb.Modules.Attendance.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Bookings\SilverbridgeWeb.Modules.Bookings.Infrastructure\SilverbridgeWeb.Modules.Bookings.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Events\SilverbridgeWeb.Modules.Events.Infrastructure\SilverbridgeWeb.Modules.Events.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Ticketing\SilverbridgeWeb.Modules.Ticketing.Infrastructure\SilverbridgeWeb.Modules.Ticketing.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Users\SilverbridgeWeb.Modules.Users.Infrastructure\SilverbridgeWeb.Modules.Users.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
