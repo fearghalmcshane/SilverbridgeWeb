@@ -9,7 +9,6 @@ using SilverbridgeWeb.Modules.Events.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Users.Application;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Users.Infrastructure;
-using SilverbridgeWeb.Modules.Users.Infrastructure.Database;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
