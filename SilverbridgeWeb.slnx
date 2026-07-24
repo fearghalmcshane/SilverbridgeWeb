@@ -13,6 +13,9 @@
   <Folder Name="/src/Backend/API/">
     <Project Path="src/Backend/API/SilverbridgeWeb.Api/SilverbridgeWeb.Api.csproj" />
   </Folder>
+  <Folder Name="/src/Backend/Migrator/">
+    <Project Path="src/Backend/SilverbridgeWeb.Migrator/SilverbridgeWeb.Migrator.csproj" />
+  </Folder>
   <Folder Name="/src/Backend/Common/">
     <Project Path="src/Backend/Common/SilverbridgeWeb.Common.Application/SilverbridgeWeb.Common.Application.csproj" />
     <Project Path="src/Backend/Common/SilverbridgeWeb.Common.Domain/SilverbridgeWeb.Common.Domain.csproj" />

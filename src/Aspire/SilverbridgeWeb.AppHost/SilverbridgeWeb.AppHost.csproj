@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Backend\API\SilverbridgeWeb.Api\SilverbridgeWeb.Api.csproj" />
+    <ProjectReference Include="..\..\Backend\SilverbridgeWeb.Migrator\SilverbridgeWeb.Migrator.csproj" />
     <ProjectReference Include="..\..\Frontend\SilverbridgeWeb.WebUI\SilverbridgeWeb.WebUI.csproj" />
   </ItemGroup>
 

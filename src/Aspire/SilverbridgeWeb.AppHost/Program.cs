@@ -32,11 +32,15 @@ IResourceBuilder<ParameterResource> clerkClientSecret = builder.AddParameter("cl
 IResourceBuilder<ParameterResource> foireannPrimaryKey = builder.AddParameter("foireann-primary-api-key", secret: true);
 IResourceBuilder<ParameterResource> foireannSecondaryKey = builder.AddParameter("foireann-secondary-api-key", secret: true);
 
+IResourceBuilder<ProjectResource> migrator = builder.AddProject<Projects.SilverbridgeWeb_Migrator>("silverbridgeweb-migrator")
+    .WithReference(silverbridgeDb)
+    .WaitFor(silverbridgeDb);
+
 IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.SilverbridgeWeb_Api>("silverbridgeweb-api")
     .WithReference(silverbridgeDb)
     .WithReference(redis)
-    .WaitFor(silverbridgeDb)
     .WaitFor(redis)
+    .WaitForCompletion(migrator)
     .WithEnvironment("Clerk__Authority", clerkAuthority)
     .WithEnvironment("Clerk__WebhookSigningSecret", clerkWebhookSigningSecret)
     .WithEnvironment("Foireann__PrimaryApiKey", foireannPrimaryKey)
