@@ -44,7 +44,7 @@ public static class UsersModule
         services.AddDbContext<UsersDbContext>((sp, options) =>
             options
                 .UseNpgsql(
-                    configuration.GetConnectionString(databaseConnectionString),
+                    databaseConnectionString,
                     npgsqlOptions => npgsqlOptions
                         .MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Users))
                 .AddInterceptors(sp.GetRequiredService<InsertOutboxMessagesInterceptor>())
