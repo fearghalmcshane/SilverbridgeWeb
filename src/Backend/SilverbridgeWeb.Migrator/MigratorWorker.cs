@@ -10,6 +10,7 @@ namespace SilverbridgeWeb.Migrator;
 
 internal sealed partial class MigratorWorker(
     IServiceProvider serviceProvider,
+    ClerkUserBackfillService clerkUserBackfillService,
     IHostApplicationLifetime hostApplicationLifetime,
     ILogger<MigratorWorker> logger) : BackgroundService
 {
@@ -27,6 +28,16 @@ internal sealed partial class MigratorWorker(
             await MigrateAsync<TicketingDbContext>(stoppingToken);
             await MigrateAsync<AttendanceDbContext>(stoppingToken);
             await MigrateAsync<BookingsDbContext>(stoppingToken);
+
+            ClerkUserBackfillSummary summary = await clerkUserBackfillService.BackfillAsync(stoppingToken);
+            if (summary.IsSkipped)
+            {
+                LogClerkBackfillSkipped();
+            }
+            else
+            {
+                LogClerkBackfillCompleted(summary.Fetched, summary.Synced, summary.Skipped, summary.Failed);
+            }
         }
         catch (Exception ex)
         {
@@ -57,4 +68,10 @@ internal sealed partial class MigratorWorker(
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Migration complete for {DbContext}.")]
     private partial void LogMigrationComplete(string dbContext);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Clerk user backfill skipped.")]
+    private partial void LogClerkBackfillSkipped();
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Clerk user backfill complete. Fetched: {Fetched}, Synced: {Synced}, Skipped: {Skipped}, Failed: {Failed}")]
+    private partial void LogClerkBackfillCompleted(int fetched, int synced, int skipped, int failed);
 }

@@ -49,3 +49,4 @@ jobs:
           Parameters__clerk-webhook-signing-secret: ${{ secrets.ASPIRE_CLERK_WEBHOOK_SIGNING_SECRET }}
           Parameters__clerk-client-id: ${{ secrets.ASPIRE_CLERK_CLIENT_ID }}
           Parameters__clerk-client-secret: ${{ secrets.ASPIRE_CLERK_CLIENT_SECRET }}
+          Parameters__clerk-api-key: ${{ secrets.ASPIRE_CLERK_API_KEY }}
