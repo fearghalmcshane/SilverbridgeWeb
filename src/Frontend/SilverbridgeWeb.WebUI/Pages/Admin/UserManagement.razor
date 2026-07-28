@@ -3,6 +3,7 @@
 @inject UsersApiClient UsersApiClient
 
 @using SilverbridgeWeb.WebUI.Services.ApiClients
+@using SilverbridgeWeb.WebUI.Services.Authorization
 
 <PageTitle>User Management</PageTitle>
 
@@ -37,8 +38,9 @@
                               HelperText="The GUID of the user to manage"
                               Class="mb-3" />
                 <MudSelect @bind-Value="_selectedRole" Label="Role" Class="mb-2">
-                    <MudSelectItem Value="@("Administrator")">Administrator</MudSelectItem>
-                    <MudSelectItem Value="@("Member")">Member</MudSelectItem>
+                    <MudSelectItem Value="@(AppRoles.Administrator)">Administrator</MudSelectItem>
+                    <MudSelectItem Value="@(AppRoles.CommunicationsOfficer)">Communications Officer</MudSelectItem>
+                    <MudSelectItem Value="@(AppRoles.Member)">Member</MudSelectItem>
                 </MudSelect>
             </MudCardContent>
             <MudCardActions>
@@ -67,14 +69,14 @@
     private string? _actionMessage;
     private Severity _actionSeverity = Severity.Info;
     private string _userIdInput = string.Empty;
-    private string _selectedRole = "Administrator";
+    private string _selectedRole = AppRoles.Administrator;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             UserRolesResponse? rolesResponse = await UsersApiClient.GetRolesAsync();
-            _isAdmin = rolesResponse?.Roles.Contains("Administrator") ?? false;
+            _isAdmin = rolesResponse?.Roles.Contains(AppRoles.Administrator) ?? false;
         }
         catch (Exception)
         {

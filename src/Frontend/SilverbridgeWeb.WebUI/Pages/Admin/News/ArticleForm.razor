@@ -1,0 +1,624 @@
+@page "/admin/news/create"
+@page "/admin/news/{Id:guid}/edit"
+@attribute [Authorize]
+@using System.ComponentModel.DataAnnotations
+@using System.Net
+@using SilverbridgeWeb.WebUI.Services
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+@using SilverbridgeWeb.WebUI.Services.Authorization
+@inject NewsApiClient NewsApiClient
+@inject UsersApiClient UsersApiClient
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<PageTitle>@(IsEditMode ? "Edit Article" : "Create Article") - Silverbridge Harps GAC</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4 mb-8">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="mb-4" />
+    }
+    else if (!_canManageNews)
+    {
+        <MudAlert Severity="Severity.Error">You do not have permission to manage news.</MudAlert>
+    }
+    else
+    {
+        <MudStack Row="true" Wrap="Wrap.Wrap" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+            <MudText Typo="Typo.h4">
+                <MudIcon Icon="@Icons.Material.Filled.EditNote" Class="mr-2" />
+                @(IsEditMode ? "Edit Article" : "Create Article")
+            </MudText>
+            <MudButton Href="/admin/news" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBack">
+                Back to list
+            </MudButton>
+        </MudStack>
+
+        @if (_errorMessage is not null)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert>
+        }
+
+        <EditForm Model="_model" OnValidSubmit="SaveAsync">
+            <DataAnnotationsValidator />
+
+            <MudGrid>
+                <MudItem xs="12" md="8">
+                    <MudCard Elevation="2" Class="mb-4">
+                        <MudCardContent>
+                            <MudStack Spacing="3">
+                                <MudTextField T="string"
+                                              Label="Title"
+                                              Value="_model.Title"
+                                              ValueChanged="OnTitleChanged"
+                                              Immediate="true"
+                                              For="@(() => _model.Title)"
+                                              Required="true" />
+
+                                <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2" AlignItems="AlignItems.End">
+                                    <MudTextField T="string"
+                                                  Label="Slug"
+                                                  Value="_model.Slug"
+                                                  ValueChanged="OnSlugChanged"
+                                                  Immediate="true"
+                                                  For="@(() => _model.Slug)"
+                                                  Required="true"
+                                                  Class="flex-grow-1" />
+                                    <MudButton Variant="Variant.Outlined"
+                                               Color="Color.Secondary"
+                                               StartIcon="@Icons.Material.Filled.AutoFixHigh"
+                                               OnClick="GenerateSlugFromTitle">
+                                        Generate
+                                    </MudButton>
+                                </MudStack>
+
+                                <MudTextField @bind-Value="_model.Summary"
+                                              Label="Summary"
+                                              For="@(() => _model.Summary)"
+                                              Lines="4"
+                                              Required="true" />
+
+                                <MudTextField @bind-Value="_model.Content"
+                                              Label="Content"
+                                              For="@(() => _model.Content)"
+                                              Lines="12"
+                                              Required="true" />
+                            </MudStack>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+                <MudItem xs="12" md="4">
+                    <MudCard Elevation="2" Class="mb-4">
+                        <MudCardContent>
+                            <MudStack Spacing="3">
+                                <MudSelect T="Guid"
+                                           @bind-Value="_model.CategoryId"
+                                           Label="Category"
+                                           For="@(() => _model.CategoryId)"
+                                           Required="true">
+                                    @foreach (NewsCategoryResponse category in _categories)
+                                    {
+                                        <MudSelectItem T="Guid" Value="@category.Id">@category.Name</MudSelectItem>
+                                    }
+                                </MudSelect>
+
+                                @if (_categories.Count == 0)
+                                {
+                                    <MudAlert Severity="Severity.Warning">
+                                        Create at least one category before saving an article.
+                                    </MudAlert>
+                                }
+
+                                @if (_article is not null)
+                                {
+                                    <MudStack Spacing="1">
+                                        <MudText Typo="Typo.subtitle2">Status</MudText>
+                                        <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(_article.Status)" Class="align-self-start">
+                                            @_article.Status
+                                        </MudChip>
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                            Created @FormatDate(_article.CreatedAtUtc)
+                                        </MudText>
+                                        @if (_article.PublishedAtUtc.HasValue)
+                                        {
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                                Published @FormatDate(_article.PublishedAtUtc.Value)
+                                            </MudText>
+                                        }
+                                    </MudStack>
+                                }
+                            </MudStack>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       ButtonType="ButtonType.Submit"
+                                       Disabled="@(_isSaving || _categories.Count == 0)">
+                                @(IsEditMode ? "Save Changes" : "Create Article")
+                            </MudButton>
+                            @if (IsEditMode)
+                            {
+                                <MudButton Variant="Variant.Text"
+                                           Color="Color.Success"
+                                           Disabled="@(_isSaving || _article?.Status != NewsArticleStatus.Draft)"
+                                           OnClick="PublishAsync">
+                                    Publish
+                                </MudButton>
+                                <MudButton Variant="Variant.Text"
+                                           Color="Color.Error"
+                                           Disabled="@(_isSaving || _article?.Status == NewsArticleStatus.Archived)"
+                                           OnClick="ArchiveAsync">
+                                    Archive
+                                </MudButton>
+                            }
+                        </MudCardActions>
+                    </MudCard>
+
+                    <MudCard Elevation="2">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">Media</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">Upload images or videos for this article.</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            @if (!IsEditMode || Id is null)
+                            {
+                                <MudAlert Severity="Severity.Info">
+                                    Save the article first to enable media uploads.
+                                </MudAlert>
+                            }
+                            else
+                            {
+                                <MudStack Spacing="2">
+                                    <InputFile OnChange="OnFileSelected"
+                                               accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.mov" />
+                                    @if (_selectedFile is not null)
+                                    {
+                                        <MudText Typo="Typo.caption">Selected: @_selectedFile.Name (@_selectedFile.ContentType)</MudText>
+                                    }
+                                    <MudTextField @bind-Value="_mediaAltText" Label="Alt text" />
+                                    <MudNumericField T="int" @bind-Value="_mediaDisplayOrder" Label="Display order" Min="0" />
+                                    <MudButton Variant="Variant.Outlined"
+                                               Color="Color.Primary"
+                                               StartIcon="@Icons.Material.Filled.Upload"
+                                               OnClick="UploadMediaAsync"
+                                               Disabled="@(_selectedFile is null || _isUploading)">
+                                        Upload media
+                                    </MudButton>
+                                </MudStack>
+
+                                @if (_article?.Media.Count > 0)
+                                {
+                                    <MudDivider Class="my-4" />
+                                    <MudList T="string" Dense="true">
+                                        @foreach (NewsArticleMediaResponse media in _article.Media.OrderBy(item => item.DisplayOrder))
+                                        {
+                                            <MudListItem Text="@($"{media.MediaType} · order {media.DisplayOrder}")"
+                                                         SecondaryText="@(string.IsNullOrWhiteSpace(media.AltText) ? media.BlobUrl : media.AltText)" />
+                                        }
+                                    </MudList>
+                                }
+                            }
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            </MudGrid>
+        </EditForm>
+    }
+</MudContainer>
+
+<MudDialog @bind-Visible="_showConfirmationDialog">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@_confirmationTitle</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText>@_confirmationMessage</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CancelConfirmation">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="@_confirmationColor" OnClick="ConfirmActionAsync">
+            @_confirmationButtonText
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private const long MaxUploadBytes = 25 * 1024 * 1024;
+
+    [Parameter]
+    public Guid? Id { get; set; }
+
+    private ArticleFormModel _model = new();
+    private NewsArticleResponse? _article;
+    private List<NewsCategoryResponse> _categories = [];
+    private bool _isLoading = true;
+    private bool _isSaving;
+    private bool _isUploading;
+    private bool _canManageNews;
+    private string? _errorMessage;
+    private UserProfileResponse? _currentUser;
+    private IBrowserFile? _selectedFile;
+    private string? _mediaAltText;
+    private int _mediaDisplayOrder;
+    private bool _slugEditedManually;
+    private bool _showConfirmationDialog;
+    private string _confirmationTitle = string.Empty;
+    private string _confirmationMessage = string.Empty;
+    private string _confirmationButtonText = string.Empty;
+    private Color _confirmationColor = Color.Primary;
+    private Func<Task>? _pendingConfirmationAction;
+
+    private bool IsEditMode => Id.HasValue;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+        _selectedFile = null;
+        _mediaAltText = null;
+        _mediaDisplayOrder = 0;
+
+        try
+        {
+            UserRolesResponse? rolesResponse = await UsersApiClient.GetRolesAsync();
+            IReadOnlyList<string> roles = rolesResponse?.Roles ?? [];
+            _canManageNews = roles.Contains(AppRoles.Administrator, StringComparer.Ordinal) ||
+                             roles.Contains(AppRoles.CommunicationsOfficer, StringComparer.Ordinal);
+
+            if (!_canManageNews)
+            {
+                return;
+            }
+
+            _categories = (await NewsApiClient.GetCategoriesAsync())?
+                .Where(category => !category.IsArchived)
+                .OrderBy(category => category.Name)
+                .ToList() ?? [];
+
+            if (IsEditMode && Id.HasValue)
+            {
+                _article = await NewsApiClient.GetArticleAsync(Id.Value);
+                if (_article is null)
+                {
+                    _errorMessage = "Article not found.";
+                    return;
+                }
+
+                _model = new ArticleFormModel
+                {
+                    Title = _article.Title,
+                    Slug = _article.Slug,
+                    Summary = _article.Summary,
+                    Content = _article.Content,
+                    CategoryId = _article.CategoryId
+                };
+                _mediaDisplayOrder = _article.Media.Count;
+                _slugEditedManually = true;
+            }
+            else
+            {
+                _article = null;
+                _model = new ArticleFormModel();
+                _currentUser = await UsersApiClient.GetProfileAsync();
+                _slugEditedManually = false;
+
+                if (_categories.Count > 0)
+                {
+                    _model.CategoryId = _categories[0].Id;
+                }
+            }
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            _errorMessage = "Article not found.";
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized || ex.StatusCode == HttpStatusCode.Forbidden)
+        {
+            _canManageNews = false;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to load the article editor: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private Task OnTitleChanged(string? title)
+    {
+        _model.Title = title ?? string.Empty;
+
+        if (!_slugEditedManually)
+        {
+            _model.Slug = Slugify(_model.Title);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task OnSlugChanged(string? slug)
+    {
+        _model.Slug = slug ?? string.Empty;
+        _slugEditedManually = true;
+        return Task.CompletedTask;
+    }
+
+    private Task GenerateSlugFromTitle()
+    {
+        _model.Slug = Slugify(_model.Title);
+        _slugEditedManually = true;
+        return Task.CompletedTask;
+    }
+
+    private async Task SaveAsync()
+    {
+        if (!_canManageNews)
+        {
+            return;
+        }
+
+        _isSaving = true;
+        _errorMessage = null;
+
+        try
+        {
+            if (IsEditMode && Id.HasValue)
+            {
+                await NewsApiClient.UpdateArticleAsync(
+                    Id.Value,
+                    new UpdateNewsArticleRequest(
+                        _model.Title.Trim(),
+                        _model.Slug.Trim(),
+                        _model.Summary.Trim(),
+                        _model.Content.Trim(),
+                        _model.CategoryId));
+
+                Snackbar.Add("Article updated successfully.", Severity.Success);
+                _article = await NewsApiClient.GetArticleAsync(Id.Value);
+            }
+            else
+            {
+                if (_currentUser is null)
+                {
+                    _currentUser = await UsersApiClient.GetProfileAsync();
+                }
+
+                if (_currentUser is null)
+                {
+                    _errorMessage = "Could not determine the current user for article authoring.";
+                    return;
+                }
+
+                Guid? newArticleId = await NewsApiClient.CreateArticleAsync(
+                    new CreateNewsArticleRequest(
+                        _model.Title.Trim(),
+                        _model.Slug.Trim(),
+                        _model.Summary.Trim(),
+                        _model.Content.Trim(),
+                        _model.CategoryId,
+                        _currentUser.Id,
+                        _currentUser.FirstName,
+                        _currentUser.LastName));
+
+                if (!newArticleId.HasValue)
+                {
+                    _errorMessage = "The article was created but no identifier was returned.";
+                    return;
+                }
+
+                Snackbar.Add("Article created successfully.", Severity.Success);
+                Navigation.NavigateTo($"/admin/news/{newArticleId.Value}/edit");
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to save the article: {ex.Message}";
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task PublishAsync()
+    {
+        if (!Id.HasValue || _article is null)
+        {
+            return;
+        }
+
+        ShowConfirmation(
+            "Publish article",
+            $"Publish '{_article.Title}' now?",
+            "Publish",
+            Color.Success,
+            async () =>
+            {
+                await NewsApiClient.PublishArticleAsync(Id.Value);
+                Snackbar.Add("Article published successfully.", Severity.Success);
+                _article = await NewsApiClient.GetArticleAsync(Id.Value);
+            });
+
+        await Task.CompletedTask;
+    }
+
+    private async Task ArchiveAsync()
+    {
+        if (!Id.HasValue || _article is null)
+        {
+            return;
+        }
+
+        ShowConfirmation(
+            "Archive article",
+            $"Archive '{_article.Title}'?",
+            "Archive",
+            Color.Error,
+            async () =>
+            {
+                await NewsApiClient.ArchiveArticleAsync(Id.Value);
+                Snackbar.Add("Article archived successfully.", Severity.Success);
+                _article = await NewsApiClient.GetArticleAsync(Id.Value);
+            });
+
+        await Task.CompletedTask;
+    }
+
+    private Task OnFileSelected(InputFileChangeEventArgs args)
+    {
+        _selectedFile = args.FileCount > 0 ? args.File : null;
+        return Task.CompletedTask;
+    }
+
+    private async Task UploadMediaAsync()
+    {
+        if (!Id.HasValue || _selectedFile is null)
+        {
+            return;
+        }
+
+        _isUploading = true;
+
+        try
+        {
+            await using Stream stream = FileUploadHelper.OpenLimitedReadStream(_selectedFile, MaxUploadBytes);
+            await NewsApiClient.UploadArticleMediaAsync(
+                Id.Value,
+                stream,
+                _selectedFile.Name,
+                _selectedFile.ContentType,
+                _mediaAltText,
+                _mediaDisplayOrder);
+
+            Snackbar.Add("Media uploaded successfully.", Severity.Success);
+            _selectedFile = null;
+            _mediaAltText = null;
+            _mediaDisplayOrder++;
+            _article = await NewsApiClient.GetArticleAsync(Id.Value);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to upload media: {ex.Message}";
+        }
+        finally
+        {
+            _isUploading = false;
+        }
+    }
+
+    private static string FormatDate(DateTime dateTime) => dateTime.ToLocalTime().ToString("dd MMM yyyy HH:mm");
+
+    private static Color GetStatusColor(NewsArticleStatus status) => status switch
+    {
+        NewsArticleStatus.Draft => Color.Warning,
+        NewsArticleStatus.Published => Color.Success,
+        NewsArticleStatus.Archived => Color.Error,
+        _ => Color.Default
+    };
+
+    private static string Slugify(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        List<char> characters = [];
+        bool previousWasDash = false;
+
+        foreach (char character in value.Trim().ToLowerInvariant())
+        {
+            if (char.IsLetterOrDigit(character))
+            {
+                characters.Add(character);
+                previousWasDash = false;
+            }
+            else if (!previousWasDash)
+            {
+                characters.Add('-');
+                previousWasDash = true;
+            }
+        }
+
+        return new string(characters.ToArray()).Trim('-');
+    }
+
+    private void ShowConfirmation(
+        string title,
+        string message,
+        string buttonText,
+        Color color,
+        Func<Task> action)
+    {
+        _confirmationTitle = title;
+        _confirmationMessage = message;
+        _confirmationButtonText = buttonText;
+        _confirmationColor = color;
+        _pendingConfirmationAction = action;
+        _showConfirmationDialog = true;
+    }
+
+    private void CancelConfirmation()
+    {
+        _showConfirmationDialog = false;
+        _pendingConfirmationAction = null;
+    }
+
+    private async Task ConfirmActionAsync()
+    {
+        if (_pendingConfirmationAction is null)
+        {
+            _showConfirmationDialog = false;
+            return;
+        }
+
+        _showConfirmationDialog = false;
+        _isSaving = true;
+
+        try
+        {
+            await _pendingConfirmationAction();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Action failed: {ex.Message}";
+        }
+        finally
+        {
+            _pendingConfirmationAction = null;
+            _isSaving = false;
+        }
+    }
+
+    private sealed class ArticleFormModel
+    {
+        [Required]
+        [MaxLength(300)]
+        public string Title { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(200)]
+        [RegularExpression("^[a-z0-9]+(?:-[a-z0-9]+)*$")]
+        public string Slug { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(1000)]
+        public string Summary { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(50000)]
+        public string Content { get; set; } = string.Empty;
+
+        [Required]
+        public Guid CategoryId { get; set; }
+    }
+}

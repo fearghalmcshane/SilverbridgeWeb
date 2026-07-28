@@ -1,0 +1,295 @@
+@page "/admin/news"
+@attribute [Authorize]
+@using System.Net
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+@using SilverbridgeWeb.WebUI.Services.Authorization
+@inject NewsApiClient NewsApiClient
+@inject UsersApiClient UsersApiClient
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+<PageTitle>Manage News - Silverbridge Harps GAC</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="mb-4" />
+    }
+    else if (!_canManageNews)
+    {
+        <MudAlert Severity="Severity.Error">You do not have permission to manage news.</MudAlert>
+    }
+    else
+    {
+        <MudStack Row="true" Wrap="Wrap.Wrap" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+            <MudText Typo="Typo.h4">
+                <MudIcon Icon="@Icons.Material.Filled.Feed" Class="mr-2" />
+                Manage News
+            </MudText>
+            <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
+                <MudButton Href="/admin/news/categories"
+                           Variant="Variant.Outlined"
+                           Color="Color.Secondary"
+                           StartIcon="@Icons.Material.Filled.Category">
+                    Manage Categories
+                </MudButton>
+                <MudButton Href="/admin/news/create"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Add">
+                    Create Article
+                </MudButton>
+            </MudStack>
+        </MudStack>
+
+        @if (_errorMessage is not null)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert>
+        }
+
+        <MudTable T="NewsArticleSummaryResponse" Items="_articles" Dense="true" Hover="true" Breakpoint="Breakpoint.Md">
+            <HeaderContent>
+                <MudTh>Title</MudTh>
+                <MudTh>Category</MudTh>
+                <MudTh>Author</MudTh>
+                <MudTh>Status</MudTh>
+                <MudTh>Published</MudTh>
+                <MudTh>Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Title">
+                    <MudText Typo="Typo.subtitle2">@context.Title</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Slug</MudText>
+                </MudTd>
+                <MudTd DataLabel="Category">@context.CategoryName</MudTd>
+                <MudTd DataLabel="Author">@context.AuthorFirstName @context.AuthorLastName</MudTd>
+                <MudTd DataLabel="Status">
+                    <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(context.Status)">
+                        @context.Status
+                    </MudChip>
+                </MudTd>
+                <MudTd DataLabel="Published">@FormatDate(context.PublishedAtUtc)</MudTd>
+                <MudTd DataLabel="Actions">
+                    <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="1">
+                        <MudButton Variant="Variant.Text"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.Edit"
+                                   OnClick="@(() => Navigation.NavigateTo($"/admin/news/{context.Id}/edit"))">
+                            Edit
+                        </MudButton>
+                        <MudButton Variant="Variant.Text"
+                                   Color="Color.Success"
+                                   StartIcon="@Icons.Material.Filled.Publish"
+                                   Disabled="@(context.Status != NewsArticleStatus.Draft || _isBusy)"
+                                   OnClick="@(() => PublishArticleAsync(context))">
+                            Publish
+                        </MudButton>
+                        <MudButton Variant="Variant.Text"
+                                   Color="Color.Error"
+                                   StartIcon="@Icons.Material.Filled.Archive"
+                                   Disabled="@(context.Status == NewsArticleStatus.Archived || _isBusy)"
+                                   OnClick="@(() => ArchiveArticleAsync(context))">
+                            Archive
+                        </MudButton>
+                    </MudStack>
+                </MudTd>
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudText>No articles have been created yet.</MudText>
+            </NoRecordsContent>
+        </MudTable>
+
+        @if (TotalPages > 1)
+        {
+            <MudPagination Class="mt-4 d-flex justify-center"
+                           Count="@TotalPages"
+                           Selected="@_currentPage"
+                           SelectedChanged="OnPageChanged" />
+        }
+    }
+</MudContainer>
+
+<MudDialog @bind-Visible="_showConfirmationDialog">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@_confirmationTitle</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText>@_confirmationMessage</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CancelConfirmation">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="@_confirmationColor" OnClick="ConfirmActionAsync">
+            @_confirmationButtonText
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private const int PageSize = 20;
+
+    private List<NewsArticleSummaryResponse> _articles = [];
+    private bool _isLoading = true;
+    private bool _isBusy;
+    private bool _canManageNews;
+    private string? _errorMessage;
+    private int _currentPage = 1;
+    private int _totalCount;
+    private bool _showConfirmationDialog;
+    private string _confirmationTitle = string.Empty;
+    private string _confirmationMessage = string.Empty;
+    private string _confirmationButtonText = string.Empty;
+    private Color _confirmationColor = Color.Primary;
+    private Func<Task>? _pendingConfirmationAction;
+
+    private int TotalPages => _totalCount <= 0
+        ? 1
+        : (int)Math.Ceiling(_totalCount / (double)PageSize);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            UserRolesResponse? rolesResponse = await UsersApiClient.GetRolesAsync();
+            IReadOnlyList<string> roles = rolesResponse?.Roles ?? [];
+            _canManageNews = roles.Contains(AppRoles.Administrator, StringComparer.Ordinal) ||
+                             roles.Contains(AppRoles.CommunicationsOfficer, StringComparer.Ordinal);
+
+            if (!_canManageNews)
+            {
+                _articles = [];
+                _totalCount = 0;
+                return;
+            }
+
+            NewsArticleListResponse? response = await NewsApiClient.GetArticlesAsync(
+                _currentPage,
+                PageSize,
+                categoryId: null,
+                includeAllStatuses: true);
+
+            _articles = response?.Articles.ToList() ?? [];
+            _totalCount = response?.TotalCount ?? 0;
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized || ex.StatusCode == HttpStatusCode.Forbidden)
+        {
+            _canManageNews = false;
+            _articles = [];
+            _totalCount = 0;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to load articles: {ex.Message}";
+            _articles = [];
+            _totalCount = 0;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task OnPageChanged(int page)
+    {
+        _currentPage = page;
+        await LoadAsync();
+    }
+
+    private async Task PublishArticleAsync(NewsArticleSummaryResponse article)
+    {
+        ShowConfirmation(
+            "Publish article",
+            $"Publish '{article.Title}' now?",
+            "Publish",
+            Color.Success,
+            async () =>
+            {
+                await NewsApiClient.PublishArticleAsync(article.Id);
+                Snackbar.Add($"Published '{article.Title}'.", Severity.Success);
+                await LoadAsync();
+            });
+
+        await Task.CompletedTask;
+    }
+
+    private async Task ArchiveArticleAsync(NewsArticleSummaryResponse article)
+    {
+        ShowConfirmation(
+            "Archive article",
+            $"Archive '{article.Title}'?",
+            "Archive",
+            Color.Error,
+            async () =>
+            {
+                await NewsApiClient.ArchiveArticleAsync(article.Id);
+                Snackbar.Add($"Archived '{article.Title}'.", Severity.Success);
+                await LoadAsync();
+            });
+
+        await Task.CompletedTask;
+    }
+
+    private static string FormatDate(DateTime? publishedAtUtc) =>
+        publishedAtUtc.HasValue ? publishedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm") : "—";
+
+    private static Color GetStatusColor(NewsArticleStatus status) => status switch
+    {
+        NewsArticleStatus.Draft => Color.Warning,
+        NewsArticleStatus.Published => Color.Success,
+        NewsArticleStatus.Archived => Color.Error,
+        _ => Color.Default
+    };
+
+    private void ShowConfirmation(
+        string title,
+        string message,
+        string buttonText,
+        Color color,
+        Func<Task> action)
+    {
+        _confirmationTitle = title;
+        _confirmationMessage = message;
+        _confirmationButtonText = buttonText;
+        _confirmationColor = color;
+        _pendingConfirmationAction = action;
+        _showConfirmationDialog = true;
+    }
+
+    private void CancelConfirmation()
+    {
+        _showConfirmationDialog = false;
+        _pendingConfirmationAction = null;
+    }
+
+    private async Task ConfirmActionAsync()
+    {
+        if (_pendingConfirmationAction is null)
+        {
+            _showConfirmationDialog = false;
+            return;
+        }
+
+        _showConfirmationDialog = false;
+        _isBusy = true;
+
+        try
+        {
+            await _pendingConfirmationAction();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Action failed: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _pendingConfirmationAction = null;
+            _isBusy = false;
+        }
+    }
+}

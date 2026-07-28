@@ -1,8 +1,10 @@
 @using SilverbridgeWeb.WebUI.Services.ApiClients
+@using SilverbridgeWeb.WebUI.Services.Authorization
 @inject UsersApiClient UsersApiClient
 
 <MudNavMenu>
     <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">Home</MudNavLink>
+    <MudNavLink Href="/news" Icon="@Icons.Material.Filled.Article" Match="NavLinkMatch.Prefix">News</MudNavLink>
 
     <MudNavGroup Title="Fixtures & Results" Expanded="true">
         <MudNavLink Href="/fixtures" Icon="@Icons.Material.Filled.SportsSoccer" Match="NavLinkMatch.Prefix">Fixtures</MudNavLink>
@@ -15,10 +17,16 @@
                 <MudNavLink Href="/categories" Icon="@Icons.Material.Filled.Category" Match="NavLinkMatch.Prefix">Categories</MudNavLink>
             </MudNavGroup>
 
-            @if (_isAdmin)
+            @if (_canManageNews || _isAdmin)
             {
                 <MudNavGroup Title="Administration" Expanded="true">
-                    <MudNavLink Href="/admin/users" Icon="@Icons.Material.Filled.AdminPanelSettings" Match="NavLinkMatch.Prefix">User Management</MudNavLink>
+                    <MudNavLink Href="/admin/news" Icon="@Icons.Material.Filled.Feed" Match="NavLinkMatch.Prefix">Manage News</MudNavLink>
+                    <MudNavLink Href="/admin/news/categories" Icon="@Icons.Material.Filled.Category" Match="NavLinkMatch.Prefix">News Categories</MudNavLink>
+
+                    @if (_isAdmin)
+                    {
+                        <MudNavLink Href="/admin/users" Icon="@Icons.Material.Filled.AdminPanelSettings" Match="NavLinkMatch.Prefix">User Management</MudNavLink>
+                    }
                 </MudNavGroup>
             }
         </Authorized>
@@ -45,6 +53,7 @@
 
 @code {
     private bool _isAdmin;
+    private bool _canManageNews;
 
     [CascadingParameter]
     private Task<AuthenticationState>? AuthenticationState { get; set; }
@@ -65,12 +74,14 @@
         try
         {
             UserRolesResponse? rolesResponse = await UsersApiClient.GetRolesAsync();
-            _isAdmin = rolesResponse?.Roles.Contains("Administrator") ?? false;
+            IReadOnlyList<string> roles = rolesResponse?.Roles ?? [];
+            _isAdmin = roles.Contains(AppRoles.Administrator, StringComparer.Ordinal);
+            _canManageNews = _isAdmin || roles.Contains(AppRoles.CommunicationsOfficer, StringComparer.Ordinal);
         }
         catch (Exception)
         {
             _isAdmin = false;
+            _canManageNews = false;
         }
     }
 }
-

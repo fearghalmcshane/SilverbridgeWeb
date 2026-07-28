@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SilverbridgeWeb.Modules.Attendance.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Bookings.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Events.Infrastructure.Database;
+using SilverbridgeWeb.Modules.News.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Users.Infrastructure.Database;
 
@@ -28,6 +29,7 @@ internal sealed partial class MigratorWorker(
             await MigrateAsync<TicketingDbContext>(stoppingToken);
             await MigrateAsync<AttendanceDbContext>(stoppingToken);
             await MigrateAsync<BookingsDbContext>(stoppingToken);
+            await MigrateAsync<NewsDbContext>(stoppingToken);
 
             ClerkUserBackfillSummary summary = await clerkUserBackfillService.BackfillAsync(stoppingToken);
             if (summary.IsSkipped)

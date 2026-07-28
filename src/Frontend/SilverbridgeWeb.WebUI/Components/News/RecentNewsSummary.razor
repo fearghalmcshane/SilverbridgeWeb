@@ -1,0 +1,95 @@
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+@inject NewsApiClient NewsApiClient
+
+<MudStack Spacing="3">
+    <div class="d-flex justify-space-between align-center">
+        <MudText Typo="Typo.h4">
+            <MudIcon Icon="@Icons.Material.Filled.Article" Class="mr-2" />
+            Club News
+        </MudText>
+        <MudButton Href="/news" Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward">
+            View all news
+        </MudButton>
+    </div>
+
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    }
+    else if (_errorMessage is not null)
+    {
+        <MudAlert Severity="Severity.Error">@_errorMessage</MudAlert>
+    }
+    else if (_articles.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info">No news articles have been published yet.</MudAlert>
+    }
+    else
+    {
+        <MudGrid>
+            @foreach (NewsArticleSummaryResponse article in _articles)
+            {
+                <MudItem xs="12" md="4">
+                    <MudCard Elevation="2" Class="pa-2 fill-height">
+                        <MudCardContent>
+                            <MudStack Spacing="2">
+                                <div class="d-flex justify-space-between align-start gap-2">
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
+                                        @article.CategoryName
+                                    </MudChip>
+                                    @if (article.PublishedAtUtc.HasValue)
+                                    {
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                            @article.PublishedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy")
+                                        </MudText>
+                                    }
+                                </div>
+                                <MudText Typo="Typo.h6">@article.Title</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">@article.Summary</MudText>
+                            </MudStack>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton Href="@($"/news/{article.Slug}")"
+                                       Variant="Variant.Text"
+                                       Color="Color.Primary"
+                                       EndIcon="@Icons.Material.Filled.ArrowForward">
+                                Read article
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+</MudStack>
+
+@code {
+    [Parameter]
+    public int MaxArticles { get; set; } = 3;
+
+    private List<NewsArticleSummaryResponse> _articles = [];
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            NewsArticleListResponse? response = await NewsApiClient.GetArticlesAsync(
+                page: 1,
+                pageSize: MaxArticles,
+                categoryId: null,
+                includeAllStatuses: false);
+
+            _articles = response?.Articles.ToList() ?? [];
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to load news articles: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

@@ -1,0 +1,148 @@
+@page "/news/{Slug}"
+@using System.Net
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+@inject NewsApiClient NewsApiClient
+
+<PageTitle>@(_article?.Title is null ? "News Article" : $"{_article.Title} - Silverbridge Harps GAC")</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4 mb-8">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+    }
+    else if (_notFound)
+    {
+        <MudAlert Severity="Severity.Info" Class="mb-4">The requested article could not be found.</MudAlert>
+    }
+    else if (_errorMessage is not null)
+    {
+        <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert>
+    }
+    else if (_article is not null)
+    {
+        <MudStack Spacing="3">
+            <MudButton Href="/news" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBack">
+                Back to news
+            </MudButton>
+
+            <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined" Class="align-self-start">
+                @_article.CategoryName
+            </MudChip>
+
+            <MudText Typo="Typo.h3">@_article.Title</MudText>
+            <MudText Typo="Typo.h6" Color="Color.Secondary">@_article.Summary</MudText>
+
+            <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
+                <MudChip T="string" Size="Size.Small" Color="Color.Info">
+                    Published @FormatDate(_article.PublishedAtUtc ?? _article.CreatedAtUtc)
+                </MudChip>
+                @if (_article.UpdatedAtUtc.HasValue)
+                {
+                    <MudChip T="string" Size="Size.Small" Color="Color.Default">
+                        Updated @FormatDate(_article.UpdatedAtUtc.Value)
+                    </MudChip>
+                }
+            </MudStack>
+
+            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                By @_article.AuthorFirstName @_article.AuthorLastName
+            </MudText>
+
+            <MudPaper Elevation="1" Class="pa-4">
+                @if (LooksLikeHtml(_article.Content))
+                {
+                    <div>@((MarkupString)_article.Content)</div>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body1" Style="white-space: pre-wrap;">@_article.Content</MudText>
+                }
+            </MudPaper>
+
+            @if (_article.Media.Count > 0)
+            {
+                <MudDivider />
+                <MudText Typo="Typo.h5">Media</MudText>
+                <MudGrid>
+                    @foreach (NewsArticleMediaResponse media in _article.Media.OrderBy(item => item.DisplayOrder))
+                    {
+                        <MudItem xs="12" md="6">
+                            <MudPaper Elevation="1" Class="pa-3">
+                                @if (string.Equals(media.MediaType, "video", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <video controls style="width:100%;max-height:420px;">
+                                        <source src="@media.BlobUrl" />
+                                        Your browser does not support embedded video.
+                                    </video>
+                                }
+                                else
+                                {
+                                    <img src="@media.BlobUrl"
+                                         alt="@GetMediaAltText(media)"
+                                         style="width:100%;max-height:420px;object-fit:cover;" />
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(media.AltText))
+                                {
+                                    <MudText Typo="Typo.caption" Class="mt-2">@media.AltText</MudText>
+                                }
+                            </MudPaper>
+                        </MudItem>
+                    }
+                </MudGrid>
+            }
+        </MudStack>
+    }
+</MudContainer>
+
+@code {
+    [Parameter]
+    public string Slug { get; set; } = string.Empty;
+
+    private NewsArticleResponse? _article;
+    private bool _isLoading = true;
+    private bool _notFound;
+    private string? _errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _notFound = false;
+        _errorMessage = null;
+
+        try
+        {
+            _article = await NewsApiClient.GetArticleAsync(Slug);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            _notFound = true;
+            _article = null;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to load the article: {ex.Message}";
+            _article = null;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private static string FormatDate(DateTime dateTime) => dateTime.ToLocalTime().ToString("dd MMM yyyy 'at' HH:mm");
+
+    private static string GetMediaAltText(NewsArticleMediaResponse media) =>
+        string.IsNullOrWhiteSpace(media.AltText) ? "Article media" : media.AltText;
+
+    private static bool LooksLikeHtml(string content)
+    {
+        return content.Contains('<', StringComparison.Ordinal) &&
+               content.Contains('>', StringComparison.Ordinal);
+    }
+}
