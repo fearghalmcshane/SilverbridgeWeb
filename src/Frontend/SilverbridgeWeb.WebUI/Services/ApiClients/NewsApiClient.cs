@@ -115,7 +115,8 @@ internal sealed class NewsApiClient(HttpClient httpClient) : IApiClient
 
         if (!string.IsNullOrWhiteSpace(altText))
         {
-            form.Add(new StringContent(altText), "altText");
+            using StringContent altTextContent = new(altText);
+            form.Add(altTextContent, "altText");
         }
 
         HttpResponseMessage response = await httpClient.PostAsync(
