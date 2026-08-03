@@ -10,7 +10,7 @@ internal sealed class CreateCategoryCommandHandler(ICategoryRepository categoryR
 {
     public async Task<Result<Guid>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
-        var category = Category.Create(request.Name);
+        Category category = Category.Create(request.Name);
 
         categoryRepository.Insert(category);
 
