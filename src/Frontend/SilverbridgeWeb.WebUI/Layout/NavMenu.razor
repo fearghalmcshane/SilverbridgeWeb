@@ -17,7 +17,7 @@
                 <MudNavLink Href="/categories" Icon="@Icons.Material.Filled.Category" Match="NavLinkMatch.Prefix">Categories</MudNavLink>
             </MudNavGroup>
 
-            @if (_canManageNews || _isAdmin)
+            @if (_canManageNews)
             {
                 <MudNavGroup Title="Administration" Expanded="true">
                     <MudNavLink Href="/admin/news" Icon="@Icons.Material.Filled.Feed" Match="NavLinkMatch.Prefix">Manage News</MudNavLink>
