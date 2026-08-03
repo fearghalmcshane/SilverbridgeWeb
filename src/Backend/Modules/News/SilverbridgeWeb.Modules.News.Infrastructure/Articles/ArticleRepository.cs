@@ -10,6 +10,7 @@ internal sealed class ArticleRepository(NewsDbContext context) : IArticleReposit
     {
         return await context.Articles
             .Include(a => a.Media)
+            .Include(a => a.MatchReportDetails)
             .SingleOrDefaultAsync(a => a.Id == id, cancellationToken);
     }
 
@@ -17,6 +18,7 @@ internal sealed class ArticleRepository(NewsDbContext context) : IArticleReposit
     {
         return await context.Articles
             .Include(a => a.Media)
+            .Include(a => a.MatchReportDetails)
             .SingleOrDefaultAsync(a => a.Slug == slug, cancellationToken);
     }
 
@@ -34,6 +36,25 @@ internal sealed class ArticleRepository(NewsDbContext context) : IArticleReposit
         // zero rows and throws DbUpdateConcurrencyException. Explicitly adding it here forces the
         // correct Added state.
         context.Set<ArticleMedia>().Add(media);
+    }
+
+    public void TrackMatchReportDetails(MatchReportDetails details)
+    {
+        // MatchReportDetails uses ArticleId as a shared primary key, so unlike ArticleMedia it doesn't
+        // have a client-generated key that could be misread by EF's Added/Modified heuristics. However,
+        // it's still attached to an already-tracked Article via a reference navigation rather than an
+        // explicit DbSet.Add(), so a brand-new instance is Detached until we explicitly add it here.
+        // Existing (already-tracked) instances are left alone - their in-place mutation is already
+        // picked up by EF's normal change detection.
+        if (context.Entry(details).State == EntityState.Detached)
+        {
+            context.Set<MatchReportDetails>().Add(details);
+        }
+    }
+
+    public void RemoveMatchReportDetails(MatchReportDetails details)
+    {
+        context.Set<MatchReportDetails>().Remove(details);
     }
 
     public async Task<bool> IsSlugInUseAsync(string slug, Guid? excludeArticleId, CancellationToken cancellationToken = default)

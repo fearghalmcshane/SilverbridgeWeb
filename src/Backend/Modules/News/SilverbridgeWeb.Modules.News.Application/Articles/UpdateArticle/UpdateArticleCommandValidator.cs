@@ -1,4 +1,5 @@
 using FluentValidation;
+using SilverbridgeWeb.Modules.News.Domain.Articles;
 
 namespace SilverbridgeWeb.Modules.News.Application.Articles.UpdateArticle;
 
@@ -15,5 +16,18 @@ internal sealed class UpdateArticleCommandValidator : AbstractValidator<UpdateAr
         RuleFor(c => c.Summary).NotEmpty().MaximumLength(1000);
         RuleFor(c => c.Content).NotEmpty().MaximumLength(50000);
         RuleFor(c => c.CategoryId).NotEmpty();
+        RuleFor(c => c.ArticleType).IsInEnum();
+
+        When(c => c.ArticleType == ArticleType.MatchReport, () =>
+        {
+            RuleFor(c => c.HomeTeam).NotEmpty().MaximumLength(200);
+            RuleFor(c => c.AwayTeam).NotEmpty().MaximumLength(200);
+            RuleFor(c => c.HomeGoals).NotNull().GreaterThanOrEqualTo(0);
+            RuleFor(c => c.HomePoints).NotNull().GreaterThanOrEqualTo(0);
+            RuleFor(c => c.AwayGoals).NotNull().GreaterThanOrEqualTo(0);
+            RuleFor(c => c.AwayPoints).NotNull().GreaterThanOrEqualTo(0);
+            RuleFor(c => c.Competition).MaximumLength(200);
+            RuleFor(c => c.Venue).MaximumLength(200);
+        });
     }
 }

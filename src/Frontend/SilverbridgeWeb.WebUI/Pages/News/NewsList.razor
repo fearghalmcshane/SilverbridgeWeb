@@ -43,7 +43,11 @@
             @foreach (NewsArticleSummaryResponse article in _articles)
             {
                 <MudItem xs="12" md="6" lg="4">
-                    <MudCard Elevation="2" Class="pa-2 fill-height">
+                    <MudCard Elevation="2" Class="fill-height">
+                        @if (!string.IsNullOrWhiteSpace(article.FeaturedImageUrl))
+                        {
+                            <MudCardMedia Image="@article.FeaturedImageUrl" Height="180" />
+                        }
                         <MudCardContent>
                             <MudStack Spacing="2">
                                 <div class="d-flex justify-space-between align-start gap-2">
@@ -58,6 +62,12 @@
                                     }
                                 </div>
                                 <MudText Typo="Typo.h5">@article.Title</MudText>
+                                @if (article.ArticleType == NewsArticleType.MatchReport)
+                                {
+                                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
+                                        @article.HomeTeam @FormatScore(article.HomeGoals, article.HomePoints) - @FormatScore(article.AwayGoals, article.AwayPoints) @article.AwayTeam
+                                    </MudText>
+                                }
                                 <MudText Typo="Typo.body2" Color="Color.Secondary">@article.Summary</MudText>
                             </MudStack>
                         </MudCardContent>
@@ -154,4 +164,6 @@
         _currentPage = page;
         await LoadAsync();
     }
+
+    private static string FormatScore(int? goals, int? points) => $"{goals ?? 0}-{points ?? 0}";
 }

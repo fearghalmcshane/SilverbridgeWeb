@@ -51,6 +51,7 @@
                 <MudTh>Title</MudTh>
                 <MudTh>Category</MudTh>
                 <MudTh>Author</MudTh>
+                <MudTh>Type</MudTh>
                 <MudTh>Status</MudTh>
                 <MudTh>Published</MudTh>
                 <MudTh>Actions</MudTh>
@@ -62,6 +63,18 @@
                 </MudTd>
                 <MudTd DataLabel="Category">@context.CategoryName</MudTd>
                 <MudTd DataLabel="Author">@context.AuthorFirstName @context.AuthorLastName</MudTd>
+                <MudTd DataLabel="Type">
+                    @if (context.ArticleType == NewsArticleType.MatchReport)
+                    {
+                        <MudText Typo="Typo.caption">
+                            @context.HomeTeam @FormatScore(context.HomeGoals, context.HomePoints) - @FormatScore(context.AwayGoals, context.AwayPoints) @context.AwayTeam
+                        </MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">Standard</MudText>
+                    }
+                </MudTd>
                 <MudTd DataLabel="Status">
                     <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(context.Status)">
                         @context.Status
@@ -237,6 +250,8 @@
 
     private static string FormatDate(DateTime? publishedAtUtc) =>
         publishedAtUtc.HasValue ? publishedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm") : "—";
+
+    private static string FormatScore(int? goals, int? points) => $"{goals ?? 0}-{points ?? 0}";
 
     private static Color GetStatusColor(NewsArticleStatus status) => status switch
     {

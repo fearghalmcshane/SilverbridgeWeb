@@ -23,6 +23,8 @@ internal sealed class ArticleConfiguration : IEntityTypeConfiguration<Article>
 
         builder.Property(a => a.Content).IsRequired();
 
+        builder.Property(a => a.ArticleType).IsRequired();
+
         builder.Property(a => a.Status).IsRequired();
 
         builder.Property(a => a.CreatedAtUtc).IsRequired();
@@ -37,5 +39,10 @@ internal sealed class ArticleConfiguration : IEntityTypeConfiguration<Article>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Navigation(a => a.Media).UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasOne(a => a.MatchReportDetails)
+            .WithOne()
+            .HasForeignKey<MatchReportDetails>(m => m.ArticleId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

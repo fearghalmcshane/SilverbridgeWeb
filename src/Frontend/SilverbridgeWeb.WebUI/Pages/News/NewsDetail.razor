@@ -1,5 +1,6 @@
 @page "/news/{Slug}"
 @using System.Net
+@using SilverbridgeWeb.WebUI.Components.News
 @using SilverbridgeWeb.WebUI.Services.ApiClients
 @inject NewsApiClient NewsApiClient
 
@@ -30,6 +31,39 @@
             </MudChip>
 
             <MudText Typo="Typo.h3">@_article.Title</MudText>
+
+            @if (_heroMedia is not null)
+            {
+                <MudPaper Elevation="1" Class="overflow-hidden">
+                    @if (string.Equals(_heroMedia.MediaType, "video", StringComparison.OrdinalIgnoreCase))
+                    {
+                        <video controls style="width:100%;max-height:480px;">
+                            <source src="@_heroMedia.BlobUrl" />
+                            Your browser does not support embedded video.
+                        </video>
+                    }
+                    else
+                    {
+                        <img src="@_heroMedia.BlobUrl"
+                             alt="@GetMediaAltText(_heroMedia)"
+                             style="width:100%;max-height:480px;object-fit:cover;" />
+                    }
+                </MudPaper>
+            }
+
+            @if (_article.ArticleType == NewsArticleType.MatchReport && _article.MatchReport is not null)
+            {
+                <MatchScoreboard HomeTeam="@_article.MatchReport.HomeTeam"
+                                  AwayTeam="@_article.MatchReport.AwayTeam"
+                                  HomeGoals="@_article.MatchReport.HomeGoals"
+                                  HomePoints="@_article.MatchReport.HomePoints"
+                                  AwayGoals="@_article.MatchReport.AwayGoals"
+                                  AwayPoints="@_article.MatchReport.AwayPoints"
+                                  Competition="@_article.MatchReport.Competition"
+                                  Venue="@_article.MatchReport.Venue"
+                                  MatchDateUtc="@_article.MatchReport.MatchDateUtc" />
+            }
+
             <MudText Typo="Typo.h6" Color="Color.Secondary">@_article.Summary</MudText>
 
             <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
@@ -59,12 +93,12 @@
                 }
             </MudPaper>
 
-            @if (_article.Media.Count > 0)
+            @if (_galleryMedia.Count > 0)
             {
                 <MudDivider />
-                <MudText Typo="Typo.h5">Media</MudText>
+                <MudText Typo="Typo.h5">More media</MudText>
                 <MudGrid>
-                    @foreach (NewsArticleMediaResponse media in _article.Media.OrderBy(item => item.DisplayOrder))
+                    @foreach (NewsArticleMediaResponse media in _galleryMedia)
                     {
                         <MudItem xs="12" md="6">
                             <MudPaper Elevation="1" Class="pa-3">
@@ -100,6 +134,8 @@
     public string Slug { get; set; } = string.Empty;
 
     private NewsArticleResponse? _article;
+    private NewsArticleMediaResponse? _heroMedia;
+    private List<NewsArticleMediaResponse> _galleryMedia = [];
     private bool _isLoading = true;
     private bool _notFound;
     private string? _errorMessage;
@@ -118,6 +154,10 @@
         try
         {
             _article = await NewsApiClient.GetArticleAsync(Slug);
+
+            List<NewsArticleMediaResponse> orderedMedia = _article?.Media.OrderBy(item => item.DisplayOrder).ToList() ?? [];
+            _heroMedia = orderedMedia.FirstOrDefault();
+            _galleryMedia = orderedMedia.Skip(_heroMedia is null ? 0 : 1).ToList();
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {

@@ -52,10 +52,21 @@ internal sealed class GetArticleQueryHandler(IDbConnectionFactory dbConnectionFa
                  a.slug AS {nameof(ArticleResponse.Slug)},
                  a.summary AS {nameof(ArticleResponse.Summary)},
                  a.content AS {nameof(ArticleResponse.Content)},
+                 a.article_type AS {nameof(ArticleResponse.ArticleType)},
                  a.status AS {nameof(ArticleResponse.Status)},
                  a.published_at_utc AS {nameof(ArticleResponse.PublishedAtUtc)},
                  a.created_at_utc AS {nameof(ArticleResponse.CreatedAtUtc)},
                  a.updated_at_utc AS {nameof(ArticleResponse.UpdatedAtUtc)},
+                 mr.article_id AS {nameof(ArticleMatchReportResponse.MatchReportArticleId)},
+                 mr.home_team AS {nameof(ArticleMatchReportResponse.HomeTeam)},
+                 mr.away_team AS {nameof(ArticleMatchReportResponse.AwayTeam)},
+                 mr.home_goals AS {nameof(ArticleMatchReportResponse.HomeGoals)},
+                 mr.home_points AS {nameof(ArticleMatchReportResponse.HomePoints)},
+                 mr.away_goals AS {nameof(ArticleMatchReportResponse.AwayGoals)},
+                 mr.away_points AS {nameof(ArticleMatchReportResponse.AwayPoints)},
+                 mr.competition AS {nameof(ArticleMatchReportResponse.Competition)},
+                 mr.venue AS {nameof(ArticleMatchReportResponse.Venue)},
+                 mr.match_date_utc AS {nameof(ArticleMatchReportResponse.MatchDateUtc)},
                  m.id AS {nameof(ArticleMediaResponse.MediaId)},
                  m.blob_url AS {nameof(ArticleMediaResponse.BlobUrl)},
                  m.media_type AS {nameof(ArticleMediaResponse.MediaType)},
@@ -63,6 +74,7 @@ internal sealed class GetArticleQueryHandler(IDbConnectionFactory dbConnectionFa
                  m.display_order AS {nameof(ArticleMediaResponse.DisplayOrder)}
              FROM news.articles a
              INNER JOIN news.categories c ON c.id = a.category_id
+             LEFT JOIN news.match_report_details mr ON mr.article_id = a.id
              LEFT JOIN news.article_media m ON m.article_id = a.id
              WHERE a.id = @ArticleId
              ORDER BY m.display_order, m.id
@@ -86,10 +98,21 @@ internal sealed class GetArticleQueryHandler(IDbConnectionFactory dbConnectionFa
                  a.slug AS {nameof(ArticleResponse.Slug)},
                  a.summary AS {nameof(ArticleResponse.Summary)},
                  a.content AS {nameof(ArticleResponse.Content)},
+                 a.article_type AS {nameof(ArticleResponse.ArticleType)},
                  a.status AS {nameof(ArticleResponse.Status)},
                  a.published_at_utc AS {nameof(ArticleResponse.PublishedAtUtc)},
                  a.created_at_utc AS {nameof(ArticleResponse.CreatedAtUtc)},
                  a.updated_at_utc AS {nameof(ArticleResponse.UpdatedAtUtc)},
+                 mr.article_id AS {nameof(ArticleMatchReportResponse.MatchReportArticleId)},
+                 mr.home_team AS {nameof(ArticleMatchReportResponse.HomeTeam)},
+                 mr.away_team AS {nameof(ArticleMatchReportResponse.AwayTeam)},
+                 mr.home_goals AS {nameof(ArticleMatchReportResponse.HomeGoals)},
+                 mr.home_points AS {nameof(ArticleMatchReportResponse.HomePoints)},
+                 mr.away_goals AS {nameof(ArticleMatchReportResponse.AwayGoals)},
+                 mr.away_points AS {nameof(ArticleMatchReportResponse.AwayPoints)},
+                 mr.competition AS {nameof(ArticleMatchReportResponse.Competition)},
+                 mr.venue AS {nameof(ArticleMatchReportResponse.Venue)},
+                 mr.match_date_utc AS {nameof(ArticleMatchReportResponse.MatchDateUtc)},
                  m.id AS {nameof(ArticleMediaResponse.MediaId)},
                  m.blob_url AS {nameof(ArticleMediaResponse.BlobUrl)},
                  m.media_type AS {nameof(ArticleMediaResponse.MediaType)},
@@ -97,6 +120,7 @@ internal sealed class GetArticleQueryHandler(IDbConnectionFactory dbConnectionFa
                  m.display_order AS {nameof(ArticleMediaResponse.DisplayOrder)}
              FROM news.articles a
              INNER JOIN news.categories c ON c.id = a.category_id
+             LEFT JOIN news.match_report_details mr ON mr.article_id = a.id
              LEFT JOIN news.article_media m ON m.article_id = a.id
              WHERE a.slug = @Slug AND a.status = @PublishedStatus
              ORDER BY m.display_order, m.id
@@ -109,9 +133,9 @@ internal sealed class GetArticleQueryHandler(IDbConnectionFactory dbConnectionFa
     {
         Dictionary<Guid, ArticleResponse> articles = [];
 
-        await connection.QueryAsync<ArticleResponse, ArticleMediaResponse?, ArticleResponse>(
+        await connection.QueryAsync<ArticleResponse, ArticleMatchReportResponse?, ArticleMediaResponse?, ArticleResponse>(
             sql,
-            (article, media) =>
+            (article, matchReport, media) =>
             {
                 if (articles.TryGetValue(article.Id, out ArticleResponse? existingArticle))
                 {
@@ -119,6 +143,7 @@ internal sealed class GetArticleQueryHandler(IDbConnectionFactory dbConnectionFa
                 }
                 else
                 {
+                    article.MatchReport = matchReport;
                     articles.Add(article.Id, article);
                 }
 
@@ -130,7 +155,7 @@ internal sealed class GetArticleQueryHandler(IDbConnectionFactory dbConnectionFa
                 return article;
             },
             parameters,
-            splitOn: nameof(ArticleMediaResponse.MediaId));
+            splitOn: $"{nameof(ArticleMatchReportResponse.MatchReportArticleId)},{nameof(ArticleMediaResponse.MediaId)}");
 
         return articles.Values.SingleOrDefault();
     }

@@ -49,9 +49,26 @@ internal sealed class GetArticlesQueryHandler(IDbConnectionFactory dbConnectionF
                  a.created_at_utc AS {nameof(ArticleSummaryResponse.CreatedAtUtc)},
                  a.updated_at_utc AS {nameof(ArticleSummaryResponse.UpdatedAtUtc)},
                  a.author_first_name AS {nameof(ArticleSummaryResponse.AuthorFirstName)},
-                 a.author_last_name AS {nameof(ArticleSummaryResponse.AuthorLastName)}
+                 a.author_last_name AS {nameof(ArticleSummaryResponse.AuthorLastName)},
+                 a.article_type AS {nameof(ArticleSummaryResponse.ArticleType)},
+                 featured.blob_url AS {nameof(ArticleSummaryResponse.FeaturedImageUrl)},
+                 mr.home_team AS {nameof(ArticleSummaryResponse.HomeTeam)},
+                 mr.away_team AS {nameof(ArticleSummaryResponse.AwayTeam)},
+                 mr.home_goals AS {nameof(ArticleSummaryResponse.HomeGoals)},
+                 mr.home_points AS {nameof(ArticleSummaryResponse.HomePoints)},
+                 mr.away_goals AS {nameof(ArticleSummaryResponse.AwayGoals)},
+                 mr.away_points AS {nameof(ArticleSummaryResponse.AwayPoints)},
+                 mr.competition AS {nameof(ArticleSummaryResponse.Competition)}
              FROM news.articles a
              INNER JOIN news.categories c ON c.id = a.category_id
+             LEFT JOIN news.match_report_details mr ON mr.article_id = a.id
+             LEFT JOIN LATERAL (
+                 SELECT m.blob_url
+                 FROM news.article_media m
+                 WHERE m.article_id = a.id
+                 ORDER BY m.display_order, m.id
+                 LIMIT 1
+             ) featured ON TRUE
              WHERE
                  (@CategoryId IS NULL OR a.category_id = @CategoryId) AND
                  ((@IncludeAllStatuses = FALSE AND a.status = @PublishedStatus) OR

@@ -166,6 +166,12 @@ internal enum NewsArticleStatus
     Archived = 2
 }
 
+internal enum NewsArticleType
+{
+    Standard = 0,
+    MatchReport = 1
+}
+
 internal sealed record NewsArticleListResponse(
     int Page,
     int PageSize,
@@ -184,7 +190,16 @@ internal sealed record NewsArticleSummaryResponse(
     DateTime CreatedAtUtc,
     DateTime? UpdatedAtUtc,
     string AuthorFirstName,
-    string AuthorLastName);
+    string AuthorLastName,
+    NewsArticleType ArticleType,
+    string? FeaturedImageUrl,
+    string? HomeTeam,
+    string? AwayTeam,
+    int? HomeGoals,
+    int? HomePoints,
+    int? AwayGoals,
+    int? AwayPoints,
+    string? Competition);
 
 internal sealed record NewsArticleResponse(
     Guid Id,
@@ -197,12 +212,15 @@ internal sealed record NewsArticleResponse(
     string Slug,
     string Summary,
     string Content,
+    NewsArticleType ArticleType,
     NewsArticleStatus Status,
     DateTime? PublishedAtUtc,
     DateTime CreatedAtUtc,
     DateTime? UpdatedAtUtc)
 {
     public List<NewsArticleMediaResponse> Media { get; init; } = [];
+
+    public NewsArticleMatchReportResponse? MatchReport { get; init; }
 }
 
 internal sealed record NewsArticleMediaResponse(
@@ -211,6 +229,17 @@ internal sealed record NewsArticleMediaResponse(
     string MediaType,
     string? AltText,
     int DisplayOrder);
+
+internal sealed record NewsArticleMatchReportResponse(
+    string HomeTeam,
+    string AwayTeam,
+    int HomeGoals,
+    int HomePoints,
+    int AwayGoals,
+    int AwayPoints,
+    string? Competition,
+    string? Venue,
+    DateTime? MatchDateUtc);
 
 internal sealed record NewsCategoryResponse(Guid Id, string Name, bool IsArchived);
 
@@ -222,13 +251,33 @@ internal sealed record CreateNewsArticleRequest(
     Guid CategoryId,
     Guid AuthorUserId,
     string AuthorFirstName,
-    string AuthorLastName);
+    string AuthorLastName,
+    NewsArticleType ArticleType,
+    string? HomeTeam,
+    string? AwayTeam,
+    int? HomeGoals,
+    int? HomePoints,
+    int? AwayGoals,
+    int? AwayPoints,
+    string? Competition,
+    string? Venue,
+    DateTime? MatchDateUtc);
 
 internal sealed record UpdateNewsArticleRequest(
     string Title,
     string Slug,
     string Summary,
     string Content,
-    Guid CategoryId);
+    Guid CategoryId,
+    NewsArticleType ArticleType,
+    string? HomeTeam,
+    string? AwayTeam,
+    int? HomeGoals,
+    int? HomePoints,
+    int? AwayGoals,
+    int? AwayPoints,
+    string? Competition,
+    string? Venue,
+    DateTime? MatchDateUtc);
 
 internal sealed record CreateNewsCategoryRequest(string Name);

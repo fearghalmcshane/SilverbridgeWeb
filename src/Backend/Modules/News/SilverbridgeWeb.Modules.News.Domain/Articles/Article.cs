@@ -29,6 +29,8 @@ public sealed class Article : Entity
 
     public string Content { get; private set; }
 
+    public ArticleType ArticleType { get; private set; }
+
     public ArticleStatus Status { get; private set; }
 
     public DateTime? PublishedAtUtc { get; private set; }
@@ -39,6 +41,8 @@ public sealed class Article : Entity
 
     public IReadOnlyCollection<ArticleMedia> Media => _media.AsReadOnly();
 
+    public MatchReportDetails? MatchReportDetails { get; private set; }
+
     public static Result<Article> Create(
         Category category,
         Guid authorUserId,
@@ -48,6 +52,7 @@ public sealed class Article : Entity
         string slug,
         string summary,
         string content,
+        ArticleType articleType,
         DateTime utcNow)
     {
         var article = new Article
@@ -61,6 +66,7 @@ public sealed class Article : Entity
             Slug = slug,
             Summary = summary,
             Content = content,
+            ArticleType = articleType,
             Status = ArticleStatus.Draft,
             CreatedAtUtc = utcNow
         };
@@ -76,6 +82,7 @@ public sealed class Article : Entity
         string summary,
         string content,
         Guid categoryId,
+        ArticleType articleType,
         DateTime utcNow)
     {
         Title = title;
@@ -83,9 +90,50 @@ public sealed class Article : Entity
         Summary = summary;
         Content = content;
         CategoryId = categoryId;
+        ArticleType = articleType;
         UpdatedAtUtc = utcNow;
 
         Raise(new ArticleUpdatedDomainEvent(Id));
+    }
+
+    /// <summary>
+    /// Creates or updates this article's match-report template data. Only valid when
+    /// <see cref="ArticleType"/> is <see cref="Articles.ArticleType.MatchReport"/>.
+    /// </summary>
+    public void SetMatchReportDetails(
+        string homeTeam,
+        string awayTeam,
+        int homeGoals,
+        int homePoints,
+        int awayGoals,
+        int awayPoints,
+        string? competition,
+        string? venue,
+        DateTime? matchDateUtc)
+    {
+        if (MatchReportDetails is null)
+        {
+            MatchReportDetails = MatchReportDetails.Create(
+                Id, homeTeam, awayTeam, homeGoals, homePoints, awayGoals, awayPoints, competition, venue, matchDateUtc);
+        }
+        else
+        {
+            MatchReportDetails.Update(
+                homeTeam, awayTeam, homeGoals, homePoints, awayGoals, awayPoints, competition, venue, matchDateUtc);
+        }
+    }
+
+    /// <summary>
+    /// Detaches the match-report details from this article (e.g. when the article type changes away from
+    /// <see cref="Articles.ArticleType.MatchReport"/>) and returns the removed entity, if any, so the
+    /// repository can also remove it from the database.
+    /// </summary>
+    public MatchReportDetails? ClearMatchReportDetails()
+    {
+        MatchReportDetails? removed = MatchReportDetails;
+        MatchReportDetails = null;
+
+        return removed;
     }
 
     public Result Publish(DateTime utcNow)

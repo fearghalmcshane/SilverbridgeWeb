@@ -10,5 +10,9 @@ public interface IArticleRepository
 
     void AddMedia(ArticleMedia media);
 
+    void TrackMatchReportDetails(MatchReportDetails details);
+
+    void RemoveMatchReportDetails(MatchReportDetails details);
+
     Task<bool> IsSlugInUseAsync(string slug, Guid? excludeArticleId, CancellationToken cancellationToken = default);
 }

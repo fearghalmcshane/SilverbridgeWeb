@@ -86,6 +86,45 @@
                             </MudStack>
                         </MudCardContent>
                     </MudCard>
+
+                    <MudCard Elevation="2" Class="mb-4">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">Article Type</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                    Choose a template. Match reports show a scoreline above the article text.
+                                </MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudStack Spacing="3">
+                                <MudSelect T="NewsArticleType"
+                                           Value="_model.ArticleType"
+                                           ValueChanged="OnArticleTypeChanged"
+                                           Label="Template">
+                                    <MudSelectItem T="NewsArticleType" Value="NewsArticleType.Standard">Standard article</MudSelectItem>
+                                    <MudSelectItem T="NewsArticleType" Value="NewsArticleType.MatchReport">Match report</MudSelectItem>
+                                </MudSelect>
+
+                                @if (_model.ArticleType == NewsArticleType.MatchReport)
+                                {
+                                    <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
+                                        <MudTextField T="string" @bind-Value="_model.HomeTeam" Label="Home team" Class="flex-grow-1" Required="true" />
+                                        <MudNumericField T="int" @bind-Value="_model.HomeGoals" Label="Home goals" Min="0" />
+                                        <MudNumericField T="int" @bind-Value="_model.HomePoints" Label="Home points" Min="0" />
+                                    </MudStack>
+                                    <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
+                                        <MudTextField T="string" @bind-Value="_model.AwayTeam" Label="Away team" Class="flex-grow-1" Required="true" />
+                                        <MudNumericField T="int" @bind-Value="_model.AwayGoals" Label="Away goals" Min="0" />
+                                        <MudNumericField T="int" @bind-Value="_model.AwayPoints" Label="Away points" Min="0" />
+                                    </MudStack>
+                                    <MudTextField T="string" @bind-Value="_model.Competition" Label="Competition (optional)" />
+                                    <MudTextField T="string" @bind-Value="_model.Venue" Label="Venue (optional)" />
+                                    <MudDatePicker Date="_model.MatchDate" DateChanged="OnMatchDateChanged" Label="Match date (optional)" />
+                                }
+                            </MudStack>
+                        </MudCardContent>
+                    </MudCard>
                 </MudItem>
 
                 <MudItem xs="12" md="4">
@@ -297,7 +336,17 @@
                     Slug = _article.Slug,
                     Summary = _article.Summary,
                     Content = _article.Content,
-                    CategoryId = _article.CategoryId
+                    CategoryId = _article.CategoryId,
+                    ArticleType = _article.ArticleType,
+                    HomeTeam = _article.MatchReport?.HomeTeam ?? string.Empty,
+                    AwayTeam = _article.MatchReport?.AwayTeam ?? string.Empty,
+                    HomeGoals = _article.MatchReport?.HomeGoals ?? 0,
+                    HomePoints = _article.MatchReport?.HomePoints ?? 0,
+                    AwayGoals = _article.MatchReport?.AwayGoals ?? 0,
+                    AwayPoints = _article.MatchReport?.AwayPoints ?? 0,
+                    Competition = _article.MatchReport?.Competition,
+                    Venue = _article.MatchReport?.Venue,
+                    MatchDate = _article.MatchReport?.MatchDateUtc
                 };
                 _mediaDisplayOrder = _article.Media.Count;
                 _slugEditedManually = true;
@@ -339,7 +388,7 @@
 
         if (!_slugEditedManually)
         {
-            _model.Slug = Slugify(_model.Title);
+            _model.Slug = BuildSlug();
         }
 
         return Task.CompletedTask;
@@ -354,15 +403,72 @@
 
     private Task GenerateSlugFromTitle()
     {
-        _model.Slug = Slugify(_model.Title);
+        _model.Slug = BuildSlug();
         _slugEditedManually = true;
         return Task.CompletedTask;
+    }
+
+    private Task OnArticleTypeChanged(NewsArticleType articleType)
+    {
+        _model.ArticleType = articleType;
+
+        if (articleType == NewsArticleType.MatchReport)
+        {
+            NewsCategoryResponse? matchReportsCategory = _categories.FirstOrDefault(
+                category => string.Equals(category.Name, "Match Reports", StringComparison.OrdinalIgnoreCase));
+
+            if (matchReportsCategory is not null)
+            {
+                _model.CategoryId = matchReportsCategory.Id;
+            }
+        }
+
+        if (!_slugEditedManually)
+        {
+            _model.Slug = BuildSlug();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task OnMatchDateChanged(DateTime? matchDate)
+    {
+        _model.MatchDate = matchDate;
+
+        if (!_slugEditedManually)
+        {
+            _model.Slug = BuildSlug();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    // Match report titles (e.g. team names) tend to repeat across a season, so a date suffix is appended
+    // to keep auto-generated slugs unique without requiring the author to edit them manually.
+    private string BuildSlug()
+    {
+        string baseSlug = Slugify(_model.Title);
+
+        if (_model.ArticleType != NewsArticleType.MatchReport || string.IsNullOrEmpty(baseSlug))
+        {
+            return baseSlug;
+        }
+
+        DateTime dateForSlug = _model.MatchDate ?? DateTime.UtcNow;
+        return $"{baseSlug}-{dateForSlug:yyyy-MM-dd}";
     }
 
     private async Task SaveAsync()
     {
         if (!_canManageNews)
         {
+            return;
+        }
+
+        if (_model.ArticleType == NewsArticleType.MatchReport &&
+            (string.IsNullOrWhiteSpace(_model.HomeTeam) || string.IsNullOrWhiteSpace(_model.AwayTeam)))
+        {
+            _errorMessage = "Home team and away team are required for a match report.";
             return;
         }
 
@@ -380,7 +486,17 @@
                         _model.Slug.Trim(),
                         _model.Summary.Trim(),
                         _model.Content.Trim(),
-                        _model.CategoryId));
+                        _model.CategoryId,
+                        _model.ArticleType,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.HomeTeam.Trim() : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.AwayTeam.Trim() : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.HomeGoals : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.HomePoints : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.AwayGoals : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.AwayPoints : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.Competition?.Trim() : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.Venue?.Trim() : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.MatchDate : null));
 
                 Snackbar.Add("Article updated successfully.", Severity.Success);
                 _article = await NewsApiClient.GetArticleAsync(Id.Value);
@@ -407,7 +523,17 @@
                         _model.CategoryId,
                         _currentUser.Id,
                         _currentUser.FirstName,
-                        _currentUser.LastName));
+                        _currentUser.LastName,
+                        _model.ArticleType,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.HomeTeam.Trim() : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.AwayTeam.Trim() : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.HomeGoals : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.HomePoints : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.AwayGoals : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.AwayPoints : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.Competition?.Trim() : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.Venue?.Trim() : null,
+                        _model.ArticleType == NewsArticleType.MatchReport ? _model.MatchDate : null));
 
                 if (!newArticleId.HasValue)
                 {
@@ -620,5 +746,25 @@
 
         [Required]
         public Guid CategoryId { get; set; }
+
+        public NewsArticleType ArticleType { get; set; } = NewsArticleType.Standard;
+
+        public string HomeTeam { get; set; } = string.Empty;
+
+        public string AwayTeam { get; set; } = string.Empty;
+
+        public int HomeGoals { get; set; }
+
+        public int HomePoints { get; set; }
+
+        public int AwayGoals { get; set; }
+
+        public int AwayPoints { get; set; }
+
+        public string? Competition { get; set; }
+
+        public string? Venue { get; set; }
+
+        public DateTime? MatchDate { get; set; }
     }
 }

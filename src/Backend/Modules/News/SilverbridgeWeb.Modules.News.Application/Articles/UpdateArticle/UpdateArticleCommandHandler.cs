@@ -41,7 +41,33 @@ internal sealed class UpdateArticleCommandHandler(
             request.Summary,
             request.Content,
             request.CategoryId,
+            request.ArticleType,
             dateTimeProvider.UtcNow);
+
+        if (request.ArticleType == ArticleType.MatchReport)
+        {
+            article.SetMatchReportDetails(
+                request.HomeTeam!,
+                request.AwayTeam!,
+                request.HomeGoals!.Value,
+                request.HomePoints!.Value,
+                request.AwayGoals!.Value,
+                request.AwayPoints!.Value,
+                request.Competition,
+                request.Venue,
+                request.MatchDateUtc);
+
+            articleRepository.TrackMatchReportDetails(article.MatchReportDetails!);
+        }
+        else
+        {
+            MatchReportDetails? removed = article.ClearMatchReportDetails();
+
+            if (removed is not null)
+            {
+                articleRepository.RemoveMatchReportDetails(removed);
+            }
+        }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -13,10 +13,13 @@ public sealed record ArticleResponse(
     string Slug,
     string Summary,
     string Content,
+    ArticleType ArticleType,
     ArticleStatus Status,
     DateTime? PublishedAtUtc,
     DateTime CreatedAtUtc,
     DateTime? UpdatedAtUtc)
 {
     public List<ArticleMediaResponse> Media { get; } = [];
+
+    public ArticleMatchReportResponse? MatchReport { get; set; }
 }

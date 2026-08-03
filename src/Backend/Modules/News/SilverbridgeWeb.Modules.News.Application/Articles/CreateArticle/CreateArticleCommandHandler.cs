@@ -37,6 +37,7 @@ internal sealed class CreateArticleCommandHandler(
             request.Slug,
             request.Summary,
             request.Content,
+            request.ArticleType,
             dateTimeProvider.UtcNow);
 
         if (result.IsFailure)
@@ -44,10 +45,26 @@ internal sealed class CreateArticleCommandHandler(
             return Result.Failure<Guid>(result.Error);
         }
 
-        articleRepository.Insert(result.Value);
+        Article article = result.Value;
+
+        if (request.ArticleType == ArticleType.MatchReport)
+        {
+            article.SetMatchReportDetails(
+                request.HomeTeam!,
+                request.AwayTeam!,
+                request.HomeGoals!.Value,
+                request.HomePoints!.Value,
+                request.AwayGoals!.Value,
+                request.AwayPoints!.Value,
+                request.Competition,
+                request.Venue,
+                request.MatchDateUtc);
+        }
+
+        articleRepository.Insert(article);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return result.Value.Id;
+        return article.Id;
     }
 }

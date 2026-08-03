@@ -34,5 +34,6 @@ public sealed class NewsDbContext(DbContextOptions<NewsDbContext> options) : DbC
         modelBuilder.ApplyConfiguration(new CategoryConfiguration());
         modelBuilder.ApplyConfiguration(new ArticleConfiguration());
         modelBuilder.ApplyConfiguration(new ArticleMediaConfiguration());
+        modelBuilder.ApplyConfiguration(new MatchReportDetailsConfiguration());
     }
 }
