@@ -178,7 +178,7 @@ public sealed class Article : Entity
 
     public ArticleMedia AddMedia(string blobUrl, string mediaType, string? altText, int displayOrder)
     {
-        ArticleMedia media = ArticleMedia.Create(Id, blobUrl, mediaType, altText, displayOrder);
+        var media = ArticleMedia.Create(Id, blobUrl, mediaType, altText, displayOrder);
 
         _media.Add(media);
 

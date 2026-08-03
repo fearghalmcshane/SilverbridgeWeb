@@ -62,6 +62,11 @@ internal sealed class UploadArticleMedia : IEndpoint
 
             await using Stream content = file.OpenReadStream();
 
+            if (!await FileSignatureValidator.MatchesExtensionAsync(content, extension, cancellationToken))
+            {
+                return Results.BadRequest("The file content does not match its file type.");
+            }
+
             string blobUrl = await fileStorageService.UploadAsync(
                 content,
                 file.FileName,

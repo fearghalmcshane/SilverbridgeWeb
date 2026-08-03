@@ -83,14 +83,7 @@
             </MudText>
 
             <MudPaper Elevation="1" Class="pa-4">
-                @if (LooksLikeHtml(_article.Content))
-                {
-                    <div>@((MarkupString)_article.Content)</div>
-                }
-                else
-                {
-                    <MudText Typo="Typo.body1" Style="white-space: pre-wrap;">@_article.Content</MudText>
-                }
+                <MudText Typo="Typo.body1" Style="white-space: pre-wrap;">@_article.Content</MudText>
             </MudPaper>
 
             @if (_galleryMedia.Count > 0)
@@ -179,10 +172,4 @@
 
     private static string GetMediaAltText(NewsArticleMediaResponse media) =>
         string.IsNullOrWhiteSpace(media.AltText) ? "Article media" : media.AltText;
-
-    private static bool LooksLikeHtml(string content)
-    {
-        return content.Contains('<', StringComparison.Ordinal) &&
-               content.Contains('>', StringComparison.Ordinal);
-    }
 }
