@@ -21,6 +21,19 @@ if (builder.ExecutionContext.IsPublishMode)
     postgres.WithPasswordAuthentication(postgresUser, postgresPassword);
 }
 
+IResourceBuilder<AzureStorageResource> storage = builder.AddAzureStorage("storage");
+
+if (!builder.ExecutionContext.IsPublishMode)
+{
+    storage.RunAsEmulator(emulator =>
+    {
+        emulator.WithDataVolume();
+    });
+}
+
+IResourceBuilder<AzureBlobStorageResource> blobs = storage.AddBlobs("blobs");
+IResourceBuilder<AzureBlobStorageContainerResource> newsMedia = storage.AddBlobContainer("newsMedia", "news-media");
+
 IResourceBuilder<RedisResource> redis = builder.AddRedis("redis")
     .WithDataVolume();
 
@@ -42,6 +55,8 @@ IResourceBuilder<ProjectResource> migrator = builder.AddProject<Projects.Silverb
 
 IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.SilverbridgeWeb_Api>("silverbridgeweb-api")
     .WithReference(silverbridgeDb)
+    .WithReference(blobs)
+    .WithReference(newsMedia)
     .WithReference(redis)
     .WaitFor(redis)
     .WaitForCompletion(migrator)

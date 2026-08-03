@@ -18,6 +18,7 @@
     <ProjectReference Include="..\..\Modules\Users\SilverbridgeWeb.Modules.Users.Infrastructure\SilverbridgeWeb.Modules.Users.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Foireann\SilverbridgeWeb.Modules.Foireann.Infrastructure\SilverbridgeWeb.Modules.Foireann.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Bookings\SilverbridgeWeb.Modules.Bookings.Infrastructure\SilverbridgeWeb.Modules.Bookings.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\News\SilverbridgeWeb.Modules.News.Infrastructure\SilverbridgeWeb.Modules.News.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

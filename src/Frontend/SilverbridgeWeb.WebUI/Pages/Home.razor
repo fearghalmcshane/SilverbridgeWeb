@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using SilverbridgeWeb.WebUI.Components.News
 
 <PageTitle>Home</PageTitle>
 
@@ -25,6 +26,9 @@
             <MudText Typo="Typo.body1" Align="Align.Center">
                 Silverbridge Harps is a community-focused club dedicated to promoting Gaelic Games and activities for all ages and abilities. Join us and be a part of our vibrant community.
             </MudText>
+        </MudItem>
+        <MudItem xs="12" class="mt-6">
+            <RecentNewsSummary MaxArticles="3" />
         </MudItem>
     </MudGrid>
 </MudContainer>

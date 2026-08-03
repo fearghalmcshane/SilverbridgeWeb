@@ -26,6 +26,7 @@ internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         builder.HasData(
             Role.Member,
+            Role.CommunicationsOfficer,
             Role.Administrator);
     }
 }

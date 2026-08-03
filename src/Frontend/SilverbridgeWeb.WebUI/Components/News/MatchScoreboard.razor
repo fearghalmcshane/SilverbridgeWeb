@@ -1,0 +1,64 @@
+@* Displays a GAA-style scoreline (goals-points) for a match report article. *@
+
+<MudPaper Elevation="0" Class="pa-4" Style="background-color: var(--mud-palette-background-grey);">
+    <MudGrid Justify="Justify.Center">
+        <MudItem xs="5" Class="text-center">
+            <MudText Typo="Typo.h6">@HomeTeam</MudText>
+        </MudItem>
+        <MudItem xs="2" Class="text-center">
+            <MudText Typo="Typo.h4">@FormatScore(HomeGoals, HomePoints) - @FormatScore(AwayGoals, AwayPoints)</MudText>
+        </MudItem>
+        <MudItem xs="5" Class="text-center">
+            <MudText Typo="Typo.h6">@AwayTeam</MudText>
+        </MudItem>
+    </MudGrid>
+
+    @if (!string.IsNullOrWhiteSpace(Competition) || !string.IsNullOrWhiteSpace(Venue) || MatchDateUtc.HasValue)
+    {
+        <MudStack Row="true" Wrap="Wrap.Wrap" Justify="Justify.Center" Spacing="2" Class="mt-3">
+            @if (!string.IsNullOrWhiteSpace(Competition))
+            {
+                <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.EmojiEvents">@Competition</MudChip>
+            }
+            @if (MatchDateUtc.HasValue)
+            {
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.CalendarMonth">@MatchDateUtc.Value.ToLocalTime().ToString("dd MMM yyyy")</MudChip>
+            }
+            @if (!string.IsNullOrWhiteSpace(Venue))
+            {
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Place">@Venue</MudChip>
+            }
+        </MudStack>
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired]
+    public string HomeTeam { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string AwayTeam { get; set; } = string.Empty;
+
+    [Parameter]
+    public int HomeGoals { get; set; }
+
+    [Parameter]
+    public int HomePoints { get; set; }
+
+    [Parameter]
+    public int AwayGoals { get; set; }
+
+    [Parameter]
+    public int AwayPoints { get; set; }
+
+    [Parameter]
+    public string? Competition { get; set; }
+
+    [Parameter]
+    public string? Venue { get; set; }
+
+    [Parameter]
+    public DateTime? MatchDateUtc { get; set; }
+
+    private static string FormatScore(int goals, int points) => $"{goals}-{points}";
+}

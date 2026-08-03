@@ -99,6 +99,46 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
                         },
                         new
                         {
+                            PermissionCode = "news:read",
+                            RoleName = "Communications Officer"
+                        },
+                        new
+                        {
+                            PermissionCode = "news:search",
+                            RoleName = "Communications Officer"
+                        },
+                        new
+                        {
+                            PermissionCode = "news:create",
+                            RoleName = "Communications Officer"
+                        },
+                        new
+                        {
+                            PermissionCode = "news:update",
+                            RoleName = "Communications Officer"
+                        },
+                        new
+                        {
+                            PermissionCode = "news:publish",
+                            RoleName = "Communications Officer"
+                        },
+                        new
+                        {
+                            PermissionCode = "news:delete",
+                            RoleName = "Communications Officer"
+                        },
+                        new
+                        {
+                            PermissionCode = "news:media:upload",
+                            RoleName = "Communications Officer"
+                        },
+                        new
+                        {
+                            PermissionCode = "news:categories:update",
+                            RoleName = "Communications Officer"
+                        },
+                        new
+                        {
                             PermissionCode = "users:read",
                             RoleName = "Administrator"
                         },
@@ -125,6 +165,46 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
                         new
                         {
                             PermissionCode = "events:update",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "news:read",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "news:search",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "news:create",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "news:update",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "news:publish",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "news:delete",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "news:media:upload",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "news:categories:update",
                             RoleName = "Administrator"
                         },
                         new
@@ -353,6 +433,38 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
                         },
                         new
                         {
+                            Code = "news:read"
+                        },
+                        new
+                        {
+                            Code = "news:search"
+                        },
+                        new
+                        {
+                            Code = "news:create"
+                        },
+                        new
+                        {
+                            Code = "news:update"
+                        },
+                        new
+                        {
+                            Code = "news:publish"
+                        },
+                        new
+                        {
+                            Code = "news:delete"
+                        },
+                        new
+                        {
+                            Code = "news:media:upload"
+                        },
+                        new
+                        {
+                            Code = "news:categories:update"
+                        },
+                        new
+                        {
                             Code = "ticket-types:read"
                         },
                         new
@@ -417,6 +529,10 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
                         new
                         {
                             Name = "Member"
+                        },
+                        new
+                        {
+                            Name = "Communications Officer"
                         },
                         new
                         {

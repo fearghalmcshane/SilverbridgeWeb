@@ -21,6 +21,14 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
             Permission.GetEvents,
             Permission.SearchEvents,
             Permission.ModifyEvents,
+            Permission.GetArticles,
+            Permission.SearchArticles,
+            Permission.CreateArticles,
+            Permission.UpdateArticles,
+            Permission.PublishArticles,
+            Permission.DeleteArticles,
+            Permission.UploadArticleMedia,
+            Permission.ModifyNewsCategories,
             Permission.GetTicketTypes,
             Permission.ModifyTicketTypes,
             Permission.GetCategories,
@@ -54,6 +62,15 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
                     CreateRolePermission(Role.Member, Permission.CreateOrder),
                     CreateRolePermission(Role.Member, Permission.GetTickets),
                     CreateRolePermission(Role.Member, Permission.CheckInTicket),
+                    // Communications Officer permissions
+                    CreateRolePermission(Role.CommunicationsOfficer, Permission.GetArticles),
+                    CreateRolePermission(Role.CommunicationsOfficer, Permission.SearchArticles),
+                    CreateRolePermission(Role.CommunicationsOfficer, Permission.CreateArticles),
+                    CreateRolePermission(Role.CommunicationsOfficer, Permission.UpdateArticles),
+                    CreateRolePermission(Role.CommunicationsOfficer, Permission.PublishArticles),
+                    CreateRolePermission(Role.CommunicationsOfficer, Permission.DeleteArticles),
+                    CreateRolePermission(Role.CommunicationsOfficer, Permission.UploadArticleMedia),
+                    CreateRolePermission(Role.CommunicationsOfficer, Permission.ModifyNewsCategories),
                     // Admin permissions
                     CreateRolePermission(Role.Administrator, Permission.GetUser),
                     CreateRolePermission(Role.Administrator, Permission.ModifyUser),
@@ -61,6 +78,14 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
                     CreateRolePermission(Role.Administrator, Permission.GetEvents),
                     CreateRolePermission(Role.Administrator, Permission.SearchEvents),
                     CreateRolePermission(Role.Administrator, Permission.ModifyEvents),
+                    CreateRolePermission(Role.Administrator, Permission.GetArticles),
+                    CreateRolePermission(Role.Administrator, Permission.SearchArticles),
+                    CreateRolePermission(Role.Administrator, Permission.CreateArticles),
+                    CreateRolePermission(Role.Administrator, Permission.UpdateArticles),
+                    CreateRolePermission(Role.Administrator, Permission.PublishArticles),
+                    CreateRolePermission(Role.Administrator, Permission.DeleteArticles),
+                    CreateRolePermission(Role.Administrator, Permission.UploadArticleMedia),
+                    CreateRolePermission(Role.Administrator, Permission.ModifyNewsCategories),
                     CreateRolePermission(Role.Administrator, Permission.GetTicketTypes),
                     CreateRolePermission(Role.Administrator, Permission.ModifyTicketTypes),
                     CreateRolePermission(Role.Administrator, Permission.GetCategories),
@@ -85,4 +110,3 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
         };
     }
 }
-

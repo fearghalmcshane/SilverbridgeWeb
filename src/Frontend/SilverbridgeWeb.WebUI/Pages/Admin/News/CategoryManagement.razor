@@ -1,0 +1,169 @@
+@page "/admin/news/categories"
+@attribute [Authorize]
+@using System.ComponentModel.DataAnnotations
+@using System.Net
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+@using SilverbridgeWeb.WebUI.Services.Authorization
+@inject NewsApiClient NewsApiClient
+@inject UsersApiClient UsersApiClient
+@inject ISnackbar Snackbar
+
+<PageTitle>News Categories - Silverbridge Harps GAC</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="mb-4" />
+    }
+    else if (!_canManageNews)
+    {
+        <MudAlert Severity="Severity.Error">You do not have permission to manage news categories.</MudAlert>
+    }
+    else
+    {
+        <MudStack Row="true" Wrap="Wrap.Wrap" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+            <MudText Typo="Typo.h4">
+                <MudIcon Icon="@Icons.Material.Filled.Category" Class="mr-2" />
+                News Categories
+            </MudText>
+            <MudButton Href="/admin/news" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBack">
+                Back to news
+            </MudButton>
+        </MudStack>
+
+        @if (_errorMessage is not null)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert>
+        }
+
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudCard Elevation="2">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Create Category</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Add a new article category.</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <EditForm Model="_model" OnValidSubmit="CreateCategoryAsync">
+                            <DataAnnotationsValidator />
+                            <MudTextField @bind-Value="_model.Name"
+                                          Label="Category name"
+                                          For="@(() => _model.Name)"
+                                          Required="true" />
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       ButtonType="ButtonType.Submit"
+                                       Disabled="@_isSaving"
+                                       Class="mt-4">
+                                Create Category
+                            </MudButton>
+                        </EditForm>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" md="8">
+                <MudTable T="NewsCategoryResponse" Items="_categories" Dense="true" Hover="true">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Status</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">@context.Name</MudTd>
+                        <MudTd DataLabel="Status">
+                            <MudChip T="string" Size="Size.Small" Color="@(context.IsArchived ? Color.Default : Color.Success)">
+                                @(context.IsArchived ? "Archived" : "Active")
+                            </MudChip>
+                        </MudTd>
+                    </RowTemplate>
+                    <NoRecordsContent>
+                        <MudText>No categories have been created yet.</MudText>
+                    </NoRecordsContent>
+                </MudTable>
+            </MudItem>
+        </MudGrid>
+    }
+</MudContainer>
+
+@code {
+    private List<NewsCategoryResponse> _categories = [];
+    private CategoryFormModel _model = new();
+    private bool _isLoading = true;
+    private bool _isSaving;
+    private bool _canManageNews;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            UserRolesResponse? rolesResponse = await UsersApiClient.GetRolesAsync();
+            IReadOnlyList<string> roles = rolesResponse?.Roles ?? [];
+            _canManageNews = roles.Contains(AppRoles.Administrator, StringComparer.Ordinal) ||
+                             roles.Contains(AppRoles.CommunicationsOfficer, StringComparer.Ordinal);
+
+            if (!_canManageNews)
+            {
+                _categories = [];
+                return;
+            }
+
+            _categories = (await NewsApiClient.GetCategoriesAsync())?
+                .OrderBy(category => category.Name)
+                .ToList() ?? [];
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized || ex.StatusCode == HttpStatusCode.Forbidden)
+        {
+            _canManageNews = false;
+            _categories = [];
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to load categories: {ex.Message}";
+            _categories = [];
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task CreateCategoryAsync()
+    {
+        _isSaving = true;
+        _errorMessage = null;
+
+        try
+        {
+            await NewsApiClient.CreateCategoryAsync(new CreateNewsCategoryRequest(_model.Name.Trim()));
+            Snackbar.Add("Category created successfully.", Severity.Success);
+            _model = new CategoryFormModel();
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to create category: {ex.Message}";
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private sealed class CategoryFormModel
+    {
+        [Required]
+        [MaxLength(200)]
+        public string Name { get; set; } = string.Empty;
+    }
+}

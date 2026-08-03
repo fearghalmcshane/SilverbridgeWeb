@@ -1,0 +1,169 @@
+@page "/news"
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+@inject NewsApiClient NewsApiClient
+
+<PageTitle>News - Silverbridge Harps GAC</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudText Typo="Typo.h3" GutterBottom="true">
+        <MudIcon Icon="@Icons.Material.Filled.Article" Class="mr-2" />
+        Club News
+    </MudText>
+    <MudText Typo="Typo.body1" Class="mb-4">
+        Latest updates, announcements, and match-day stories from Silverbridge Harps.
+    </MudText>
+
+    <MudGrid Class="mb-4">
+        <MudItem xs="12" sm="6" md="4">
+            <MudSelect T="Guid?" Label="Category" Value="_selectedCategoryId" ValueChanged="OnCategoryChanged" Clearable="true">
+                <MudSelectItem T="Guid?" Value="@((Guid?)null)">All categories</MudSelectItem>
+                @foreach (NewsCategoryResponse category in _categories)
+                {
+                    <MudSelectItem T="Guid?" Value="@category.Id">@category.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+    </MudGrid>
+
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+    }
+    else if (_errorMessage is not null)
+    {
+        <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert>
+    }
+    else if (_articles.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="mb-4">No news articles were found for the selected category.</MudAlert>
+    }
+    else
+    {
+        <MudGrid>
+            @foreach (NewsArticleSummaryResponse article in _articles)
+            {
+                <MudItem xs="12" md="6" lg="4">
+                    <MudCard Elevation="2" Class="fill-height">
+                        @if (!string.IsNullOrWhiteSpace(article.FeaturedImageUrl))
+                        {
+                            <MudCardMedia Image="@article.FeaturedImageUrl" Height="180" />
+                        }
+                        <MudCardContent>
+                            <MudStack Spacing="2">
+                                <div class="d-flex justify-space-between align-start gap-2">
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
+                                        @article.CategoryName
+                                    </MudChip>
+                                    @if (article.PublishedAtUtc.HasValue)
+                                    {
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                            @article.PublishedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy")
+                                        </MudText>
+                                    }
+                                </div>
+                                <MudText Typo="Typo.h5">@article.Title</MudText>
+                                @if (article.ArticleType == NewsArticleType.MatchReport)
+                                {
+                                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
+                                        @article.HomeTeam @FormatScore(article.HomeGoals, article.HomePoints) - @FormatScore(article.AwayGoals, article.AwayPoints) @article.AwayTeam
+                                    </MudText>
+                                }
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">@article.Summary</MudText>
+                            </MudStack>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton Href="@($"/news/{article.Slug}")"
+                                       Variant="Variant.Text"
+                                       Color="Color.Primary"
+                                       EndIcon="@Icons.Material.Filled.ArrowForward">
+                                Read article
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+
+        @if (TotalPages > 1)
+        {
+            <MudPagination Class="mt-4 d-flex justify-center"
+                           Count="@TotalPages"
+                           Selected="@_currentPage"
+                           SelectedChanged="OnPageChanged" />
+        }
+    }
+</MudContainer>
+
+@code {
+    private const int PageSize = 9;
+
+    private List<NewsCategoryResponse> _categories = [];
+    private List<NewsArticleSummaryResponse> _articles = [];
+    private bool _isLoading = true;
+    private string? _errorMessage;
+    private Guid? _selectedCategoryId;
+    private int _currentPage = 1;
+    private int _totalCount;
+
+    private int TotalPages => _totalCount <= 0
+        ? 1
+        : (int)Math.Ceiling(_totalCount / (double)PageSize);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            Task<IReadOnlyCollection<NewsCategoryResponse>?> categoriesTask = NewsApiClient.GetCategoriesAsync();
+            Task<NewsArticleListResponse?> articlesTask = NewsApiClient.GetArticlesAsync(
+                _currentPage,
+                PageSize,
+                _selectedCategoryId,
+                includeAllStatuses: false);
+
+            await Task.WhenAll(categoriesTask, articlesTask);
+
+            _categories = categoriesTask.Result?
+                .Where(category => !category.IsArchived)
+                .OrderBy(category => category.Name)
+                .ToList() ?? [];
+
+            NewsArticleListResponse? response = articlesTask.Result;
+            _articles = response?.Articles.ToList() ?? [];
+            _totalCount = response?.TotalCount ?? 0;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to load news articles: {ex.Message}";
+            _categories = [];
+            _articles = [];
+            _totalCount = 0;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task OnCategoryChanged(Guid? categoryId)
+    {
+        _selectedCategoryId = categoryId;
+        _currentPage = 1;
+        await LoadAsync();
+    }
+
+    private async Task OnPageChanged(int page)
+    {
+        _currentPage = page;
+        await LoadAsync();
+    }
+
+    private static string FormatScore(int? goals, int? points) => $"{goals ?? 0}-{points ?? 0}";
+}

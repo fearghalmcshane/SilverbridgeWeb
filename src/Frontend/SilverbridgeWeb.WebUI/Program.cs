@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Http.Resilience;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using MudBlazor.Services;
 using SilverbridgeWeb.WebUI;
@@ -36,6 +37,16 @@ builder.Services.AddHttpClient<BookingsApiClient>(client =>
 {
     client.BaseAddress = new("https+http://silverbridgeweb-api/");
 });
+
+#pragma warning disable EXTEXP0001 // RemoveAllResilienceHandlers is experimental but is the documented way to opt a client out of retries that are unsafe for streamed upload content.
+builder.Services.AddHttpClient<NewsApiClient>(client =>
+{
+    client.BaseAddress = new("https+http://silverbridgeweb-api/");
+    client.Timeout = TimeSpan.FromMinutes(5);
+})
+.AddHttpMessageHandler<AuthorizationHandler>()
+.RemoveAllResilienceHandlers();
+#pragma warning restore EXTEXP0001
 
 builder.Services.AddHttpClient<UsersApiClient>(client =>
 {

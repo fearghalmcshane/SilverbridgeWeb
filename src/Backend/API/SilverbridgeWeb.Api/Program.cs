@@ -8,6 +8,7 @@ using SilverbridgeWeb.Modules.Attendance.Infrastructure;
 using SilverbridgeWeb.Modules.Bookings.Infrastructure;
 using SilverbridgeWeb.Modules.Events.Infrastructure;
 using SilverbridgeWeb.Modules.Foireann.Infrastructure;
+using SilverbridgeWeb.Modules.News.Infrastructure;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure;
 using SilverbridgeWeb.Modules.Users.Infrastructure;
 
@@ -24,7 +25,8 @@ builder.Services.AddApplication([
     SilverbridgeWeb.Modules.Ticketing.Application.AssemblyReference.Assembly,
     SilverbridgeWeb.Modules.Attendance.Application.AssemblyReference.Assembly,
     SilverbridgeWeb.Modules.Foireann.Application.AssemblyReference.Assembly,
-    SilverbridgeWeb.Modules.Bookings.Application.AssemblyReference.Assembly]);
+    SilverbridgeWeb.Modules.Bookings.Application.AssemblyReference.Assembly,
+    SilverbridgeWeb.Modules.News.Application.AssemblyReference.Assembly]);
 
 builder.Services.AddInfrastructure(
     builder.Configuration.GetConnectionString("silverbridgeDb")!,
@@ -32,7 +34,7 @@ builder.Services.AddInfrastructure(
     builder.Configuration["Clerk:Authority"]!
 );
 
-builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing", "attendance", "foireann", "bookings"]);
+builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing", "attendance", "foireann", "bookings", "news"]);
 
 builder.Services.AddEventsModule(builder.Configuration);
 builder.Services.AddUsersModule(builder.Configuration);
@@ -40,6 +42,7 @@ builder.Services.AddTicketingModule(builder.Configuration);
 builder.Services.AddAttendanceModule(builder.Configuration);
 builder.Services.AddFoireannModule(builder.Configuration);
 builder.Services.AddBookingsModule(builder.Configuration);
+builder.Services.AddNewsModule(builder.Configuration);
 
 builder.Services.AddCors();
 builder.Services.AddOpenApi();

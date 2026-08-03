@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\SilverbridgeWeb.Common.Infrastructure\SilverbridgeWeb.Common.Infrastructure.csproj" />
+    <ProjectReference Include="..\SilverbridgeWeb.Modules.News.Application\SilverbridgeWeb.Modules.News.Application.csproj" />
+    <ProjectReference Include="..\SilverbridgeWeb.Modules.News.Presentation\SilverbridgeWeb.Modules.News.Presentation.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Database\Migrations\" />
+  </ItemGroup>
+</Project>
