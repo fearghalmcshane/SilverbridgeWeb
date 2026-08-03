@@ -10,6 +10,8 @@ internal sealed class AzureBlobFileStorageService(
     BlobServiceClient blobServiceClient,
     IOptions<FileStorageOptions> fileStorageOptions) : IFileStorageService
 {
+    private static int _publicAccessEnsured;
+
     private readonly BlobContainerClient _blobContainerClient =
         blobServiceClient.GetBlobContainerClient(fileStorageOptions.Value.ContainerName);
 
@@ -25,11 +27,11 @@ internal sealed class AzureBlobFileStorageService(
         Response<BlobContainerInfo>? createResponse =
             await _blobContainerClient.CreateIfNotExistsAsync(PublicAccessType.Blob, cancellationToken: cancellationToken);
 
-        if (createResponse is null)
+        if (createResponse is null && System.Threading.Interlocked.Exchange(ref _publicAccessEnsured, 1) == 0)
         {
             // Container already existed (e.g. created before this fix, or by a prior run without the
             // public access level set) - explicitly (re)apply the access policy so existing containers
-            // are corrected too.
+            // are corrected too. This is done once per process to avoid a network call on every upload.
             await _blobContainerClient.SetAccessPolicyAsync(PublicAccessType.Blob, cancellationToken: cancellationToken);
         }
 
