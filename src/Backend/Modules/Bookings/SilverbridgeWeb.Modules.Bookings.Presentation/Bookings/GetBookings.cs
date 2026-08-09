@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -13,13 +14,17 @@ internal sealed class GetBookings : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("bookings", async (ISender sender) =>
+        app.MapGet("bookings", async (DateTime fromUtc, DateTime toUtc, ClaimsPrincipal claims, ISender sender) =>
         {
-            Result<IReadOnlyCollection<BookingResponse>> result = await sender.Send(new GetBookingsQuery());
+            bool includePrivateDetails =
+                claims.HasClaim("permission", Permissions.ApproveBookings) ||
+                claims.HasClaim("permission", Permissions.UpdateBookings);
+            Result<IReadOnlyCollection<BookingResponse>> result = await sender.Send(
+                new GetBookingsQuery(fromUtc, toUtc, includePrivateDetails));
 
             return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .AllowAnonymous()
+        .RequireAuthorization(Permissions.ViewBookings)
         .WithTags(Tags.Bookings);
     }
 }

@@ -28,6 +28,12 @@ public sealed class Permission
     public static readonly Permission GetTickets = new("tickets:read");
     public static readonly Permission CheckInTicket = new("tickets:check-in");
     public static readonly Permission GetEventStatistics = new("event-statistics:read");
+    public static readonly Permission ViewBookings = new("bookings:read");
+    public static readonly Permission AddFacilities = new("bookings:facilities:create");
+    public static readonly Permission CreateBookings = new("bookings:create");
+    public static readonly Permission ApproveBookings = new("bookings:approve");
+    public static readonly Permission UpdateBookings = new("bookings:update");
+    public static readonly Permission DeleteBookings = new("bookings:delete");
 
     public Permission(string code)
     {

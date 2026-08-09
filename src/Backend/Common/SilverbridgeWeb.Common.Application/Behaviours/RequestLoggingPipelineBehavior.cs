@@ -36,7 +36,11 @@ internal sealed class RequestLoggingPipelineBehavior<TRequest, TResponse>(
         {
             if (logger.IsEnabled(LogLevel.Error))
             {
-                logger.LogError("{ModuleName} Module: Completed request {RequestName} with error", moduleName, requestName);
+                logger.LogError(
+                    "{ModuleName} Module: Completed request {RequestName} with error {ErrorCode}",
+                    moduleName,
+                    requestName,
+                    result.Error.Code);
             }
         }
 

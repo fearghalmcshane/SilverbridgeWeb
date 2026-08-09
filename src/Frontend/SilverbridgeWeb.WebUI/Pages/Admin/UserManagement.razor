@@ -39,6 +39,7 @@
                               Class="mb-3" />
                 <MudSelect @bind-Value="_selectedRole" Label="Role" Class="mb-2">
                     <MudSelectItem Value="@(AppRoles.Administrator)">Administrator</MudSelectItem>
+                    <MudSelectItem Value="@(AppRoles.BookingAdministrator)">Booking Administrator</MudSelectItem>
                     <MudSelectItem Value="@(AppRoles.CommunicationsOfficer)">Communications Officer</MudSelectItem>
                     <MudSelectItem Value="@(AppRoles.Member)">Member</MudSelectItem>
                 </MudSelect>

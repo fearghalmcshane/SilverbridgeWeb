@@ -35,7 +35,10 @@
     <MudNavGroup Title="Facilities" Expanded="true">
         <MudNavLink Href="/gym" Icon="@Icons.Material.Filled.FitnessCenter" Match="NavLinkMatch.Prefix">Gym</MudNavLink>
         <MudNavLink Href="/clubkeeley" Icon="@Icons.Material.Filled.WorkspacePremium" Match="NavLinkMatch.Prefix">Club Keeley</MudNavLink>
-        <MudNavLink Href="/facility-bookings" Icon="@Icons.Material.Filled.CalendarMonth" Match="NavLinkMatch.Prefix">Facility Bookings</MudNavLink>
+        @if (_canViewBookings)
+        {
+            <MudNavLink Href="/facility-bookings" Icon="@Icons.Material.Filled.CalendarMonth" Match="NavLinkMatch.Prefix">Facility Bookings</MudNavLink>
+        }
     </MudNavGroup>
 
     <MudNavGroup Title="About Us" Expanded="true">
@@ -54,6 +57,7 @@
 @code {
     private bool _isAdmin;
     private bool _canManageNews;
+    private bool _canViewBookings;
 
     [CascadingParameter]
     private Task<AuthenticationState>? AuthenticationState { get; set; }
@@ -73,12 +77,22 @@
 
         try
         {
+            UserPermissionsResponse? permissionsResponse = await UsersApiClient.GetPermissionsAsync();
+            _canViewBookings = permissionsResponse?.Permissions.Contains(AppPermissions.ViewBookings) ?? false;
+        }
+        catch (HttpRequestException)
+        {
+            _canViewBookings = false;
+        }
+
+        try
+        {
             UserRolesResponse? rolesResponse = await UsersApiClient.GetRolesAsync();
             IReadOnlyList<string> roles = rolesResponse?.Roles ?? [];
             _isAdmin = roles.Contains(AppRoles.Administrator, StringComparer.Ordinal);
             _canManageNews = _isAdmin || roles.Contains(AppRoles.CommunicationsOfficer, StringComparer.Ordinal);
         }
-        catch (Exception)
+        catch (HttpRequestException)
         {
             _isAdmin = false;
             _canManageNews = false;

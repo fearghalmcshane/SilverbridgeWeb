@@ -6,5 +6,7 @@ public interface IFacilityRepository
 
     Task<IReadOnlyCollection<Facility>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    void Insert(Facility facility);
+    Task<bool> ExistsWithNameAsync(string name, CancellationToken cancellationToken = default);
+
+    Task<bool> TryInsertAsync(Facility facility, CancellationToken cancellationToken = default);
 }

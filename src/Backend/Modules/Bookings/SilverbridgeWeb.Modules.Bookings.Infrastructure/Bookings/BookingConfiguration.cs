@@ -14,6 +14,8 @@ internal sealed class BookingConfiguration : IEntityTypeConfiguration<Booking>
 
         builder.Property(b => b.BookerName).HasMaxLength(200).IsRequired();
 
+        builder.Property(b => b.ContactName).HasMaxLength(200).IsRequired();
+
         builder.Property(b => b.Status)
             .HasConversion<string>()
             .HasMaxLength(50)

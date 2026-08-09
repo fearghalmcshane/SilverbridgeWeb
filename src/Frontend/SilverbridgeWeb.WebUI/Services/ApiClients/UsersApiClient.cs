@@ -16,6 +16,11 @@ internal sealed class UsersApiClient(HttpClient httpClient) : IApiClient
         return await httpClient.GetFromJsonAsync<UserRolesResponse>($"{BaseEndpoint}/roles", cancellationToken);
     }
 
+    public async Task<UserPermissionsResponse?> GetPermissionsAsync(CancellationToken cancellationToken = default)
+    {
+        return await httpClient.GetFromJsonAsync<UserPermissionsResponse>($"{BaseEndpoint}/permissions", cancellationToken);
+    }
+
     public async Task AssignRoleAsync(Guid userId, string roleName, CancellationToken cancellationToken = default)
     {
         HttpResponseMessage response = await httpClient.PostAsJsonAsync(
@@ -46,6 +51,11 @@ internal sealed record UserRolesResponse
 {
     public required Guid UserId { get; init; }
     public required IReadOnlyList<string> Roles { get; init; }
+}
+
+internal sealed record UserPermissionsResponse
+{
+    public required HashSet<string> Permissions { get; init; }
 }
 
 internal sealed record AssignRoleRequest(string RoleName);

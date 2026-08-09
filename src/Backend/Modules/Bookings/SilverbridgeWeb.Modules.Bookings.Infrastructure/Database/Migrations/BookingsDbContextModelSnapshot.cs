@@ -18,7 +18,7 @@ namespace SilverbridgeWeb.Modules.Bookings.Infrastructure.Database.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("bookings")
-                .HasAnnotation("ProductVersion", "10.0.9")
+                .HasAnnotation("ProductVersion", "10.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -142,6 +142,12 @@ namespace SilverbridgeWeb.Modules.Bookings.Infrastructure.Database.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("booker_name");
 
+                    b.Property<string>("ContactName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("contact_name");
+
                     b.Property<DateTime>("EndsAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("ends_at_utc");
@@ -204,7 +210,48 @@ namespace SilverbridgeWeb.Modules.Bookings.Infrastructure.Database.Migrations
                     b.HasKey("Id")
                         .HasName("pk_facilities");
 
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_facilities_name");
+
                     b.ToTable("facilities", "bookings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("0198a3d7-0f62-7f54-8a3d-1d93747a0001"),
+                            Color = "#2E7D32",
+                            Description = "Top playing field",
+                            Name = "Top Field"
+                        },
+                        new
+                        {
+                            Id = new Guid("0198a3d7-0f62-7f54-8a3d-1d93747a0002"),
+                            Color = "#1565C0",
+                            Description = "Main playing field",
+                            Name = "Big Field"
+                        },
+                        new
+                        {
+                            Id = new Guid("0198a3d7-0f62-7f54-8a3d-1d93747a0003"),
+                            Color = "#EF6C00",
+                            Description = "Small playing field",
+                            Name = "Wee Field"
+                        },
+                        new
+                        {
+                            Id = new Guid("0198a3d7-0f62-7f54-8a3d-1d93747a0004"),
+                            Color = "#6A1B9A",
+                            Description = "Main club hall",
+                            Name = "Hall"
+                        },
+                        new
+                        {
+                            Id = new Guid("0198a3d7-0f62-7f54-8a3d-1d93747a0005"),
+                            Color = "#00838F",
+                            Description = "Indoor bowls room",
+                            Name = "Bowls Room"
+                        });
                 });
 #pragma warning restore 612, 618
         }
