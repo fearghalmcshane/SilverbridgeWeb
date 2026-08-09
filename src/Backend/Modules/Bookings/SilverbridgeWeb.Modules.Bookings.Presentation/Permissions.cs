@@ -2,5 +2,10 @@ namespace SilverbridgeWeb.Modules.Bookings.Presentation;
 
 internal static class Permissions
 {
-    public const string ModifyBookings = "bookings:modify";
+    public const string ViewBookings = "bookings:read";
+    public const string AddFacilities = "bookings:facilities:create";
+    public const string CreateBookings = "bookings:create";
+    public const string ApproveBookings = "bookings:approve";
+    public const string UpdateBookings = "bookings:update";
+    public const string DeleteBookings = "bookings:delete";
 }

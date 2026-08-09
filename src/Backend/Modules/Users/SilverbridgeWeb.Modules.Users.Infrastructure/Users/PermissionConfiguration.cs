@@ -40,7 +40,13 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
             Permission.CreateOrder,
             Permission.GetTickets,
             Permission.CheckInTicket,
-            Permission.GetEventStatistics);
+            Permission.GetEventStatistics,
+            Permission.ViewBookings,
+            Permission.AddFacilities,
+            Permission.CreateBookings,
+            Permission.ApproveBookings,
+            Permission.UpdateBookings,
+            Permission.DeleteBookings);
 
         builder
             .HasMany<Role>()
@@ -71,6 +77,14 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
                     CreateRolePermission(Role.CommunicationsOfficer, Permission.DeleteArticles),
                     CreateRolePermission(Role.CommunicationsOfficer, Permission.UploadArticleMedia),
                     CreateRolePermission(Role.CommunicationsOfficer, Permission.ModifyNewsCategories),
+                    // Booking Administrator permissions
+                    CreateRolePermission(Role.BookingAdministrator, Permission.ViewBookings),
+                    CreateRolePermission(Role.BookingAdministrator, Permission.AddFacilities),
+                    CreateRolePermission(Role.BookingAdministrator, Permission.CreateBookings),
+                    CreateRolePermission(Role.BookingAdministrator, Permission.ApproveBookings),
+                    CreateRolePermission(Role.BookingAdministrator, Permission.UpdateBookings),
+                    CreateRolePermission(Role.BookingAdministrator, Permission.DeleteBookings),
+                    CreateRolePermission(Role.BookingAdministrator, Permission.GetUser),
                     // Admin permissions
                     CreateRolePermission(Role.Administrator, Permission.GetUser),
                     CreateRolePermission(Role.Administrator, Permission.ModifyUser),
@@ -97,7 +111,13 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
                     CreateRolePermission(Role.Administrator, Permission.CreateOrder),
                     CreateRolePermission(Role.Administrator, Permission.GetTickets),
                     CreateRolePermission(Role.Administrator, Permission.CheckInTicket),
-                    CreateRolePermission(Role.Administrator, Permission.GetEventStatistics));
+                    CreateRolePermission(Role.Administrator, Permission.GetEventStatistics),
+                    CreateRolePermission(Role.Administrator, Permission.ViewBookings),
+                    CreateRolePermission(Role.Administrator, Permission.AddFacilities),
+                    CreateRolePermission(Role.Administrator, Permission.CreateBookings),
+                    CreateRolePermission(Role.Administrator, Permission.ApproveBookings),
+                    CreateRolePermission(Role.Administrator, Permission.UpdateBookings),
+                    CreateRolePermission(Role.Administrator, Permission.DeleteBookings));
             });
     }
 

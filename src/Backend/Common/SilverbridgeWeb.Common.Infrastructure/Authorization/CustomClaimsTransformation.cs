@@ -12,7 +12,7 @@ internal sealed class CustomClaimsTransformation(IServiceScopeFactory serviceSco
 {
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
-        if (principal.HasClaim(c => c.Type == CustomClaims.Sub))
+        if (principal.HasClaim(c => c.Type == CustomClaims.DisplayName))
         {
             return principal;
         }
@@ -33,6 +33,7 @@ internal sealed class CustomClaimsTransformation(IServiceScopeFactory serviceSco
         var claimsIdentity = new ClaimsIdentity();
 
         claimsIdentity.AddClaim(new Claim(CustomClaims.Sub, result.Value.UserId.ToString()));
+        claimsIdentity.AddClaim(new Claim(CustomClaims.DisplayName, result.Value.DisplayName));
 
         foreach (string permission in result.Value.Permissions)
         {

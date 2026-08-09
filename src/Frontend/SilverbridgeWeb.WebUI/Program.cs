@@ -36,7 +36,8 @@ builder.Services.AddHttpClient<FoireannApiClient>(client =>
 builder.Services.AddHttpClient<BookingsApiClient>(client =>
 {
     client.BaseAddress = new("https+http://silverbridgeweb-api/");
-});
+})
+.AddHttpMessageHandler<AuthorizationHandler>();
 
 #pragma warning disable EXTEXP0001 // RemoveAllResilienceHandlers is experimental but is the documented way to opt a client out of retries that are unsafe for streamed upload content.
 builder.Services.AddHttpClient<NewsApiClient>(client =>

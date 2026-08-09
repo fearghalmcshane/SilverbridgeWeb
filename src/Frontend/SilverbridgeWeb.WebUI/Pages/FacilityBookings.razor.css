@@ -1,0 +1,64 @@
+.calendar-day {
+    display: flex;
+    flex-direction: column;
+    min-height: clamp(145px, 18vw, 230px);
+    overflow: hidden;
+}
+
+.calendar-month .calendar-day {
+    min-height: clamp(120px, 14vw, 180px);
+}
+
+.booking-chip {
+    justify-content: flex-start;
+    max-width: 100%;
+    width: 100%;
+}
+
+.calendar-bookings {
+    flex: 1;
+    min-width: 0;
+}
+
+.calendar-add-booking {
+    align-self: center;
+    margin-top: auto;
+}
+
+::deep .booking-chip .mud-chip-content {
+    display: block;
+    flex: 1;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+
+@media (max-width: 700px) {
+    .calendar-day {
+        min-height: 110px;
+        padding: 0.35rem !important;
+    }
+
+    .calendar-month .calendar-day {
+        min-height: 90px;
+    }
+
+    ::deep .calendar-day .mud-typography-subtitle2 {
+        font-size: 0.7rem;
+    }
+
+    ::deep .calendar-day .mud-typography-caption {
+        font-size: 0.6rem;
+    }
+
+    ::deep .booking-chip {
+        height: 22px;
+        padding-inline: 0.3rem;
+    }
+
+    ::deep .booking-chip .mud-chip-content {
+        font-size: 0.6rem;
+    }
+}

@@ -7,6 +7,7 @@ public sealed record BookingResponse(
     Guid FacilityId,
     string Title,
     string BookerName,
+    string ContactName,
     DateTime StartsAtUtc,
     DateTime EndsAtUtc,
     bool IsPublic,

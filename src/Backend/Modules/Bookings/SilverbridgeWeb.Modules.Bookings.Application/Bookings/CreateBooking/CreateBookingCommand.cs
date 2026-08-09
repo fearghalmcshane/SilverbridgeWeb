@@ -6,6 +6,10 @@ public sealed record CreateBookingCommand(
     Guid FacilityId,
     string Title,
     string BookerName,
+    string ContactName,
     DateTime StartsAtUtc,
     DateTime EndsAtUtc,
-    bool IsPublic) : ICommand<Guid>;
+    bool IsPublic,
+    bool IsRecurring,
+    IReadOnlyCollection<DayOfWeek> RecurrenceDays,
+    DateTime? RecurrenceEndDate) : ICommand<Guid>;

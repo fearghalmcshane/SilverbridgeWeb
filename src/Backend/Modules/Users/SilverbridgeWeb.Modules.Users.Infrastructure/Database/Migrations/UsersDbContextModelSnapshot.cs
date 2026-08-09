@@ -139,6 +139,41 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
                         },
                         new
                         {
+                            PermissionCode = "bookings:read",
+                            RoleName = "Booking Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "bookings:facilities:create",
+                            RoleName = "Booking Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "bookings:create",
+                            RoleName = "Booking Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "bookings:approve",
+                            RoleName = "Booking Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "bookings:update",
+                            RoleName = "Booking Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "bookings:delete",
+                            RoleName = "Booking Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "users:read",
+                            RoleName = "Booking Administrator"
+                        },
+                        new
+                        {
                             PermissionCode = "users:read",
                             RoleName = "Administrator"
                         },
@@ -265,6 +300,36 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
                         new
                         {
                             PermissionCode = "event-statistics:read",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "bookings:read",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "bookings:facilities:create",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "bookings:create",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "bookings:approve",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "bookings:update",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "bookings:delete",
                             RoleName = "Administrator"
                         });
                 });
@@ -510,6 +575,30 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
                         new
                         {
                             Code = "event-statistics:read"
+                        },
+                        new
+                        {
+                            Code = "bookings:read"
+                        },
+                        new
+                        {
+                            Code = "bookings:facilities:create"
+                        },
+                        new
+                        {
+                            Code = "bookings:create"
+                        },
+                        new
+                        {
+                            Code = "bookings:approve"
+                        },
+                        new
+                        {
+                            Code = "bookings:update"
+                        },
+                        new
+                        {
+                            Code = "bookings:delete"
                         });
                 });
 
@@ -529,6 +618,10 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
                         new
                         {
                             Name = "Member"
+                        },
+                        new
+                        {
+                            Name = "Booking Administrator"
                         },
                         new
                         {

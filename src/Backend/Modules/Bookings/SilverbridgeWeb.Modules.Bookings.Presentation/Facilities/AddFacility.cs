@@ -22,7 +22,7 @@ internal sealed class AddFacility : IEndpoint
 
             return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .AllowAnonymous()
+        .RequireAuthorization(Permissions.AddFacilities)
         .WithTags(Tags.Bookings);
     }
 

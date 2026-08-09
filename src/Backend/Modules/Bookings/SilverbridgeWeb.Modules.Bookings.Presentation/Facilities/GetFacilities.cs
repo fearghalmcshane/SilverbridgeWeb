@@ -19,7 +19,7 @@ internal sealed class GetFacilities : IEndpoint
 
             return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .AllowAnonymous()
+        .RequireAuthorization(Permissions.ViewBookings)
         .WithTags(Tags.Bookings);
     }
 }
