@@ -1,8 +1,64 @@
+.bookings-page {
+    padding-block: clamp(2rem, 4vw, 4rem) 4rem;
+}
+
+::deep .page-header {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--mud-palette-divider);
+}
+
+.booking-card {
+    border-radius: 1.25rem;
+    margin-block-end: 1.5rem;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    background: color-mix(in srgb, var(--mud-palette-surface) 94%, var(--mud-palette-primary));
+}
+
+.view-select {
+    min-width: 10rem;
+}
+
+.calendar-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    width: 100%;
+}
+
 .calendar-day {
     display: flex;
     flex-direction: column;
     min-height: clamp(145px, 18vw, 230px);
     overflow: hidden;
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: 1rem;
+    background: var(--mud-palette-surface);
+}
+
+.calendar-day--today {
+    border: 2px solid var(--mud-palette-primary);
+}
+
+.booking-agenda {
+    display: none;
+}
+
+.facility-filter {
+    color: #ffffff;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.facility-colour-input {
+    flex: 1;
+}
+
+.facility-colour-preview {
+    background-color: var(--facility-colour);
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: 0.5rem;
+    height: 2.5rem;
+    width: 2.5rem;
 }
 
 .calendar-month .calendar-day {
@@ -10,7 +66,10 @@
 }
 
 .booking-chip {
+    box-sizing: border-box;
+    color: #ffffff;
     justify-content: flex-start;
+    margin: 0;
     max-width: 100%;
     width: 100%;
 }
@@ -18,6 +77,7 @@
 .calendar-bookings {
     flex: 1;
     min-width: 0;
+    gap: 0.5rem;
 }
 
 .calendar-add-booking {
@@ -36,29 +96,101 @@
 }
 
 @media (max-width: 700px) {
-    .calendar-day {
-        min-height: 110px;
-        padding: 0.35rem !important;
+    .bookings-page {
+        padding-block: 1.25rem 2rem;
     }
 
-    .calendar-month .calendar-day {
-        min-height: 90px;
+    .calendar-grid {
+        display: none;
     }
 
-    ::deep .calendar-day .mud-typography-subtitle2 {
-        font-size: 0.7rem;
+    .booking-agenda {
+        display: grid;
+        gap: 0.75rem;
     }
 
-    ::deep .calendar-day .mud-typography-caption {
-        font-size: 0.6rem;
+    .agenda-day {
+        background: var(--mud-palette-surface);
+        border: 1px solid var(--mud-palette-divider);
+        border-radius: 1rem;
+        overflow: hidden;
     }
 
-    ::deep .booking-chip {
-        height: 22px;
-        padding-inline: 0.3rem;
+    .agenda-day--today {
+        border-color: var(--mud-palette-primary);
+        box-shadow: 0 0 0 1px var(--mud-palette-primary);
     }
 
-    ::deep .booking-chip .mud-chip-content {
-        font-size: 0.6rem;
+    .agenda-day__header {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        padding: 0.875rem 1rem;
+    }
+
+    .agenda-day__empty {
+        border-top: 1px solid var(--mud-palette-divider);
+        display: block;
+        padding: 0.875rem 1rem;
+    }
+
+    .agenda-items {
+        border-top: 1px solid var(--mud-palette-divider);
+    }
+
+    .agenda-booking {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-left: 0.3rem solid var(--facility-colour);
+        color: inherit;
+        cursor: pointer;
+        display: grid;
+        font: inherit;
+        gap: 0.75rem;
+        grid-template-columns: auto 1fr auto;
+        padding: 0.875rem 1rem;
+        text-align: left;
+        width: 100%;
+    }
+
+    .agenda-booking + .agenda-booking {
+        border-top: 1px solid var(--mud-palette-divider);
+    }
+
+    .agenda-booking:focus-visible {
+        outline: 3px solid var(--mud-palette-primary);
+        outline-offset: -3px;
+    }
+
+    .agenda-booking__time {
+        font-size: var(--mud-typography-caption-size);
+        font-weight: 700;
+    }
+
+    .agenda-booking__details {
+        display: grid;
+        min-width: 0;
+    }
+
+    .agenda-booking__details strong,
+    .agenda-booking__details span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .agenda-booking__details span {
+        color: var(--mud-palette-text-secondary);
+        font-size: var(--mud-typography-caption-size);
+    }
+
+    ::deep .booking-controls .mud-stack-row {
+        align-items: stretch !important;
+    }
+
+    ::deep .booking-controls .mud-input-control,
+    .view-select {
+        width: 100%;
     }
 }

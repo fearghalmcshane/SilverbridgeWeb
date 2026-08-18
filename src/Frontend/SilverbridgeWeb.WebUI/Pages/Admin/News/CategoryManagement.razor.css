@@ -1,0 +1,29 @@
+.category-page {
+    padding-block: 2rem 3rem;
+}
+
+.category-card {
+    border-radius: 1rem;
+}
+
+.category-table-card {
+    overflow: hidden;
+}
+
+.category-submit {
+    margin-block-start: 1.25rem;
+}
+
+::deep .category-table-card .mud-table-head {
+    background: var(--mud-palette-background-gray);
+}
+
+@media (max-width: 600px) {
+    .category-page {
+        padding-block: 1.25rem 2rem;
+    }
+
+    .category-submit {
+        width: 100%;
+    }
+}

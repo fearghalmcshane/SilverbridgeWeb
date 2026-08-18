@@ -1,0 +1,57 @@
+<MudPaper Outlined="true"
+          Elevation="0"
+          Class="state-panel"
+          role="@Role"
+          aria-live="@AriaLive"
+          aria-labelledby="@_titleId">
+    <MudIcon Icon="@Icon"
+             Color="@IconColor"
+             Size="Size.Large"
+             Class="state-panel__icon"
+             aria-hidden="true" />
+
+    <MudText HtmlTag="h2" Typo="Typo.h5" id="@_titleId">@Title</MudText>
+
+    @if (!string.IsNullOrWhiteSpace(Description))
+    {
+        <MudText Typo="Typo.body1" Color="Color.Secondary" Class="state-panel__description">
+            @Description
+        </MudText>
+    }
+
+    @if (Actions is not null)
+    {
+        <MudStack Row="true"
+                  Wrap="Wrap.Wrap"
+                  Justify="Justify.Center"
+                  Spacing="2"
+                  Class="state-panel__actions">
+            @Actions
+        </MudStack>
+    }
+</MudPaper>
+
+@code {
+    private readonly string _titleId = $"state-panel-title-{Guid.NewGuid():N}";
+
+    [Parameter]
+    public string Icon { get; set; } = Icons.Material.Outlined.Info;
+
+    [Parameter]
+    public Color IconColor { get; set; } = Color.Primary;
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Description { get; set; }
+
+    [Parameter]
+    public RenderFragment? Actions { get; set; }
+
+    [Parameter]
+    public string Role { get; set; } = "status";
+
+    [Parameter]
+    public string AriaLive { get; set; } = "polite";
+}

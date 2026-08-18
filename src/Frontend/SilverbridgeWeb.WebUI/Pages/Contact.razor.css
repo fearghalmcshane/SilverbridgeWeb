@@ -1,0 +1,51 @@
+.contact-page {
+    padding-block: 2rem 4rem;
+}
+
+.contact-layout {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 2rem;
+}
+
+.contact-aside,
+.contact-form {
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border-radius: 1rem;
+}
+
+.contact-aside {
+    background: var(--mud-palette-primary);
+    color: var(--mud-palette-primary-text);
+}
+
+.contact-aside h2 {
+    margin: 1.25rem 0 .75rem;
+    font-size: 1.75rem;
+}
+
+.contact-aside p {
+    margin: 0;
+    max-width: 30rem;
+    line-height: 1.7;
+}
+
+.contact-form {
+    border: 1px solid var(--mud-palette-lines-default);
+    background: var(--mud-palette-surface);
+}
+
+.contact-form form {
+    display: grid;
+    gap: 1.1rem;
+}
+
+.contact-form ::deep .mud-button-root {
+    justify-self: start;
+}
+
+@media (min-width: 800px) {
+    .contact-layout {
+        grid-template-columns: .8fr 1.2fr;
+    }
+}

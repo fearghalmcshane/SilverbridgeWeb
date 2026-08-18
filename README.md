@@ -8,7 +8,7 @@ The official website for Silverbridge Harps GFC — a GAA club in County Armagh.
 | ------------- | --------------------------------- |
 | Runtime       | .NET 10                           |
 | Backend API   | ASP.NET Core Minimal APIs         |
-| Frontend      | Blazor WebAssembly (MudBlazor UI) |
+| Frontend      | Blazor Interactive Server (MudBlazor UI) |
 | Database      | PostgreSQL (per-module schemas)   |
 | Cache         | Redis                             |
 | Auth          | Clerk (JWT / OpenID Connect)      |
@@ -58,6 +58,12 @@ dotnet build --configuration Release
 # Run all tests
 dotnet test
 
+# Frontend component tests
+dotnet test src/Frontend/test/SilverbridgeWeb.WebUI.ComponentTests
+
+# Frontend browser tests
+dotnet test src/Frontend/test/SilverbridgeWeb.WebUI.BrowserTests
+
 # Architecture tests only
 dotnet test test/SilverbridgeWeb.ArchitectureTests
 
@@ -68,6 +74,17 @@ dotnet test src/Backend/Modules/Users/test/SilverbridgeWeb.Modules.Users.Archite
 ## Architecture
 
 The application is a **modular monolith** with a vertical slice architecture inside each module, deployed as a single container to Azure Container Apps.
+
+### Frontend design system
+
+The WebUI uses a custom MudBlazor theme based on Silverbridge blue (`#263C9F`) and yellow (`#FCCF02`). Light and dark modes follow the user's system preference by default, with a locally persisted manual override.
+
+- Theme tokens and palettes: `src/Frontend/SilverbridgeWeb.WebUI/Theme/`
+- Shared page patterns: `src/Frontend/SilverbridgeWeb.WebUI/Components/Shared/`
+- Global foundations: `src/Frontend/SilverbridgeWeb.WebUI/wwwroot/css/app.css`
+- Page-specific responsive styling: scoped `.razor.css` files
+
+New pages should use `PageHeader`, `SectionHeader`, and `StatePanel`, provide one semantic `h1`, preserve visible keyboard focus, and remain usable from 320px wide without horizontal scrolling.
 
 ### System Overview
 
@@ -222,6 +239,7 @@ src/
     Modules/                        # Feature modules
   Frontend/
     SilverbridgeWeb.WebUI/          # Blazor WebUI
+    test/                           # Component and browser UI tests
 test/
   SilverbridgeWeb.ArchitectureTests/ # Global architecture rules
 ```

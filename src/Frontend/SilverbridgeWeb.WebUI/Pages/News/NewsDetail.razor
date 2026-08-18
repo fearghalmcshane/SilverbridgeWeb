@@ -6,38 +6,47 @@
 
 <PageTitle>@(_article?.Title is null ? "News Article" : $"{_article.Title} - Silverbridge Harps GAC")</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4 mb-8">
+<MudContainer MaxWidth="MaxWidth.Large" Class="article-page">
+    <PageHeader Eyebrow="@(_article?.CategoryName ?? "Club news")"
+                Title="@(_article?.Title ?? "News article")"
+                Description="@(_article?.Summary)" />
+
     @if (_isLoading)
     {
-        <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" aria-label="Loading news article" />
     }
     else if (_notFound)
     {
-        <MudAlert Severity="Severity.Info" Class="mb-4">The requested article could not be found.</MudAlert>
+        <StatePanel Title="Article not found"
+                    Description="The requested article may have moved or is no longer available."
+                    Icon="@Icons.Material.Outlined.SearchOff">
+            <Actions>
+                <MudButton Href="/news" Variant="Variant.Filled" Color="Color.Primary">Back to news</MudButton>
+            </Actions>
+        </StatePanel>
     }
     else if (_errorMessage is not null)
     {
-        <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert>
+        <StatePanel Title="Article unavailable"
+                    Description="@_errorMessage"
+                    Icon="@Icons.Material.Outlined.CloudOff"
+                    IconColor="Color.Error"
+                    Role="alert" />
     }
     else if (_article is not null)
     {
-        <MudStack Spacing="3">
-            <MudButton Href="/news" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBack">
+        <article class="article">
+            <MudButton Href="/news" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBack"
+                       Class="article__back">
                 Back to news
             </MudButton>
 
-            <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined" Class="align-self-start">
-                @_article.CategoryName
-            </MudChip>
-
-            <MudText Typo="Typo.h3">@_article.Title</MudText>
-
             @if (_heroMedia is not null)
             {
-                <MudPaper Elevation="1" Class="overflow-hidden">
+                <figure class="article__hero">
                     @if (string.Equals(_heroMedia.MediaType, "video", StringComparison.OrdinalIgnoreCase))
                     {
-                        <video controls style="width:100%;max-height:480px;">
+                        <video controls preload="metadata">
                             <source src="@_heroMedia.BlobUrl" />
                             Your browser does not support embedded video.
                         </video>
@@ -45,59 +54,56 @@
                     else
                     {
                         <img src="@_heroMedia.BlobUrl"
-                             alt="@GetMediaAltText(_heroMedia)"
-                             style="width:100%;max-height:480px;object-fit:cover;" />
+                             alt="@GetMediaAltText(_heroMedia)" />
                     }
-                </MudPaper>
+                    @if (!string.IsNullOrWhiteSpace(_heroMedia.AltText))
+                    {
+                        <figcaption>@_heroMedia.AltText</figcaption>
+                    }
+                </figure>
             }
 
             @if (_article.ArticleType == NewsArticleType.MatchReport && _article.MatchReport is not null)
             {
-                <MatchScoreboard HomeTeam="@_article.MatchReport.HomeTeam"
-                                  AwayTeam="@_article.MatchReport.AwayTeam"
-                                  HomeGoals="@_article.MatchReport.HomeGoals"
-                                  HomePoints="@_article.MatchReport.HomePoints"
-                                  AwayGoals="@_article.MatchReport.AwayGoals"
-                                  AwayPoints="@_article.MatchReport.AwayPoints"
-                                  Competition="@_article.MatchReport.Competition"
-                                  Venue="@_article.MatchReport.Venue"
-                                  MatchDateUtc="@_article.MatchReport.MatchDateUtc" />
+                <div class="article__scoreboard">
+                    <MatchScoreboard HomeTeam="@_article.MatchReport.HomeTeam"
+                                     AwayTeam="@_article.MatchReport.AwayTeam"
+                                     HomeGoals="@_article.MatchReport.HomeGoals"
+                                     HomePoints="@_article.MatchReport.HomePoints"
+                                     AwayGoals="@_article.MatchReport.AwayGoals"
+                                     AwayPoints="@_article.MatchReport.AwayPoints"
+                                     Competition="@_article.MatchReport.Competition"
+                                     Venue="@_article.MatchReport.Venue"
+                                     MatchDateUtc="@_article.MatchReport.MatchDateUtc" />
+                </div>
             }
 
-            <MudText Typo="Typo.h6" Color="Color.Secondary">@_article.Summary</MudText>
-
-            <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
-                <MudChip T="string" Size="Size.Small" Color="Color.Info">
+            <div class="article__byline">
+                <span>By @_article.AuthorFirstName @_article.AuthorLastName</span>
+                <time datetime="@(_article.PublishedAtUtc ?? _article.CreatedAtUtc).ToString("O")">
                     Published @FormatDate(_article.PublishedAtUtc ?? _article.CreatedAtUtc)
-                </MudChip>
+                </time>
                 @if (_article.UpdatedAtUtc.HasValue)
                 {
-                    <MudChip T="string" Size="Size.Small" Color="Color.Default">
+                    <time datetime="@_article.UpdatedAtUtc.Value.ToString("O")">
                         Updated @FormatDate(_article.UpdatedAtUtc.Value)
-                    </MudChip>
+                    </time>
                 }
-            </MudStack>
+            </div>
 
-            <MudText Typo="Typo.caption" Color="Color.Secondary">
-                By @_article.AuthorFirstName @_article.AuthorLastName
-            </MudText>
-
-            <MudPaper Elevation="1" Class="pa-4">
-                <MudText Typo="Typo.body1" Style="white-space: pre-wrap;">@_article.Content</MudText>
-            </MudPaper>
+            <div class="article__content">@_article.Content</div>
 
             @if (_galleryMedia.Count > 0)
             {
-                <MudDivider />
-                <MudText Typo="Typo.h5">More media</MudText>
-                <MudGrid>
+                <section class="article__gallery" aria-label="More article media">
+                    <SectionHeader Title="More media" />
+                    <div class="article__gallery-grid">
                     @foreach (NewsArticleMediaResponse media in _galleryMedia)
                     {
-                        <MudItem xs="12" md="6">
-                            <MudPaper Elevation="1" Class="pa-3">
+                        <figure>
                                 @if (string.Equals(media.MediaType, "video", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    <video controls style="width:100%;max-height:420px;">
+                                    <video controls preload="metadata">
                                         <source src="@media.BlobUrl" />
                                         Your browser does not support embedded video.
                                     </video>
@@ -106,19 +112,19 @@
                                 {
                                     <img src="@media.BlobUrl"
                                          alt="@GetMediaAltText(media)"
-                                         style="width:100%;max-height:420px;object-fit:cover;" />
+                                         loading="lazy" />
                                 }
 
                                 @if (!string.IsNullOrWhiteSpace(media.AltText))
                                 {
-                                    <MudText Typo="Typo.caption" Class="mt-2">@media.AltText</MudText>
+                                    <figcaption>@media.AltText</figcaption>
                                 }
-                            </MudPaper>
-                        </MudItem>
+                        </figure>
                     }
-                </MudGrid>
+                    </div>
+                </section>
             }
-        </MudStack>
+        </article>
     }
 </MudContainer>
 

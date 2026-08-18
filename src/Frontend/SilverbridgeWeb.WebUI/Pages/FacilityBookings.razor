@@ -8,43 +8,47 @@
 
 <PageTitle>Facility Bookings - Silverbridge Harps GAC</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="bookings-page">
+    <PageHeader Title="Facility Bookings"
+                Eyebrow="Club operations"
+                Description="View availability, manage requests and keep every Silverbridge facility organised.">
+        <Actions>
+            @if (_canViewBookings && _canAddFacilities)
+            {
+                <MudButton Variant="Variant.Outlined" Color="Color.Secondary"
+                           StartIcon="@Icons.Material.Filled.AddBusiness"
+                           OnClick="OpenAddFacilityDialog">
+                    Add Facility
+                </MudButton>
+            }
+            @if (_canViewBookings && _canCreateBookings)
+            {
+                <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.EventAvailable"
+                           OnClick="OpenCreateBookingDialog"
+                           Disabled="@(_facilities.Count == 0)">
+                    Book Facility
+                </MudButton>
+            }
+        </Actions>
+    </PageHeader>
+
     @if (_isLoadingPermissions)
     {
-        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+        <StatePanel Title="Loading facility bookings"
+                    Description="Checking your access and preparing the booking calendar."
+                    Icon="@Icons.Material.Outlined.CalendarMonth" />
     }
     else if (!_canViewBookings)
     {
-        <MudAlert Severity="Severity.Error">You do not have permission to view facility bookings.</MudAlert>
+        <StatePanel Title="Access unavailable"
+                    Description="You do not have permission to view facility bookings."
+                    Icon="@Icons.Material.Outlined.Lock"
+                    IconColor="Color.Error"
+                    Role="alert" />
     }
     else
     {
-        <MudStack Row="true" Wrap="Wrap.Wrap" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
-            <MudText Typo="Typo.h4">
-                <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Class="mr-2" />
-                Facility Bookings
-            </MudText>
-            <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
-                @if (_canAddFacilities)
-                {
-                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary"
-                               StartIcon="@Icons.Material.Filled.AddBusiness"
-                               OnClick="OpenAddFacilityDialog">
-                        Add Facility
-                    </MudButton>
-                }
-                @if (_canCreateBookings)
-                {
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary"
-                               StartIcon="@Icons.Material.Filled.EventAvailable"
-                               OnClick="OpenCreateBookingDialog"
-                               Disabled="@(_facilities.Count == 0)">
-                        Book Facility
-                    </MudButton>
-                }
-            </MudStack>
-        </MudStack>
-
         @if (_isLoading)
         {
             <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
@@ -52,7 +56,7 @@
 
         @if (_facilities.Count > 0)
         {
-            <MudPaper Elevation="1" Class="pa-3 mb-4">
+            <MudPaper Outlined="true" Elevation="0" Class="booking-card booking-filters">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Wrap="Wrap.Wrap">
                     <MudText Typo="Typo.subtitle2" Class="mr-2">Facilities:</MudText>
                     <MudChip T="string" Size="Size.Small"
@@ -67,7 +71,7 @@
                              Text="@($"Pending ({PendingBookingCount})")" />
                     @foreach (FacilityBookingResponse facility in _facilities)
                     {
-                        <MudChip T="string" Size="Size.Small"
+                        <MudChip T="string" Size="Size.Small" Class="facility-filter"
                                  OnClick="@(() => ToggleFacilityFilter(facility.Id))"
                                  Style="@GetFacilityFilterStyle(facility)"
                                  Text="@facility.Name" />
@@ -76,10 +80,10 @@
             </MudPaper>
         }
 
-        <MudPaper Elevation="1" Class="pa-3 mb-4">
+        <MudPaper Outlined="true" Elevation="0" Class="booking-card booking-controls">
             <MudStack Spacing="3">
                 <MudStack Row="true" Wrap="Wrap.Wrap" AlignItems="AlignItems.End" Spacing="2">
-                    <MudSelect T="CalendarView" Value="_view" ValueChanged="ChangeViewAsync" Label="Display" Style="min-width: 160px;">
+                    <MudSelect T="CalendarView" Value="_view" ValueChanged="ChangeViewAsync" Label="Display" Class="view-select">
                         <MudSelectItem Value="CalendarView.Week">Week</MudSelectItem>
                         <MudSelectItem Value="CalendarView.Month">Month</MudSelectItem>
                         <MudSelectItem Value="CalendarView.Range">Date range</MudSelectItem>
@@ -111,7 +115,7 @@
             </MudStack>
         </MudPaper>
 
-        <div style="display:grid; grid-template-columns:repeat(7, minmax(0, 1fr)); gap:0.75rem; width:100%;">
+        <section class="calendar-grid" aria-label="@($"Booking calendar for {RangeHeading}")">
             @foreach (DateTime day in GetDisplayDays())
             {
                 IReadOnlyList<BookingItemResponse> dayBookings = GetBookingsForDay(day);
@@ -120,8 +124,8 @@
                     ? $"grid-column-start: {GetMondayBasedDayOfWeek(day)};"
                     : string.Empty;
 
-                <div class="@($"calendar-day mud-paper mud-elevation-{(isToday ? 4 : 1)} pa-3")"
-                     style="@($"{firstDayStyle}{(isToday ? "border: 2px solid var(--mud-palette-primary);" : string.Empty)}")">
+                <div class="@($"calendar-day{(isToday ? " calendar-day--today" : string.Empty)} mud-paper mud-elevation-{(isToday ? 4 : 1)} pa-3")"
+                     style="@firstDayStyle">
                     <MudText Typo="Typo.subtitle2" Color="@(isToday ? Color.Primary : Color.Default)">
                         @day.ToString(_view == CalendarView.Month ? "ddd d" : "ddd d MMM")
                     </MudText>
@@ -159,7 +163,61 @@
                     }
                 </div>
             }
-        </div>
+        </section>
+
+        <section class="booking-agenda" aria-label="@($"Booking agenda for {RangeHeading}")">
+            @foreach (DateTime agendaDay in GetDisplayDays())
+            {
+                IReadOnlyList<BookingItemResponse> agendaBookings = GetBookingsForDay(agendaDay);
+                bool agendaDayIsToday = agendaDay.Date == DateTime.Today;
+
+                        <article class="@($"agenda-day{(agendaDayIsToday ? " agenda-day--today" : string.Empty)}")">
+                            <div class="agenda-day__header">
+                                <div>
+                                    <MudText HtmlTag="h2" Typo="Typo.h6" Color="@(agendaDayIsToday ? Color.Primary : Color.Default)">
+                                        @agendaDay.ToString("dddd")
+                                    </MudText>
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@agendaDay.ToString("dd MMMM yyyy")</MudText>
+                                </div>
+                                @if (_canCreateBookings)
+                                {
+                                    <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                                   Color="Color.Primary"
+                                                   OnClick="@(() => OpenCreateBookingDialog(agendaDay))"
+                                                   Disabled="@(_facilities.Count == 0)"
+                                                   aria-label="@($"Add booking for {agendaDay:dd MMM yyyy}")" />
+                                }
+                            </div>
+
+                            @if (agendaBookings.Count == 0)
+                            {
+                                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="agenda-day__empty">No bookings</MudText>
+                            }
+                            else
+                            {
+                                <div class="agenda-items">
+                                    @foreach (BookingItemResponse booking in agendaBookings)
+                                    {
+                                        <button type="button"
+                                                class="agenda-booking"
+                                                style="@GetAgendaBookingStyle(booking)"
+                                                @onclick="@(() => OpenBookingDetails(booking))"
+                                                aria-label="@GetBookingTooltip(booking)">
+                                            <span class="agenda-booking__time">
+                                                @ToBookingTime(booking.StartsAtUtc).ToString("HH:mm")–@ToBookingTime(booking.EndsAtUtc).ToString("HH:mm")
+                                            </span>
+                                            <span class="agenda-booking__details">
+                                                <strong>@booking.Title</strong>
+                                                <span>@GetFacilityName(booking.FacilityId) · @booking.Status</span>
+                                            </span>
+                                            <MudIcon Icon="@Icons.Material.Filled.ChevronRight" Size="Size.Small" aria-hidden="true" />
+                                        </button>
+                                    }
+                                </div>
+                            }
+                        </article>
+            }
+        </section>
     }
 </MudContainer>
 
@@ -172,8 +230,8 @@
             <MudTextField @bind-Value="_newFacilityName" Label="Facility Name" Required="true" />
             <MudTextField @bind-Value="_newFacilityDescription" Label="Description" Lines="3" Required="true" />
             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                <MudTextField @bind-Value="_newFacilityColor" Label="Colour (hex)" Placeholder="#4CAF50" Style="flex: 1;" />
-                <MudPaper Elevation="0" Style="@($"width:40px; height:40px; background-color:{_newFacilityColor}; border-radius:4px; border:1px solid #ccc;")" />
+                <MudTextField @bind-Value="_newFacilityColor" Label="Colour (hex)" Placeholder="#4CAF50" Class="facility-colour-input" />
+                <MudPaper Elevation="0" Class="facility-colour-preview" Style="@($"--facility-colour:{_newFacilityColor}")" aria-label="Facility colour preview" />
             </MudStack>
         </MudStack>
     </DialogContent>
@@ -522,16 +580,18 @@
             ? "2px solid #ffb300"
             : "2px solid transparent";
 
-        return $"background-color:{backgroundColor}; color:white; width:100%; max-width:100%; margin:0; " +
-               $"justify-content:flex-start; border:{border}; box-sizing:border-box;";
+        return $"background-color:{backgroundColor}; border:{border};";
     }
+
+    private string GetAgendaBookingStyle(BookingItemResponse booking) =>
+        $"--facility-colour:{(booking.IsPublic ? GetFacilityColor(booking.FacilityId) : "#616161")};";
 
     private string GetFacilityFilterStyle(FacilityBookingResponse facility)
     {
         bool isSelected = _selectedFacilityIds.Contains(facility.Id);
         string opacity = _selectedFacilityIds.Count == 0 || isSelected ? "1" : "0.4";
-        string border = isSelected ? "2px solid var(--mud-palette-text-primary)" : "2px solid transparent";
-        return $"background-color:{facility.Color}; color:white; opacity:{opacity}; border:{border}; cursor:pointer;";
+        string borderColor = isSelected ? "var(--mud-palette-text-primary)" : "transparent";
+        return $"background-color:{facility.Color}; opacity:{opacity}; border-color:{borderColor};";
     }
 
     private void ToggleFacilityFilter(Guid facilityId)

@@ -13,27 +13,33 @@
 
 <PageTitle>@(IsEditMode ? "Edit Article" : "Create Article") - Silverbridge Harps GAC</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4 mb-8">
-    @if (_isLoading)
-    {
-        <MudProgressLinear Indeterminate="true" Class="mb-4" />
-    }
-    else if (!_canManageNews)
-    {
-        <MudAlert Severity="Severity.Error">You do not have permission to manage news.</MudAlert>
-    }
-    else
-    {
-        <MudStack Row="true" Wrap="Wrap.Wrap" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
-            <MudText Typo="Typo.h4">
-                <MudIcon Icon="@Icons.Material.Filled.EditNote" Class="mr-2" />
-                @(IsEditMode ? "Edit Article" : "Create Article")
-            </MudText>
+<MudContainer MaxWidth="MaxWidth.Large" Class="article-editor-page">
+    <PageHeader Title="@(IsEditMode ? "Edit Article" : "Create Article")"
+                Eyebrow="Communications"
+                Description="@(IsEditMode ? "Update article content, publishing details and media." : "Draft a new story for the Silverbridge community.")">
+        <Actions>
             <MudButton Href="/admin/news" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBack">
                 Back to list
             </MudButton>
-        </MudStack>
+        </Actions>
+    </PageHeader>
 
+    @if (_isLoading)
+    {
+        <StatePanel Title="Loading article editor"
+                    Description="Preparing categories, content and media."
+                    Icon="@Icons.Material.Outlined.EditNote" />
+    }
+    else if (!_canManageNews)
+    {
+        <StatePanel Title="Access unavailable"
+                    Description="You do not have permission to manage news."
+                    Icon="@Icons.Material.Outlined.Lock"
+                    IconColor="Color.Error"
+                    Role="alert" />
+    }
+    else
+    {
         @if (_errorMessage is not null)
         {
             <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert>
@@ -44,8 +50,10 @@
 
             <MudGrid>
                 <MudItem xs="12" md="8">
-                    <MudCard Elevation="2" Class="mb-4">
+                    <MudCard Outlined="true" Elevation="0" Class="article-card">
                         <MudCardContent>
+                            <SectionHeader Title="Article Content"
+                                           Description="Write a clear headline, summary and full article." />
                             <MudStack Spacing="3">
                                 <MudTextField T="string"
                                               Label="Title"
@@ -87,16 +95,10 @@
                         </MudCardContent>
                     </MudCard>
 
-                    <MudCard Elevation="2" Class="mb-4">
-                        <MudCardHeader>
-                            <CardHeaderContent>
-                                <MudText Typo="Typo.h6">Article Type</MudText>
-                                <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                    Choose a template. Match reports show a scoreline above the article text.
-                                </MudText>
-                            </CardHeaderContent>
-                        </MudCardHeader>
+                    <MudCard Outlined="true" Elevation="0" Class="article-card">
                         <MudCardContent>
+                            <SectionHeader Title="Article Type"
+                                           Description="Choose a template. Match reports show a scoreline above the article text." />
                             <MudStack Spacing="3">
                                 <MudSelect T="NewsArticleType"
                                            Value="_model.ArticleType"
@@ -128,8 +130,10 @@
                 </MudItem>
 
                 <MudItem xs="12" md="4">
-                    <MudCard Elevation="2" Class="mb-4">
+                    <MudCard Outlined="true" Elevation="0" Class="article-card article-publish-card">
                         <MudCardContent>
+                            <SectionHeader Title="Publishing"
+                                           Description="Choose the category and manage this article's status." />
                             <MudStack Spacing="3">
                                 <MudSelect T="Guid"
                                            @bind-Value="_model.CategoryId"
@@ -169,7 +173,7 @@
                                 }
                             </MudStack>
                         </MudCardContent>
-                        <MudCardActions>
+                        <MudCardActions Class="article-actions">
                             <MudButton Variant="Variant.Filled"
                                        Color="Color.Primary"
                                        ButtonType="ButtonType.Submit"
@@ -194,14 +198,9 @@
                         </MudCardActions>
                     </MudCard>
 
-                    <MudCard Elevation="2">
-                        <MudCardHeader>
-                            <CardHeaderContent>
-                                <MudText Typo="Typo.h6">Media</MudText>
-                                <MudText Typo="Typo.body2" Color="Color.Secondary">Upload images or videos for this article.</MudText>
-                            </CardHeaderContent>
-                        </MudCardHeader>
+                    <MudCard Outlined="true" Elevation="0" Class="article-card">
                         <MudCardContent>
+                            <SectionHeader Title="Media" Description="Upload images or videos for this article." />
                             @if (!IsEditMode || Id is null)
                             {
                                 <MudAlert Severity="Severity.Info">
@@ -211,8 +210,14 @@
                             else
                             {
                                 <MudStack Spacing="2">
-                                    <InputFile OnChange="OnFileSelected"
-                                               accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.mov" />
+                                    <label class="file-upload-label" for="article-media">Choose media file</label>
+                                    <InputFile id="article-media"
+                                               OnChange="OnFileSelected"
+                                               accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.mov"
+                                               aria-describedby="article-media-help" />
+                                    <MudText id="article-media-help" Typo="Typo.caption" Color="Color.Secondary">
+                                        JPG, PNG, GIF, WebP, MP4, WebM or MOV. Maximum 25 MB.
+                                    </MudText>
                                     @if (_selectedFile is not null)
                                     {
                                         <MudText Typo="Typo.caption">Selected: @_selectedFile.Name (@_selectedFile.ContentType)</MudText>

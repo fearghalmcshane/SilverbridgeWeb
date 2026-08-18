@@ -1,38 +1,47 @@
-﻿@page "/"
+@page "/"
 @using SilverbridgeWeb.WebUI.Components.News
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Silverbridge Harps GAC</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large">
-    <MudGrid>
-        <MudItem xs="12">
-            <MudCarousel Class="mud-width-full" Style="height: 30vh;" ShowArrows="true" ShowBullets="true" EnableSwipeGesture="true" AutoCycle="true" TData="object">
-                <MudCarouselItem Transition="Transition.Slide">
-                    <div class="d-flex justify-content-center" style="height:100%">
-                        <MudImage Fluid="true" Src="/images/aerial_view.jpg" Alt="bridge_aerial" Elevation="25" Class="rounded-lg mx-auto my-auto" />
-                    </div>
-                </MudCarouselItem>
-                <MudCarouselItem Transition="Transition.Slide">
-                    <div class="d-flex justify-content-center" style="height:100%">
-                        <MudImage Fluid="true" Src="/images/aerial_view.jpg" Alt="bridge_aerial" Elevation="25" Class="rounded-lg mx-auto my-auto" />
-                    </div>
-                </MudCarouselItem>
-            </MudCarousel>
-        </MudItem>
-        <MudItem xs="12" class="mt-4">
-            <MudText Typo="Typo.h4" Align="Align.Center">Welcome to Silverbridge Harps</MudText>
-        </MudItem>
-        <MudItem xs="12" class="mt-2">
-            <MudText Typo="Typo.body1" Align="Align.Center">
-                Silverbridge Harps is a community-focused club dedicated to promoting Gaelic Games and activities for all ages and abilities. Join us and be a part of our vibrant community.
-            </MudText>
-        </MudItem>
-        <MudItem xs="12" class="mt-6">
+<div class="home-page">
+    <section class="home-hero" aria-labelledby="home-title">
+        <img src="/images/aerial_view.jpg"
+             alt="Aerial view of Silverbridge Harps grounds and surrounding countryside" />
+        <div class="home-hero__overlay"></div>
+        <div class="home-hero__content">
+            <p class="home-hero__eyebrow">Community · Sport · Belonging</p>
+            <div class="home-hero__identity">
+                <img src="/images/bridge.jpg" alt="" class="home-hero__crest" />
+                <h1 id="home-title">Silverbridge Harps</h1>
+            </div>
+            <p>Gaelic games, friendship and opportunity for every generation of our community.</p>
+            <div class="home-hero__actions">
+                <MudButton Href="/fixtures" Variant="Variant.Filled" Color="Color.Primary"
+                           EndIcon="@Icons.Material.Filled.ArrowForward">
+                    Fixtures &amp; results
+                </MudButton>
+                <MudButton Href="/involved" Variant="Variant.Outlined" Color="Color.Inherit">
+                    Get involved
+                </MudButton>
+            </div>
+        </div>
+    </section>
+
+    <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="home-content">
+        <section class="home-welcome" aria-labelledby="welcome-title">
+            <div>
+                <p class="home-welcome__eyebrow">At the heart of Silverbridge</p>
+                <h2 id="welcome-title">A club for everyone</h2>
+            </div>
+            <p>
+                Silverbridge Harps is a community-focused club promoting Gaelic games and activities
+                for all ages and abilities. Whether you play, volunteer or support from the sideline,
+                there is a place for you here.
+            </p>
+        </section>
+
+        <section class="home-news" aria-label="Latest club news">
             <RecentNewsSummary MaxArticles="3" />
-        </MudItem>
-    </MudGrid>
-</MudContainer>
-
-@code {
-
-}
+        </section>
+    </MudContainer>
+</div>

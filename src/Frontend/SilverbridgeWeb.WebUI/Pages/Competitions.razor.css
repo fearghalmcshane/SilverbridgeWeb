@@ -1,0 +1,27 @@
+.competitions-page {
+    padding-block: 2rem 4rem;
+}
+
+.competition-filters {
+    margin: 1.5rem 0 2rem;
+    padding: 1rem .5rem;
+    border: 1px solid var(--mud-palette-lines-default);
+    border-radius: 1rem;
+    background: var(--mud-palette-surface);
+}
+
+.competition-card {
+    height: 100%;
+    border: 1px solid var(--mud-palette-lines-default);
+    border-radius: 1rem;
+    transition: border-color .2s ease, transform .2s ease;
+}
+
+.competition-card:hover {
+    border-color: var(--mud-palette-primary);
+    transform: translateY(-2px);
+}
+
+.competition-card ::deep .mud-card-content {
+    padding: 1.5rem;
+}

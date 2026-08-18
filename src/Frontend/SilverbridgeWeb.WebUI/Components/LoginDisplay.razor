@@ -1,32 +1,147 @@
-@using Microsoft.AspNetCore.Components.Authorization
-@using System.Security.Claims;
-@using System.Security.Principal;
-@using System.Security.Cryptography
-@using System.Text
+@using System.Security.Claims
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+@using SilverbridgeWeb.WebUI.Services.Authorization
+@inject UsersApiClient UsersApiClient
 
 <AuthorizeView>
     <Authorized>
-        <MudMenu Icon="@Icons.Material.Filled.Person" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight"
-                 TransformOrigin="Origin.TopRight">
-            <MudMenuItem>
-                <MudText Typo="Typo.body2">@context.User.Identity?.Name</MudText>
-            </MudMenuItem>
-            <MudDivider />
-            <MudMenuItem Href="/profile">
-                <MudIcon Icon="@Icons.Material.Filled.ManageAccounts" Class="mr-2" />
-                My Profile
-            </MudMenuItem>
-            <MudDivider />
-            <MudMenuItem Href="/authentication/logout">
-                <MudIcon Icon="@Icons.Material.Filled.Logout" Class="mr-2" />
-                Sign Out
-            </MudMenuItem>
+        <MudMenu AnchorOrigin="Origin.BottomRight"
+                 TransformOrigin="Origin.TopRight"
+                 AriaLabel="Open account menu">
+            <ActivatorContent Context="menuActivator">
+                <button type="button"
+                        class="account-menu-button"
+                        aria-label="Open account menu"
+                        @onclick="menuActivator.ToggleAsync">
+                    <MudAvatar Size="Size.Medium" Color="Color.Secondary" Class="account-avatar">
+                        @if (!string.IsNullOrWhiteSpace(_profileImageUrl))
+                        {
+                            <MudImage Src="@_profileImageUrl" Alt="" ObjectFit="ObjectFit.Cover" />
+                        }
+                        else
+                        {
+                            @GetInitials(context.User)
+                        }
+                    </MudAvatar>
+                </button>
+            </ActivatorContent>
+
+            <ChildContent>
+                <MudMenuItem Disabled="true">
+                    <MudText Typo="Typo.body2">@GetDisplayName(context.User)</MudText>
+                </MudMenuItem>
+                <MudDivider />
+                <MudMenuItem Href="/profile">
+                    <MudIcon Icon="@Icons.Material.Filled.ManageAccounts" Class="mr-2" />
+                    My profile
+                </MudMenuItem>
+
+                @if (_canManageNews || _isAdmin)
+                {
+                    <MudDivider />
+                    <MudMenuItem Disabled="true">
+                        <MudText Typo="Typo.overline">Administration</MudText>
+                    </MudMenuItem>
+                    @if (_canManageNews)
+                    {
+                        <MudMenuItem Href="/admin/news">
+                            <MudIcon Icon="@Icons.Material.Filled.Feed" Class="mr-2" />
+                            Manage news
+                        </MudMenuItem>
+                        <MudMenuItem Href="/admin/news/categories">
+                            <MudIcon Icon="@Icons.Material.Filled.Category" Class="mr-2" />
+                            News categories
+                        </MudMenuItem>
+                    }
+                    @if (_isAdmin)
+                    {
+                        <MudMenuItem Href="/admin/users">
+                            <MudIcon Icon="@Icons.Material.Filled.AdminPanelSettings" Class="mr-2" />
+                            User management
+                        </MudMenuItem>
+                    }
+                }
+
+                <MudDivider />
+                <MudMenuItem Href="/authentication/logout">
+                    <MudIcon Icon="@Icons.Material.Filled.Logout" Class="mr-2" />
+                    Sign out
+                </MudMenuItem>
+            </ChildContent>
         </MudMenu>
     </Authorized>
     <NotAuthorized>
-        <MudButton Href="/authentication/login" Color="Color.Inherit" Variant="Variant.Text">
-            <MudIcon Icon="@Icons.Material.Filled.Login" Class="mr-2" />
-            Sign In
+        <MudButton Href="/authentication/login"
+                   Class="d-none d-sm-flex"
+                   Color="Color.Inherit"
+                   Variant="Variant.Text"
+                   StartIcon="@Icons.Material.Filled.Login"
+                   aria-label="Sign in">
+            Sign in
         </MudButton>
+        <MudIconButton Href="/authentication/login"
+                       Class="d-flex d-sm-none"
+                       Color="Color.Inherit"
+                       Icon="@Icons.Material.Filled.Login"
+                       aria-label="Sign in" />
     </NotAuthorized>
 </AuthorizeView>
+
+@code {
+    private bool _isAdmin;
+    private bool _canManageNews;
+    private string? _profileImageUrl;
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthenticationState is null)
+        {
+            return;
+        }
+
+        AuthenticationState authState = await AuthenticationState;
+        ClaimsPrincipal user = authState.User;
+        if (user.Identity?.IsAuthenticated != true)
+        {
+            return;
+        }
+
+        _profileImageUrl = user.FindFirst("picture")?.Value;
+
+        try
+        {
+            UserRolesResponse? rolesResponse = await UsersApiClient.GetRolesAsync();
+            IReadOnlyList<string> roles = rolesResponse?.Roles ?? [];
+            _isAdmin = roles.Contains(AppRoles.Administrator, StringComparer.Ordinal);
+            _canManageNews = _isAdmin || roles.Contains(AppRoles.CommunicationsOfficer, StringComparer.Ordinal);
+        }
+        catch (HttpRequestException)
+        {
+            _isAdmin = false;
+            _canManageNews = false;
+        }
+    }
+
+    private static string GetDisplayName(ClaimsPrincipal user) =>
+        user.Identity?.Name
+        ?? user.FindFirst("email")?.Value
+        ?? "Club member";
+
+    private static string GetInitials(ClaimsPrincipal user)
+    {
+        string displayName = GetDisplayName(user);
+        string[] nameParts = displayName.Split(
+            [' ', '@', '.', '-', '_'],
+            StringSplitOptions.RemoveEmptyEntries);
+
+        return nameParts.Length switch
+        {
+            0 => "SH",
+            1 => nameParts[0][..1].ToUpperInvariant(),
+            _ => string.Concat(nameParts[0][0], nameParts[^1][0]).ToUpperInvariant()
+        };
+    }
+}

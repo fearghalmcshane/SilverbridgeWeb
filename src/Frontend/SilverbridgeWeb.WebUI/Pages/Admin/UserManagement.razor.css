@@ -1,0 +1,28 @@
+.user-management-page {
+    padding-block: 2rem 3rem;
+}
+
+.role-card {
+    border-radius: 1rem;
+}
+
+.role-actions {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0 1.5rem 1.5rem;
+}
+
+@media (max-width: 600px) {
+    .user-management-page {
+        padding-block: 1.25rem 2rem;
+    }
+
+    .role-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    ::deep .role-actions .mud-button-root {
+        width: 100%;
+    }
+}

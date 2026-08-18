@@ -1,4 +1,4 @@
-﻿@page "/categories"
+@page "/categories"
 @using Microsoft.AspNetCore.Authorization
 @using SilverbridgeWeb.WebUI.Services.ApiClients
 @attribute [Authorize]
@@ -7,27 +7,25 @@
 
 <PageTitle>Categories - Silverbridge Harps GAC</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
-    <MudText Typo="Typo.h3" GutterBottom="true">
-        <MudIcon Icon="@Icons.Material.Filled.Category" Class="mr-2" />
-        Event Categories
-    </MudText>
-    <MudText Typo="Typo.body1" Class="mb-4">
-        Browse available event categories
-    </MudText>
+<MudContainer MaxWidth="MaxWidth.Large" Class="categories-page">
+    <PageHeader Eyebrow="Plan your visit"
+                Title="Event categories"
+                Description="Browse the types of events available at Silverbridge Harps." />
 
     @if (isLoading)
     {
-        <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" aria-label="Loading event categories" />
     }
 
     <AuthorizeView>
         <Authorized>
             @if (categories == null && !isLoading)
             {
-                <MudAlert Severity="Severity.Error" Class="mb-4">
-                    Failed to load categories. Please try again.
-                </MudAlert>
+                <StatePanel Title="Categories unavailable"
+                            Description="Failed to load categories. Please try again."
+                            Icon="@Icons.Material.Outlined.CloudOff"
+                            IconColor="Color.Error"
+                            Role="alert" />
             }
             else if (categories != null)
             {
@@ -35,9 +33,9 @@
                     @foreach (var category in categories.Where(c => !c.IsArchived))
                     {
                         <MudItem xs="12" sm="6" md="4">
-                            <MudCard Elevation="2" Class="pa-4">
+                            <MudCard Elevation="0" Class="category-card">
                                 <MudCardContent>
-                                    <MudText Typo="Typo.h6">
+                                    <MudText HtmlTag="h2" Typo="Typo.h6">
                                         <MudIcon Icon="@Icons.Material.Filled.Label" Size="Size.Small" Class="mr-2" />
                                         @category.Name
                                     </MudText>
@@ -58,14 +56,14 @@
                 @if (categories.Any(c => c.IsArchived))
                 {
                     <MudDivider Class="my-6" />
-                    <MudText Typo="Typo.h5" GutterBottom="true">Archived Categories</MudText>
+                    <SectionHeader Title="Archived categories" />
                     <MudGrid>
                         @foreach (var category in categories.Where(c => c.IsArchived))
                         {
                             <MudItem xs="12" sm="6" md="4">
-                                <MudCard Elevation="1" Class="pa-4">
+                                <MudCard Elevation="0" Class="category-card category-card--archived">
                                     <MudCardContent>
-                                        <MudText Typo="Typo.h6" Color="Color.Default">
+                                        <MudText HtmlTag="h3" Typo="Typo.h6" Color="Color.Default">
                                             <MudIcon Icon="@Icons.Material.Filled.Archive" Size="Size.Small" Class="mr-2" />
                                             @category.Name
                                         </MudText>
@@ -79,12 +77,13 @@
             }
         </Authorized>
         <NotAuthorized>
-            <MudAlert Severity="Severity.Warning" Class="mb-4">
-                <MudText>You must be logged in to view categories.</MudText>
-                <MudButton Href="/login" Variant="Variant.Filled" Color="Color.Primary" Class="mt-2">
-                    Login
-                </MudButton>
-            </MudAlert>
+            <StatePanel Title="Sign in required"
+                        Description="You must be logged in to view event categories."
+                        Icon="@Icons.Material.Outlined.Lock">
+                <Actions>
+                    <MudButton Href="/login" Variant="Variant.Filled" Color="Color.Primary">Log in</MudButton>
+                </Actions>
+            </StatePanel>
         </NotAuthorized>
     </AuthorizeView>
 </MudContainer>

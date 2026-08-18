@@ -25,4 +25,11 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Run tests
-        run: dotnet test --no-build --configuration Release --verbosity normal
+        run: dotnet test --no-build --configuration Release --verbosity normal --filter "FullyQualifiedName!~SilverbridgeWeb.WebUI.BrowserTests"
+
+      - name: Install Playwright browser
+        shell: pwsh
+        run: src/Frontend/test/SilverbridgeWeb.WebUI.BrowserTests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+
+      - name: Run browser tests
+        run: dotnet test src/Frontend/test/SilverbridgeWeb.WebUI.BrowserTests/SilverbridgeWeb.WebUI.BrowserTests.csproj --no-build --configuration Release --verbosity normal
