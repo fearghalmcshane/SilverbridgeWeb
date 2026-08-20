@@ -1,0 +1,58 @@
+.committee-page {
+    padding-block: 2rem 4rem;
+}
+
+.committee-list {
+    display: grid;
+    gap: .75rem;
+    margin-top: 2rem;
+}
+
+.committee-member {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+    padding: 1.1rem;
+    border: 1px solid var(--mud-palette-lines-default);
+    border-radius: .9rem;
+    background: var(--mud-palette-surface);
+}
+
+.committee-member__avatar {
+    flex: 0 0 3rem;
+    display: grid;
+    width: 3rem;
+    height: 3rem;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--mud-palette-primary);
+    color: var(--mud-palette-primary-text);
+    font-weight: 700;
+}
+
+.committee-member p {
+    margin: 0 0 .15rem;
+    color: var(--mud-palette-primary);
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.committee-member h2 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+@media (min-width: 600px) {
+    .committee-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1100px) {
+    .committee-list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

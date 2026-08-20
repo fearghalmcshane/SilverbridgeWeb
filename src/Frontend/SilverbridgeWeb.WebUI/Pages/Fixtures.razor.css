@@ -1,0 +1,133 @@
+.fixtures-page {
+    padding-block: 2rem 4rem;
+}
+
+.fixtures-tabs {
+    margin-top: 1.5rem;
+    overflow: hidden;
+    border: 1px solid var(--mud-palette-lines-default);
+    border-radius: 1rem;
+    background: var(--mud-palette-surface);
+}
+
+.fixture-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: .5rem 0 1.5rem;
+    padding: 1rem;
+    border-radius: .75rem;
+    background: var(--mud-palette-background-grey);
+}
+
+.fixture-filters__competition {
+    width: 100%;
+}
+
+.fixture-date {
+    margin: 1.75rem .25rem .75rem;
+    color: var(--mud-palette-text-secondary);
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.fixture-card {
+    margin-bottom: 1.25rem;
+    border: 1px solid var(--mud-palette-lines-default);
+    border-radius: .85rem;
+}
+
+.fixture-card__meta,
+.fixture-card__status,
+.fixture-card__details {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.fixture-card__meta {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.fixture-card__match {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: .5rem;
+}
+
+.fixture-card__team {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+}
+
+.fixture-card__avatar {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: .4rem;
+}
+
+.fixture-card__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.fixture-card__team-name {
+    font-weight: 600;
+    word-break: break-word;
+}
+
+.fixture-card__score {
+    min-width: 5.5rem;
+    text-align: center;
+}
+
+.fixture-card__scoreline {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.fixture-card__scoreline ::deep .mud-typography-h5 {
+    font-weight: 800;
+    line-height: 1;
+}
+
+.fixture-card__versus {
+    color: var(--mud-palette-text-secondary);
+    font-weight: 300;
+}
+
+.fixture-card__details {
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    color: var(--mud-palette-text-secondary);
+}
+
+@media (min-width: 700px) {
+    .fixture-filters {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .fixture-filters__competition {
+        width: 17rem;
+    }
+
+    .fixture-card__avatar {
+        width: 3.5rem;
+        height: 3.5rem;
+    }
+
+    .fixture-card__score {
+        min-width: 9rem;
+    }
+}

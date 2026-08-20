@@ -6,7 +6,21 @@
     <NotFound>
         <PageTitle>Not found</PageTitle>
         <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
+            <div class="page-container">
+                <PageHeader Title="Page not found"
+                            Eyebrow="404"
+                            Description="The page you requested may have moved or no longer exists." />
+                <StatePanel Icon="@Icons.Material.Outlined.ExploreOff"
+                            Title="We could not find that page"
+                            Description="Return to the homepage or use the main navigation to continue.">
+                    <Actions>
+                        <MudButton Href="/" Variant="Variant.Filled" Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.Home">
+                            Go to homepage
+                        </MudButton>
+                    </Actions>
+                </StatePanel>
+            </div>
         </LayoutView>
     </NotFound>
 </Router>

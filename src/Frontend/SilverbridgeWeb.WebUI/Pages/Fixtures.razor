@@ -1,18 +1,16 @@
 @page "/fixtures"
 @using SilverbridgeWeb.WebUI.Services.ApiClients
 @inject FoireannApiClient FoireannClient
-@inject NavigationManager Navigation
 @inject ISnackbar Snackbar
 
 <PageTitle>Fixtures & Results - Silverbridge Harps GAC</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    <MudText Typo="Typo.h3" GutterBottom="true">
-        <MudIcon Icon="@Icons.Material.Filled.SportsSoccer" Class="mr-2" />
-        Fixtures &amp; Results
-    </MudText>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="fixtures-page">
+    <PageHeader Eyebrow="Follow the teams"
+                Title="Fixtures &amp; results"
+                Description="Upcoming games and recent results across Silverbridge Harps teams." />
 
-    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" Class="mb-4"
+    <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" Class="fixtures-tabs"
              ActivePanelIndexChanged="OnTabChanged">
 
         <!-- ───────────── UPCOMING FIXTURES TAB ───────────── -->
@@ -20,7 +18,7 @@
             @RenderFilters()
             @if (fixturesLoading)
             {
-                <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+                <MudProgressLinear Indeterminate="true" Color="Color.Primary" aria-label="Loading upcoming fixtures" />
             }
             else
             {
@@ -34,7 +32,7 @@
             @RenderFilters()
             @if (resultsLoading)
             {
-                <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+                <MudProgressLinear Indeterminate="true" Color="Color.Primary" aria-label="Loading recent results" />
             }
             else
             {
@@ -177,7 +175,7 @@
     // ── Render fragments ───────────────────────────────────────────
     private RenderFragment RenderFilters() => __builder =>
     {
-        <div class="d-flex flex-wrap align-center gap-2 mb-3 mt-2 px-1">
+        <div class="fixture-filters">
             <MudChipSet T="string" SelectionMode="SelectionMode.SingleSelection" SelectedValue="@activityFilter"
                         SelectedValueChanged="OnActivityFilterChanged">
                 <MudChip T="string" Value="@((string?)null)" Default="true" Color="Color.Primary" Variant="Variant.Filled">All
@@ -187,11 +185,9 @@
                     Football</MudChip>
                 </MudChipSet>
 
-                <MudSpacer />
-
                 <MudSelect T="string" Label="Competition" Value="competitionId" ValueChanged="OnCompetitionChanged"
                            ToStringFunc="@(id => AvailableCompetitions.FirstOrDefault(c => c.Id == id)?.Name ?? id)" Clearable="true"
-                           Dense="true" Style="min-width:260px">
+                           Dense="true" Class="fixture-filters__competition">
                     @foreach (var comp in AvailableCompetitions)
                     {
                         <MudSelectItem T="string" Value="@comp.Id">@comp.Name</MudSelectItem>
@@ -206,7 +202,7 @@ __builder =>
     {
         if (data == null || data.Data.Count == 0)
         {
-            <MudAlert Severity="Severity.Info" Class="mb-4">@emptyMessage</MudAlert>
+            <StatePanel Title="Nothing scheduled" Description="@emptyMessage" Icon="@Icons.Material.Outlined.EventBusy" />
         }
         else
         {
@@ -223,18 +219,15 @@ __builder =>
                     ? "Date TBC"
                     : group.Key.ToString("dddd, d MMMM yyyy");
 
-                <MudText Typo="Typo.subtitle1" Class="mt-4 mb-2 px-1 mud-text-secondary text-uppercase"
-                         Style="font-size:0.78rem;letter-spacing:0.08em;font-weight:600">
-                    @dateLabel
-                </MudText>
+                <h2 class="fixture-date">@dateLabel</h2>
 
                 @foreach (var fixture in group)
                 {
-                    <MudCard Elevation="1" Class="mb-3">
-                        <MudCardContent Class="pa-3">
+                    <MudCard Elevation="0" Class="fixture-card">
+                        <MudCardContent>
 
                             @* ── Competition / meta row ── *@
-                            <div class="d-flex align-center justify-space-between mb-2 flex-wrap gap-1">
+                            <div class="fixture-card__meta">
                                 <MudText Typo="Typo.caption" Class="mud-text-secondary">
                                     @(fixture.Competition?.Name ?? fixture.Division?.Name)
                                     @if (!string.IsNullOrEmpty(fixture.Round))
@@ -242,7 +235,7 @@ __builder =>
                                         <span> · @fixture.Round</span>
                                     }
                                 </MudText>
-                                <div class="d-flex align-center gap-1">
+                                <div class="fixture-card__status">
                                     @if (fixture.IsPostponed == true)
                                     {
                                         <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Filled">Postponed</MudChip>
@@ -265,64 +258,62 @@ __builder =>
                             </div>
 
                             @* ── Match row ── *@
-                            <div class="d-flex align-center justify-space-between gap-2">
+                            <div class="fixture-card__match">
 
                                 @* Home team *@
-                                <div class="d-flex flex-column align-center" style="flex:1;min-width:0">
-                                    <MudAvatar Style="width:52px;height:52px;margin-bottom:6px" Color="Color.Primary"
+                                <div class="fixture-card__team">
+                                    <MudAvatar Class="fixture-card__avatar" Color="Color.Primary"
                                                Variant="@(string.IsNullOrEmpty(fixture.HomeTeam?.Logo) ? Variant.Filled : Variant.Text)">
                                         @if (!string.IsNullOrEmpty(fixture.HomeTeam?.Logo))
                                         {
-                                            <img src="@fixture.HomeTeam.Logo" alt="@(fixture.HomeTeam?.Name ?? fixture.HomeTeamFallbackName)"
-                                                 style="width:100%;height:100%;object-fit:contain" />
+                                            <img src="@fixture.HomeTeam.Logo" alt="@($"{fixture.HomeTeam?.Name ?? fixture.HomeTeamFallbackName} crest")" />
                                         }
                                         else
                                         {
                                             @GetInitials(fixture.HomeTeam?.Name ?? fixture.HomeTeamFallbackName)
                                         }
                                     </MudAvatar>
-                                    <MudText Typo="Typo.body2" Align="Align.Center" Style="font-weight:600;word-break:break-word">
+                                    <MudText Typo="Typo.body2" Align="Align.Center" Class="fixture-card__team-name">
                                         @(fixture.HomeTeam?.Name ?? fixture.HomeTeamFallbackName ?? "TBC")
                                     </MudText>
                                 </div>
 
                                 @* Score / versus *@
-                                <div class="d-flex flex-column align-center" style="min-width:140px">
+                                <div class="fixture-card__score">
                                     @if (fixture.IsResult)
                                     {
-                                        <div class="d-flex align-center gap-2">
-                                            <MudText Typo="Typo.h5" Style="font-weight:700;line-height:1">
+                                        <div class="fixture-card__scoreline">
+                                            <MudText Typo="Typo.h5">
                                                 @FormatScore(fixture.HomeTeam)
                                             </MudText>
                                             <MudText Typo="Typo.caption" Class="mud-text-secondary px-1">FT</MudText>
-                                            <MudText Typo="Typo.h5" Style="font-weight:700;line-height:1">
+                                            <MudText Typo="Typo.h5">
                                                 @FormatScore(fixture.AwayTeam)
                                             </MudText>
                                         </div>
                                     }
                                     else
                                     {
-                                        <MudText Typo="Typo.h5" Style="font-weight:300;color:var(--mud-palette-text-secondary)">
+                                        <MudText Typo="Typo.h5" Class="fixture-card__versus">
                                             vs
                                         </MudText>
                                     }
                                 </div>
 
                                 @* Away team *@
-                                <div class="d-flex flex-column align-center" style="flex:1;min-width:0">
-                                    <MudAvatar Style="width:52px;height:52px;margin-bottom:6px" Color="Color.Secondary"
+                                <div class="fixture-card__team">
+                                    <MudAvatar Class="fixture-card__avatar" Color="Color.Secondary"
                                                Variant="@(string.IsNullOrEmpty(fixture.AwayTeam?.Logo) ? Variant.Filled : Variant.Text)">
                                         @if (!string.IsNullOrEmpty(fixture.AwayTeam?.Logo))
                                         {
-                                            <img src="@fixture.AwayTeam.Logo" alt="@(fixture.AwayTeam?.Name ?? fixture.AwayTeamFallbackName)"
-                                                 style="width:100%;height:100%;object-fit:contain" />
+                                            <img src="@fixture.AwayTeam.Logo" alt="@($"{fixture.AwayTeam?.Name ?? fixture.AwayTeamFallbackName} crest")" />
                                         }
                                         else
                                         {
                                             @GetInitials(fixture.AwayTeam?.Name ?? fixture.AwayTeamFallbackName)
                                         }
                                     </MudAvatar>
-                                    <MudText Typo="Typo.body2" Align="Align.Center" Style="font-weight:600;word-break:break-word">
+                                    <MudText Typo="Typo.body2" Align="Align.Center" Class="fixture-card__team-name">
                                         @(fixture.AwayTeam?.Name ?? fixture.AwayTeamFallbackName ?? "TBC")
                                     </MudText>
                                 </div>
@@ -332,7 +323,7 @@ __builder =>
                             @* ── Venue / referee row ── *@
                             @if (!string.IsNullOrEmpty(fixture.Place?.Name) || !string.IsNullOrEmpty(fixture.RefereeName))
                             {
-                                <div class="d-flex align-center gap-2 mt-2 mud-text-secondary">
+                                <div class="fixture-card__details">
                                     @if (!string.IsNullOrEmpty(fixture.Place?.Name))
                                     {
                                         <MudIcon Icon="@Icons.Material.Outlined.Place" Size="Size.Small" />

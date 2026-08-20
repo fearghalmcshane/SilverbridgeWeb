@@ -10,27 +10,33 @@
 
 <PageTitle>News Categories - Silverbridge Harps GAC</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
-    @if (_isLoading)
-    {
-        <MudProgressLinear Indeterminate="true" Class="mb-4" />
-    }
-    else if (!_canManageNews)
-    {
-        <MudAlert Severity="Severity.Error">You do not have permission to manage news categories.</MudAlert>
-    }
-    else
-    {
-        <MudStack Row="true" Wrap="Wrap.Wrap" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
-            <MudText Typo="Typo.h4">
-                <MudIcon Icon="@Icons.Material.Filled.Category" Class="mr-2" />
-                News Categories
-            </MudText>
+<MudContainer MaxWidth="MaxWidth.Large" Class="category-page">
+    <PageHeader Title="News Categories"
+                Eyebrow="Communications"
+                Description="Organise articles into clear, reusable categories.">
+        <Actions>
             <MudButton Href="/admin/news" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBack">
                 Back to news
             </MudButton>
-        </MudStack>
+        </Actions>
+    </PageHeader>
 
+    @if (_isLoading)
+    {
+        <StatePanel Title="Loading categories"
+                    Description="Preparing your news categories."
+                    Icon="@Icons.Material.Outlined.Category" />
+    }
+    else if (!_canManageNews)
+    {
+        <StatePanel Title="Access unavailable"
+                    Description="You do not have permission to manage news categories."
+                    Icon="@Icons.Material.Outlined.Lock"
+                    IconColor="Color.Error"
+                    Role="alert" />
+    }
+    else
+    {
         @if (_errorMessage is not null)
         {
             <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert>
@@ -38,14 +44,9 @@
 
         <MudGrid>
             <MudItem xs="12" md="4">
-                <MudCard Elevation="2">
-                    <MudCardHeader>
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.h6">Create Category</MudText>
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">Add a new article category.</MudText>
-                        </CardHeaderContent>
-                    </MudCardHeader>
+                <MudCard Outlined="true" Elevation="0" Class="category-card">
                     <MudCardContent>
+                        <SectionHeader Title="Create Category" Description="Add a new article category." />
                         <EditForm Model="_model" OnValidSubmit="CreateCategoryAsync">
                             <DataAnnotationsValidator />
                             <MudTextField @bind-Value="_model.Name"
@@ -56,7 +57,7 @@
                                        Color="Color.Primary"
                                        ButtonType="ButtonType.Submit"
                                        Disabled="@_isSaving"
-                                       Class="mt-4">
+                                       Class="category-submit">
                                 Create Category
                             </MudButton>
                         </EditForm>
@@ -65,7 +66,8 @@
             </MudItem>
 
             <MudItem xs="12" md="8">
-                <MudTable T="NewsCategoryResponse" Items="_categories" Dense="true" Hover="true">
+                <MudPaper Outlined="true" Elevation="0" Class="category-card category-table-card">
+                <MudTable T="NewsCategoryResponse" Items="_categories" Hover="true" Breakpoint="Breakpoint.Sm">
                     <HeaderContent>
                         <MudTh>Name</MudTh>
                         <MudTh>Status</MudTh>
@@ -79,9 +81,12 @@
                         </MudTd>
                     </RowTemplate>
                     <NoRecordsContent>
-                        <MudText>No categories have been created yet.</MudText>
+                        <StatePanel Title="No categories yet"
+                                    Description="Create a category to organise your first article."
+                                    Icon="@Icons.Material.Outlined.Category" />
                     </NoRecordsContent>
                 </MudTable>
+                </MudPaper>
             </MudItem>
         </MudGrid>
     }

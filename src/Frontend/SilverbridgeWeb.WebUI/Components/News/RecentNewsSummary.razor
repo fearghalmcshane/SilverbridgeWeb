@@ -1,62 +1,71 @@
 @using SilverbridgeWeb.WebUI.Services.ApiClients
 @inject NewsApiClient NewsApiClient
 
-<MudStack Spacing="3">
-    <div class="d-flex justify-space-between align-center">
-        <MudText Typo="Typo.h4">
-            <MudIcon Icon="@Icons.Material.Filled.Article" Class="mr-2" />
-            Club News
-        </MudText>
-        <MudButton Href="/news" Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward">
-            View all news
-        </MudButton>
-    </div>
+<div class="recent-news">
+    <SectionHeader Title="Latest from the club" Description="News, announcements and match-day stories from Silverbridge.">
+        <Actions>
+            <MudButton Href="/news" Variant="Variant.Text" Color="Color.Primary"
+                       EndIcon="@Icons.Material.Filled.ArrowForward">
+                All news
+            </MudButton>
+        </Actions>
+    </SectionHeader>
 
     @if (_isLoading)
     {
-        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" aria-label="Loading latest news" />
     }
     else if (_errorMessage is not null)
     {
-        <MudAlert Severity="Severity.Error">@_errorMessage</MudAlert>
+        <StatePanel Title="News is unavailable"
+                    Description="@_errorMessage"
+                    Icon="@Icons.Material.Outlined.CloudOff"
+                    IconColor="Color.Error"
+                    Role="alert" />
     }
     else if (_articles.Count == 0)
     {
-        <MudAlert Severity="Severity.Info">No news articles have been published yet.</MudAlert>
+        <StatePanel Title="No news yet"
+                    Description="Published club updates will appear here."
+                    Icon="@Icons.Material.Outlined.Article" />
     }
     else
     {
-        <MudGrid>
+        <div class="recent-news__grid">
             @foreach (NewsArticleSummaryResponse article in _articles)
             {
-                <MudItem xs="12" md="4">
-                    <MudCard Elevation="2" Class="fill-height">
+                <article class="news-card">
+                    <MudCard Elevation="0" Class="news-card__surface">
+                        <div class="news-card__media">
+                            <div class="news-card__placeholder" aria-hidden="true">
+                                <MudIcon Icon="@Icons.Material.Outlined.Newspaper" />
+                            </div>
                         @if (!string.IsNullOrWhiteSpace(article.FeaturedImageUrl))
                         {
-                            <MudCardMedia Image="@article.FeaturedImageUrl" Height="160" />
+                            <img src="@article.FeaturedImageUrl" alt="" loading="lazy"
+                                 onerror="this.hidden=true" />
                         }
+                        </div>
                         <MudCardContent>
-                            <MudStack Spacing="2">
-                                <div class="d-flex justify-space-between align-start gap-2">
-                                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
-                                        @article.CategoryName
-                                    </MudChip>
-                                    @if (article.PublishedAtUtc.HasValue)
-                                    {
-                                        <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                            @article.PublishedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy")
-                                        </MudText>
-                                    }
-                                </div>
-                                <MudText Typo="Typo.h6">@article.Title</MudText>
-                                @if (article.ArticleType == NewsArticleType.MatchReport)
+                            <div class="news-card__meta">
+                                <span>@article.CategoryName</span>
+                                @if (article.PublishedAtUtc.HasValue)
                                 {
-                                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
-                                        @article.HomeTeam @FormatScore(article.HomeGoals, article.HomePoints) - @FormatScore(article.AwayGoals, article.AwayPoints) @article.AwayTeam
-                                    </MudText>
+                                    <time datetime="@article.PublishedAtUtc.Value.ToString("O")">
+                                        @article.PublishedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy")
+                                    </time>
                                 }
-                                <MudText Typo="Typo.body2" Color="Color.Secondary">@article.Summary</MudText>
-                            </MudStack>
+                            </div>
+                            <h3>@article.Title</h3>
+                            @if (article.ArticleType == NewsArticleType.MatchReport)
+                            {
+                                <p class="news-card__score">
+                                    @article.HomeTeam @FormatScore(article.HomeGoals, article.HomePoints)
+                                    <span aria-hidden="true">—</span>
+                                    @FormatScore(article.AwayGoals, article.AwayPoints) @article.AwayTeam
+                                </p>
+                            }
+                            <p class="news-card__summary">@article.Summary</p>
                         </MudCardContent>
                         <MudCardActions>
                             <MudButton Href="@($"/news/{article.Slug}")"
@@ -67,11 +76,11 @@
                             </MudButton>
                         </MudCardActions>
                     </MudCard>
-                </MudItem>
+                </article>
             }
-        </MudGrid>
+        </div>
     }
-</MudStack>
+</div>
 
 @code {
     [Parameter]

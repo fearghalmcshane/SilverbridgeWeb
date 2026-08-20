@@ -1,0 +1,30 @@
+<header class="section-header" aria-labelledby="@_titleId">
+    <div class="section-header__content">
+        <h2 id="@_titleId">@Title</h2>
+
+        @if (!string.IsNullOrWhiteSpace(Description))
+        {
+            <p>@Description</p>
+        }
+    </div>
+
+    @if (Actions is not null)
+    {
+        <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2" Class="section-header__actions">
+            @Actions
+        </MudStack>
+    }
+</header>
+
+@code {
+    private readonly string _titleId = $"section-title-{Guid.NewGuid():N}";
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Description { get; set; }
+
+    [Parameter]
+    public RenderFragment? Actions { get; set; }
+}

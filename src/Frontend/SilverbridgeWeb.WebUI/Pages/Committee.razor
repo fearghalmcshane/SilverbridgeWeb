@@ -1,86 +1,50 @@
-﻿@page "/committee"
+@page "/committee"
 
 <PageTitle>Committee</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large">
-    <MudGrid>
-        <MudItem xs="12">
-            <MudText Typo="Typo.h3" Class="px-4">Committee</MudText>
-        </MudItem>
-        <MudItem xs="12" class="mt-4">
-            <MudText Typo="Typo.body1" Class="px-4">
-                Meet the dedicated members of the Silverbridge Harps committee. Our committee members work tirelessly to ensure the smooth operation and success of our club.
-            </MudText>
-        </MudItem>
-        <MudItem xs="12" class="mt-4 mb-12">
-            <MudSimpleTable Hover=true>
-                <thead>
-                    <th>Position</th>
-                    <th>Member</th>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Chairperson</td>
-                        <td>Thomas McKeown</td>
-                    </tr>
-                    <tr>
-                        <td>Vice Chairperson</td>
-                        <td>Damien Finnegan</td>
-                    </tr>
-                    <tr>
-                        <td>Secretary</td>
-                        <td>Roby McMahon</td>
-                    </tr>
-                    <tr>
-                        <td>Assistant Secretary</td>
-                        <td>Aidan Murphy</td>
-                    </tr>
-                    <tr>
-                        <td>Assistant Secretary</td>
-                        <td>Jarlath Burns</td>
-                    </tr>
-                    <tr>
-                        <td>Treasurer</td>
-                        <td>Fearghal McShane</td>
-                    </tr>
-                    <tr>
-                        <td>Assistant Treasurer</td>
-                        <td>Tony McKenna</td>
-                    </tr>
-                    <tr>
-                        <td>PRO</td>
-                        <td>Catherine O'Hare</td>
-                    </tr>
-                    <tr>
-                        <td>Assistant PRO</td>
-                        <td>Caoimhe Shevlin</td>
-                    </tr>
-                    <tr>
-                        <td>Registrar</td>
-                        <td>Edwina Murphy</td>
-                    </tr>
-                    <tr>
-                        <td>Children's Officer</td>
-                        <td>Rosie Burns</td>
-                    </tr>
-                    <tr>
-                        <td>Coaching Officer</td>
-                        <td>Michael Lavelle</td>
-                    </tr>
-                    <tr>
-                        <td>Irish Language and Culture Officer</td>
-                        <td>Lorcan Burns</td>
-                    </tr>
-                    <tr>
-                        <td>Grants Officer</td>
-                        <td>David Murphy</td>
-                    </tr>
-                </tbody>
-            </MudSimpleTable>
-        </MudItem>
-    </MudGrid>
+<MudContainer MaxWidth="MaxWidth.Large" Class="committee-page">
+    <PageHeader Eyebrow="Club leadership"
+                Title="Committee"
+                Description="Meet the volunteers working together to guide and support Silverbridge Harps." />
+
+    <section class="committee-list" aria-label="Committee members">
+        @foreach (CommitteeMember member in Members)
+        {
+            <article class="committee-member">
+                <div class="committee-member__avatar" aria-hidden="true">@GetInitials(member.Name)</div>
+                <div>
+                    <p>@member.Position</p>
+                    <h2>@member.Name</h2>
+                </div>
+            </article>
+        }
+    </section>
 </MudContainer>
 
 @code {
+    private static readonly CommitteeMember[] Members =
+    [
+        new("Chairperson", "Thomas McKeown"),
+        new("Vice Chairperson", "Damien Finnegan"),
+        new("Secretary", "Roby McMahon"),
+        new("Assistant Secretary", "Aidan Murphy"),
+        new("Assistant Secretary", "Jarlath Burns"),
+        new("Treasurer", "Fearghal McShane"),
+        new("Assistant Treasurer", "Tony McKenna"),
+        new("PRO", "Catherine O'Hare"),
+        new("Assistant PRO", "Caoimhe Shevlin"),
+        new("Registrar", "Edwina Murphy"),
+        new("Children's Officer", "Rosie Burns"),
+        new("Coaching Officer", "Michael Lavelle"),
+        new("Irish Language and Culture Officer", "Lorcan Burns"),
+        new("Grants Officer", "David Murphy")
+    ];
 
+    private static string GetInitials(string name)
+    {
+        string[] names = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return $"{names[0][0]}{names[^1][0]}";
+    }
+
+    private sealed record CommitteeMember(string Position, string Name);
 }

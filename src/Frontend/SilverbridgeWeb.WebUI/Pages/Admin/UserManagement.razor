@@ -7,27 +7,31 @@
 
 <PageTitle>User Management</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+<MudContainer MaxWidth="MaxWidth.Medium" Class="user-management-page">
+    <PageHeader Title="User Management"
+                Eyebrow="Administration"
+                Description="Assign and remove club access roles using a member's unique user ID." />
+
     @if (_loading)
     {
-        <MudProgressLinear Indeterminate="true" Class="mb-4" />
+        <StatePanel Title="Loading user management"
+                    Description="Checking your administrator access."
+                    Icon="@Icons.Material.Outlined.ManageAccounts" />
     }
     else if (!_isAdmin)
     {
-        <MudAlert Severity="Severity.Error">You do not have permission to access this page.</MudAlert>
+        <StatePanel Title="Access unavailable"
+                    Description="You do not have permission to access this page."
+                    Icon="@Icons.Material.Outlined.Lock"
+                    IconColor="Color.Error"
+                    Role="alert" />
     }
     else
     {
-        <MudText Typo="Typo.h5" GutterBottom="true">User Management</MudText>
-
-        <MudCard Elevation="2">
-            <MudCardHeader>
-                <CardHeaderContent>
-                    <MudText Typo="Typo.h6">Role Assignment</MudText>
-                    <MudText Typo="Typo.body2" Color="Color.Secondary">Assign or remove roles for a user by their ID.</MudText>
-                </CardHeaderContent>
-            </MudCardHeader>
+        <MudCard Outlined="true" Elevation="0" Class="role-card">
             <MudCardContent>
+                <SectionHeader Title="Role Assignment"
+                               Description="Select a role and apply it to the specified user." />
                 @if (_actionMessage is not null)
                 {
                     <MudAlert Severity="@_actionSeverity" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="@(() => _actionMessage = null)">@_actionMessage</MudAlert>
@@ -44,7 +48,7 @@
                     <MudSelectItem Value="@(AppRoles.Member)">Member</MudSelectItem>
                 </MudSelect>
             </MudCardContent>
-            <MudCardActions>
+            <MudCardActions Class="role-actions">
                 <MudButton Variant="Variant.Filled"
                            Color="Color.Primary"
                            OnClick="AssignRoleAsync"
@@ -53,9 +57,9 @@
                 </MudButton>
                 <MudButton Variant="Variant.Outlined"
                            Color="Color.Error"
-                           OnClick="RemoveRoleAsync"
+                OnClick="@(() => _showRemoveConfirmation = true)"
                            Disabled="@_actionLoading"
-                           Class="ml-2">
+                StartIcon="@Icons.Material.Filled.PersonRemove">
                     Remove Role
                 </MudButton>
             </MudCardActions>
@@ -63,10 +67,28 @@
     }
 </MudContainer>
 
+<MudDialog @bind-Visible="_showRemoveConfirmation">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Remove user role?</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText>
+            Remove the <strong>@_selectedRole</strong> role from this user? Their access may change immediately.
+        </MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _showRemoveConfirmation = false)">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="ConfirmRemoveRoleAsync">
+            Remove Role
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
 @code {
     private bool _loading = true;
     private bool _isAdmin;
     private bool _actionLoading;
+    private bool _showRemoveConfirmation;
     private string? _actionMessage;
     private Severity _actionSeverity = Severity.Info;
     private string _userIdInput = string.Empty;
@@ -143,5 +165,11 @@
         {
             _actionLoading = false;
         }
+    }
+
+    private async Task ConfirmRemoveRoleAsync()
+    {
+        _showRemoveConfirmation = false;
+        await RemoveRoleAsync();
     }
 }

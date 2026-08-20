@@ -6,13 +6,12 @@
 
 <PageTitle>Competitions - Silverbridge Harps GAC</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    <MudText Typo="Typo.h3" GutterBottom="true">
-        <MudIcon Icon="@Icons.Material.Filled.EmojiEvents" Class="mr-2" />
-        Competitions
-    </MudText>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="competitions-page">
+    <PageHeader Eyebrow="Club competitions"
+                Title="Competitions"
+                Description="Find competitions by activity, grade or season, then explore their fixtures." />
 
-    <MudGrid Class="mb-4">
+    <MudGrid Class="competition-filters">
         <MudItem xs="12" sm="6" md="3">
             <MudTextField T="string" Label="Activity" @bind-Value="activity" Clearable="true"
                           Placeholder="e.g. Football, Hurling" Immediate="false"
@@ -38,14 +37,14 @@
 
     @if (isLoading)
     {
-        <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" aria-label="Loading competitions" />
     }
 
     @if (competitions == null && !isLoading)
     {
-        <MudAlert Severity="Severity.Info" Class="mb-4">
-            No competitions found. Try adjusting your filters.
-        </MudAlert>
+        <StatePanel Title="No competitions found"
+                    Description="Try adjusting your activity, grade or season filters."
+                    Icon="@Icons.Material.Outlined.EmojiEvents" />
     }
     else if (competitions != null)
     {
@@ -53,9 +52,9 @@
             @foreach (var competition in competitions.Data)
             {
                 <MudItem xs="12" sm="6" md="4">
-                    <MudCard Elevation="2" Class="pa-4">
+                    <MudCard Elevation="0" Class="competition-card">
                         <MudCardContent>
-                            <MudText Typo="Typo.h6">@competition.Name</MudText>
+                            <MudText HtmlTag="h2" Typo="Typo.h6">@competition.Name</MudText>
                             @if (!string.IsNullOrEmpty(competition.Sponsor))
                             {
                                 <MudText Typo="Typo.body2" Color="Color.Secondary">

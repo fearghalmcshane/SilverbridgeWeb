@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Silverbridge WebUI test shell</title>
+    <style>
+        * { box-sizing: border-box; }
+        html, body { margin: 0; max-width: 100%; overflow-x: clip; }
+        body { font-family: sans-serif; }
+        .skip-link { position: absolute; left: 1rem; top: -4rem; }
+        .skip-link:focus { top: 1rem; }
+        .shell { display: grid; grid-template-columns: minmax(0, 16rem) minmax(0, 1fr); min-height: 100vh; }
+        header, nav, main, footer { padding: 1rem; }
+        header, footer { grid-column: 1 / -1; }
+        @media (max-width: 600px) {
+            .shell { grid-template-columns: minmax(0, 1fr); }
+            header, footer { grid-column: auto; }
+        }
+    </style>
+    <script src="/themeBootstrap.js"></script>
+    <script type="module">
+        import { initialize, setPreference } from "/themePreference.js";
+
+        await initialize({ invokeMethodAsync: () => Promise.resolve() });
+        document.querySelector("#use-light").addEventListener("click", () => setPreference("Light"));
+        document.querySelector("#use-dark").addEventListener("click", () => setPreference("Dark"));
+    </script>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <div class="shell">
+        <header role="banner"><strong>Silverbridge Harps</strong></header>
+        <nav aria-label="Primary navigation"><a href="/">Home</a></nav>
+        <main id="main-content" tabindex="-1">
+            <h1>Club dashboard</h1>
+            <button id="use-light" type="button">Light mode</button>
+            <button id="use-dark" type="button">Dark mode</button>
+        </main>
+        <footer>Community, sport and belonging.</footer>
+    </div>
+</body>
+</html>

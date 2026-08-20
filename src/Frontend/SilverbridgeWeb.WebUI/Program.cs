@@ -7,6 +7,7 @@ using MudBlazor.Services;
 using SilverbridgeWeb.WebUI;
 using SilverbridgeWeb.WebUI.Authentication;
 using SilverbridgeWeb.WebUI.Services.ApiClients;
+using SilverbridgeWeb.WebUI.Services.Theme;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
+builder.Services.AddScoped<ThemePreferenceService>();
 
 builder.Services.AddHttpContextAccessor()
     .AddTransient<AuthorizationHandler>();
@@ -77,7 +79,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
             options.RequireHttpsMetadata = false;
         }
     })
-    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+    {
+        options.LoginPath = "/authentication/login";
+    });
 
 builder.Services.AddAuthorizationBuilder();
 builder.Services.AddCascadingAuthenticationState();

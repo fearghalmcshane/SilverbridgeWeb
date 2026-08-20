@@ -88,6 +88,10 @@
   <Folder Name="/src/Frontend/">
     <Project Path="src/Frontend/SilverbridgeWeb.WebUI/SilverbridgeWeb.WebUI.csproj" />
   </Folder>
+  <Folder Name="/src/Frontend/test/">
+    <Project Path="src/Frontend/test/SilverbridgeWeb.WebUI.BrowserTests/SilverbridgeWeb.WebUI.BrowserTests.csproj" />
+    <Project Path="src/Frontend/test/SilverbridgeWeb.WebUI.ComponentTests/SilverbridgeWeb.WebUI.ComponentTests.csproj" />
+  </Folder>
   <Folder Name="/test/">
     <Project Path="test/SilverbridgeWeb.ArchitectureTests/SilverbridgeWeb.ArchitectureTests.csproj" Id="43b39863-d547-4b20-9538-4c9984dd83f4" />
   </Folder>

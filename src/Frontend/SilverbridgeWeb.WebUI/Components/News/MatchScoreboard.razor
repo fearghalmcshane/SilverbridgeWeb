@@ -1,36 +1,40 @@
 @* Displays a GAA-style scoreline (goals-points) for a match report article. *@
 
-<MudPaper Elevation="0" Class="pa-4" Style="background-color: var(--mud-palette-background-grey);">
-    <MudGrid Justify="Justify.Center">
-        <MudItem xs="5" Class="text-center">
-            <MudText Typo="Typo.h6">@HomeTeam</MudText>
-        </MudItem>
-        <MudItem xs="2" Class="text-center">
-            <MudText Typo="Typo.h4">@FormatScore(HomeGoals, HomePoints) - @FormatScore(AwayGoals, AwayPoints)</MudText>
-        </MudItem>
-        <MudItem xs="5" Class="text-center">
-            <MudText Typo="Typo.h6">@AwayTeam</MudText>
-        </MudItem>
-    </MudGrid>
+<section class="scoreboard" aria-label="@($"{HomeTeam} versus {AwayTeam} match score")">
+    <div class="scoreboard__match">
+        <div class="scoreboard__team">
+            <span class="scoreboard__label">Home</span>
+            <strong>@HomeTeam</strong>
+        </div>
+        <div class="scoreboard__score" aria-label="@($"{HomeTeam} {FormatScore(HomeGoals, HomePoints)}, {AwayTeam} {FormatScore(AwayGoals, AwayPoints)}")">
+            <span>@FormatScore(HomeGoals, HomePoints)</span>
+            <small aria-hidden="true">FT</small>
+            <span>@FormatScore(AwayGoals, AwayPoints)</span>
+        </div>
+        <div class="scoreboard__team scoreboard__team--away">
+            <span class="scoreboard__label">Away</span>
+            <strong>@AwayTeam</strong>
+        </div>
+    </div>
 
     @if (!string.IsNullOrWhiteSpace(Competition) || !string.IsNullOrWhiteSpace(Venue) || MatchDateUtc.HasValue)
     {
-        <MudStack Row="true" Wrap="Wrap.Wrap" Justify="Justify.Center" Spacing="2" Class="mt-3">
+        <div class="scoreboard__meta">
             @if (!string.IsNullOrWhiteSpace(Competition))
             {
-                <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.EmojiEvents">@Competition</MudChip>
+                <span><MudIcon Icon="@Icons.Material.Outlined.EmojiEvents" Size="Size.Small" aria-hidden="true" />@Competition</span>
             }
             @if (MatchDateUtc.HasValue)
             {
-                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.CalendarMonth">@MatchDateUtc.Value.ToLocalTime().ToString("dd MMM yyyy")</MudChip>
+                <span><MudIcon Icon="@Icons.Material.Outlined.CalendarMonth" Size="Size.Small" aria-hidden="true" />@MatchDateUtc.Value.ToLocalTime().ToString("dd MMM yyyy")</span>
             }
             @if (!string.IsNullOrWhiteSpace(Venue))
             {
-                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Place">@Venue</MudChip>
+                <span><MudIcon Icon="@Icons.Material.Outlined.Place" Size="Size.Small" aria-hidden="true" />@Venue</span>
             }
-        </MudStack>
+        </div>
     }
-</MudPaper>
+</section>
 
 @code {
     [Parameter, EditorRequired]

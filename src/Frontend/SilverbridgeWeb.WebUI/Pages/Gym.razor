@@ -1,20 +1,24 @@
-﻿@page "/gym"
+@page "/gym"
 
 <PageTitle>Gym</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Medium">
-    <MudGrid>
-        <MudItem xs="12">
-            <MudText Typo="Typo.h3" Class="px-4">Gym</MudText>
-        </MudItem>
-        <MudItem xs="12">
-            <MudElement>
-                <iframe style="width: 100%; height: 80vh;" src="https://app.glofox.com/portal/#/branch/674f0d1768c6bdb869034ac6/classes-week-view" frameborder="0"></iframe>
-            </MudElement>
-        </MudItem>
-    </MudGrid>
+<MudContainer MaxWidth="MaxWidth.Large" Class="gym-page">
+    <PageHeader Eyebrow="Train at Silverbridge"
+                Title="Gym"
+                Description="Browse the current class timetable and book your next session." />
+
+    <section class="gym-booking" aria-label="Gym class booking">
+        <iframe src="https://app.glofox.com/portal/#/branch/674f0d1768c6bdb869034ac6/classes-week-view"
+                title="Silverbridge Harps gym class timetable and booking"
+                loading="lazy">
+        </iframe>
+        <p>
+            If the booking portal does not load,
+            <a href="https://app.glofox.com/portal/#/branch/674f0d1768c6bdb869034ac6/classes-week-view"
+               target="_blank" rel="noopener noreferrer">
+                open the gym timetable in a new tab
+                <span class="visually-hidden">(opens in a new tab)</span>
+            </a>.
+        </p>
+    </section>
 </MudContainer>
-
-@code {
-
-}

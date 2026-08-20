@@ -1,0 +1,36 @@
+.article-editor-page {
+    padding-block: 2rem 3rem;
+}
+
+.article-card {
+    border-radius: 1rem;
+    margin-block-end: 1rem;
+}
+
+.article-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0 1.5rem 1.5rem;
+}
+
+.file-upload-label {
+    display: block;
+    font-size: var(--mud-typography-body2-size);
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .article-editor-page {
+        padding-block: 1.25rem 2rem;
+    }
+
+    .article-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    ::deep .article-actions .mud-button-root {
+        width: 100%;
+    }
+}

@@ -1,0 +1,18 @@
+.categories-page {
+    padding-block: 2rem 4rem;
+}
+
+.category-card {
+    height: 100%;
+    border: 1px solid var(--mud-palette-lines-default);
+    border-radius: 1rem;
+}
+
+.category-card--archived {
+    background: var(--mud-palette-background-grey);
+    opacity: .82;
+}
+
+.category-card ::deep .mud-card-content {
+    padding: 1.5rem;
+}

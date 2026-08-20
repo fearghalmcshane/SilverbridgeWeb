@@ -4,18 +4,26 @@
 
 <PageTitle>My Profile</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+<MudContainer MaxWidth="MaxWidth.Medium" Class="profile-page">
+    <PageHeader Eyebrow="Your account"
+                Title="My profile"
+                Description="Your Silverbridge Harps account details." />
+
     @if (_loading)
     {
-        <MudProgressLinear Indeterminate="true" Class="mb-4" />
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" aria-label="Loading profile" />
     }
     else if (_error is not null)
     {
-        <MudAlert Severity="Severity.Error" Class="mb-4">@_error</MudAlert>
+        <StatePanel Title="Profile unavailable"
+                    Description="@_error"
+                    Icon="@Icons.Material.Outlined.PersonOff"
+                    IconColor="Color.Error"
+                    Role="alert" />
     }
     else if (_profile is not null)
     {
-        <MudCard Elevation="2">
+        <MudCard Elevation="0" Class="profile-card">
             <MudCardHeader>
                 <CardHeaderAvatar>
                     <MudAvatar Color="Color.Primary" Size="Size.Large">
@@ -23,7 +31,7 @@
                     </MudAvatar>
                 </CardHeaderAvatar>
                 <CardHeaderContent>
-                    <MudText Typo="Typo.h6">@_profile.FirstName @_profile.LastName</MudText>
+                    <MudText HtmlTag="h2" Typo="Typo.h6">@_profile.FirstName @_profile.LastName</MudText>
                     <MudText Typo="Typo.body2" Color="Color.Secondary">@_profile.Email</MudText>
                 </CardHeaderContent>
             </MudCardHeader>
