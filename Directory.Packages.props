@@ -36,7 +36,7 @@
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.9.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.9.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
-    <PackageVersion Include="Microsoft.OpenApi" Version="2.10.0" />
+    <PackageVersion Include="Microsoft.OpenApi" Version="3.10.2" />
     <PackageVersion Include="Microsoft.Playwright.Xunit" Version="1.62.0" />
     <PackageVersion Include="MudBlazor" Version="9.9.0" />
     <PackageVersion Include="Npgsql.OpenTelemetry" Version="10.0.3" />
