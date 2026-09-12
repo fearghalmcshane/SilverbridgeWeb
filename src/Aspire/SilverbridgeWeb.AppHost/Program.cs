@@ -31,7 +31,6 @@ if (!builder.ExecutionContext.IsPublishMode)
     });
 }
 
-IResourceBuilder<AzureBlobStorageResource> blobs = storage.AddBlobs("blobs");
 IResourceBuilder<AzureBlobStorageContainerResource> newsMedia = storage.AddBlobContainer("newsMedia", "news-media");
 
 IResourceBuilder<RedisResource> redis = builder.AddRedis("redis")
@@ -55,7 +54,6 @@ IResourceBuilder<ProjectResource> migrator = builder.AddProject<Projects.Silverb
 
 IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.SilverbridgeWeb_Api>("silverbridgeweb-api")
     .WithReference(silverbridgeDb)
-    .WithReference(blobs)
     .WithReference(newsMedia)
     .WithReference(redis)
     .WaitFor(redis)
