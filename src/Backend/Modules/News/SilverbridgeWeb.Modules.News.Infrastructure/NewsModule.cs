@@ -53,7 +53,7 @@ public static class NewsModule
 
         services.Configure<FileStorageOptions>(configuration.GetSection("News:FileStorage"));
 
-        string blobStorageConnectionString = configuration.GetConnectionString("blobs")!;
+        string blobStorageConnectionString = configuration.GetConnectionString("newsMedia")!;
 
         services.AddSingleton(_ => new BlobServiceClient(blobStorageConnectionString));
 
