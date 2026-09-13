@@ -37,7 +37,7 @@ jobs:
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy with Aspire CLI
-        run: aspire deploy --project ./src/Aspire/SilverbridgeWeb.AppHost/SilverbridgeWeb.AppHost.csproj --no-prompt
+        run: aspire deploy --apphost ./src/Aspire/SilverbridgeWeb.AppHost/SilverbridgeWeb.AppHost.csproj --non-interactive
         env:
           Azure__SubscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           Azure__Location: ${{ vars.AZURE_LOCATION }}
