@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.Extensions.Primitives;
 
 namespace SilverbridgeWeb.WebUI.Services.Webhooks;
@@ -5,6 +6,7 @@ namespace SilverbridgeWeb.WebUI.Services.Webhooks;
 internal sealed class ClerkWebhookRelay(HttpClient httpClient)
 {
     public const string PublicPath = "/webhooks/clerk";
+    public const long MaxRequestBodySize = 1024 * 1024;
 
     private const string BackendPath = "users/webhooks/clerk";
 
@@ -19,12 +21,9 @@ internal sealed class ClerkWebhookRelay(HttpClient httpClient)
         HttpRequest request,
         CancellationToken cancellationToken)
     {
-        using MemoryStream body = new();
-        await request.Body.CopyToAsync(body, cancellationToken);
-
         using HttpRequestMessage relayRequest = new(HttpMethod.Post, BackendPath)
         {
-            Content = new ByteArrayContent(body.ToArray())
+            Content = new RequestBodyContent(request.Body, request.ContentLength)
         };
 
         if (request.ContentType is not null)
@@ -51,6 +50,28 @@ internal sealed class ClerkWebhookRelay(HttpClient httpClient)
             (int)response.StatusCode,
             responseBody,
             response.Content.Headers.ContentType?.ToString());
+    }
+
+    private sealed class RequestBodyContent(Stream requestBody, long? contentLength) : HttpContent
+    {
+        protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context)
+        {
+            return requestBody.CopyToAsync(stream);
+        }
+
+        protected override Task SerializeToStreamAsync(
+            Stream stream,
+            TransportContext? context,
+            CancellationToken cancellationToken)
+        {
+            return requestBody.CopyToAsync(stream, cancellationToken);
+        }
+
+        protected override bool TryComputeLength(out long length)
+        {
+            length = contentLength.GetValueOrDefault();
+            return contentLength.HasValue;
+        }
     }
 }
 

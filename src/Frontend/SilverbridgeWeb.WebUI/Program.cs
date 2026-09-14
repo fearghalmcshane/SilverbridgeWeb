@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using MudBlazor.Services;
@@ -149,6 +150,7 @@ app.MapPost(ClerkWebhookRelay.PublicPath, async (
     await context.Response.Body.WriteAsync(relayResponse.Body, cancellationToken);
 })
 .AllowAnonymous()
-.DisableAntiforgery();
+.DisableAntiforgery()
+.WithMetadata(new RequestSizeLimitAttribute(ClerkWebhookRelay.MaxRequestBodySize));
 
 await app.RunAsync().ConfigureAwait(false);

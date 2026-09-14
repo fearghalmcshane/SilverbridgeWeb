@@ -12,17 +12,21 @@ public sealed class ClerkWebhookRelayTests
     public async Task ForwardsSignedPayloadToPrivateApi()
     {
         const string payload = """{"type":"user.created","data":{"id":"user_123"}}""";
-        using var handler = new RecordingHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent("""{"synced":true}""", Encoding.UTF8, "application/json")
-        });
+        using var requestBody = new TrackingMemoryStream(Encoding.UTF8.GetBytes(payload));
+        using var handler = new RecordingHandler(
+            _ => new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""{"synced":true}""", Encoding.UTF8, "application/json")
+            },
+            () => requestBody.HasBeenRead);
         using HttpClient httpClient = new(handler)
         {
             BaseAddress = new("https://silverbridgeweb-api/")
         };
         var relay = new ClerkWebhookRelay(httpClient);
         var context = new DefaultHttpContext();
-        context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(payload));
+        context.Request.Body = requestBody;
+        context.Request.ContentLength = requestBody.Length;
         context.Request.ContentType = "application/json";
         context.Request.Headers["svix-id"] = "msg_123";
         context.Request.Headers["svix-timestamp"] = "1234567890";
@@ -35,7 +39,9 @@ public sealed class ClerkWebhookRelayTests
         handler.Request.Should().NotBeNull();
         handler.Request!.Method.Should().Be(HttpMethod.Post);
         handler.Request.RequestUri.Should().Be(new Uri("https://silverbridgeweb-api/users/webhooks/clerk"));
+        handler.BodyWasReadBeforeSend.Should().BeFalse();
         handler.Body.Should().Equal(Encoding.UTF8.GetBytes(payload));
+        handler.ContentLength.Should().Be(requestBody.Length);
         handler.ContentType.Should().Be("application/json");
         handler.Headers.Should().ContainKey("svix-id").WhoseValue.Should().Equal("msg_123");
         handler.Headers.Should().ContainKey("svix-timestamp").WhoseValue.Should().Equal("1234567890");
@@ -71,14 +77,21 @@ public sealed class ClerkWebhookRelayTests
     public void UsesDedicatedPublicRoute()
     {
         ClerkWebhookRelay.PublicPath.Should().Be("/webhooks/clerk");
+        ClerkWebhookRelay.MaxRequestBodySize.Should().Be(1024 * 1024);
     }
 
-    private sealed class RecordingHandler(Func<HttpRequestMessage, HttpResponseMessage> responseFactory)
+    private sealed class RecordingHandler(
+        Func<HttpRequestMessage, HttpResponseMessage> responseFactory,
+        Func<bool>? bodyHasBeenRead = null)
         : HttpMessageHandler
     {
         public HttpRequestMessage? Request { get; private set; }
 
+        public bool BodyWasReadBeforeSend { get; private set; }
+
         public byte[]? Body { get; private set; }
+
+        public long? ContentLength { get; private set; }
 
         public string? ContentType { get; private set; }
 
@@ -89,9 +102,11 @@ public sealed class ClerkWebhookRelayTests
             CancellationToken cancellationToken)
         {
             Request = request;
+            BodyWasReadBeforeSend = bodyHasBeenRead?.Invoke() ?? false;
             Body = request.Content is null
                 ? []
                 : await request.Content.ReadAsByteArrayAsync(cancellationToken);
+            ContentLength = request.Content?.Headers.ContentLength;
             ContentType = request.Content?.Headers.ContentType?.ToString();
 
             foreach (KeyValuePair<string, IEnumerable<string>> header in request.Headers)
@@ -100,6 +115,20 @@ public sealed class ClerkWebhookRelayTests
             }
 
             return responseFactory(request);
+        }
+    }
+
+    private sealed class TrackingMemoryStream(byte[] buffer) : MemoryStream(buffer)
+    {
+        public bool HasBeenRead { get; private set; }
+
+        public override Task CopyToAsync(
+            Stream destination,
+            int bufferSize,
+            CancellationToken cancellationToken)
+        {
+            HasBeenRead = true;
+            return base.CopyToAsync(destination, bufferSize, cancellationToken);
         }
     }
 }
