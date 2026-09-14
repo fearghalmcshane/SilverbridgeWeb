@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
@@ -16,6 +17,8 @@ namespace SilverbridgeWeb.Modules.Users.Presentation.Users;
 
 internal sealed class ClerkWebhook : IEndpoint
 {
+    private const long MaxRequestBodySize = 1024 * 1024;
+
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPost("users/webhooks/clerk", async (HttpContext httpContext, ISender sender, IConfiguration configuration) =>
@@ -58,6 +61,7 @@ internal sealed class ClerkWebhook : IEndpoint
             };
         })
         .AllowAnonymous()
+        .WithMetadata(new RequestSizeLimitAttribute(MaxRequestBodySize))
         .WithTags(Tags.Users);
     }
 
