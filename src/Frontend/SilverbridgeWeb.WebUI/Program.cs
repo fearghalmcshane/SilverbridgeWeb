@@ -8,6 +8,7 @@ using SilverbridgeWeb.WebUI;
 using SilverbridgeWeb.WebUI.Authentication;
 using SilverbridgeWeb.WebUI.Services.ApiClients;
 using SilverbridgeWeb.WebUI.Services.Theme;
+using SilverbridgeWeb.WebUI.Services.Webhooks;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +57,14 @@ builder.Services.AddHttpClient<UsersApiClient>(client =>
     client.BaseAddress = new("https+http://silverbridgeweb-api/");
 })
 .AddHttpMessageHandler<AuthorizationHandler>();
+
+#pragma warning disable EXTEXP0001 // Webhook delivery retries are managed by Clerk, not the forwarding client.
+builder.Services.AddHttpClient<ClerkWebhookRelay>(client =>
+{
+    client.BaseAddress = new("https+http://silverbridgeweb-api/");
+})
+.RemoveAllResilienceHandlers();
+#pragma warning restore EXTEXP0001
 
 const string clerkOidcScheme = "Clerk";
 
@@ -123,5 +132,23 @@ app.MapGet("/authentication/logout", async (HttpContext context) =>
     return TypedResults.Redirect("/");
 })
 .RequireAuthorization();
+
+app.MapPost(ClerkWebhookRelay.PublicPath, async (
+    HttpContext context,
+    ClerkWebhookRelay relay,
+    CancellationToken cancellationToken) =>
+{
+    ClerkWebhookRelayResponse relayResponse = await relay.ForwardAsync(context.Request, cancellationToken);
+
+    context.Response.StatusCode = relayResponse.StatusCode;
+    if (relayResponse.ContentType is not null)
+    {
+        context.Response.ContentType = relayResponse.ContentType;
+    }
+
+    await context.Response.Body.WriteAsync(relayResponse.Body, cancellationToken);
+})
+.AllowAnonymous()
+.DisableAntiforgery();
 
 await app.RunAsync().ConfigureAwait(false);
