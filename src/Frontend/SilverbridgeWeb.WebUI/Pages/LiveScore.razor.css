@@ -1,0 +1,72 @@
+.live-score-page {
+    padding-block: 2rem 4rem;
+}
+
+.live-score-layout {
+    display: grid;
+    align-items: start;
+    gap: 1.25rem;
+    margin-top: 2rem;
+}
+
+.live-score-panel,
+.live-score-guidance {
+    min-width: 0;
+    padding: clamp(1rem, 4vw, 2rem);
+    border-radius: 1rem;
+}
+
+.live-score-panel {
+    border: 1px solid var(--mud-palette-lines-default);
+    background: var(--mud-palette-surface);
+}
+
+.live-score-panel__intro {
+    width: min(100%, 620px);
+    margin: 0 auto 1.5rem;
+}
+
+h2 {
+    margin: 0 0 .75rem;
+    font-size: clamp(1.35rem, 3vw, 1.75rem);
+}
+
+p,
+dd {
+    color: var(--mud-palette-text-secondary);
+    line-height: 1.65;
+}
+
+p {
+    margin: 0;
+}
+
+.live-score-guidance {
+    border: 1px solid var(--mud-palette-lines-default);
+    background: var(--mud-palette-background-grey);
+}
+
+dl {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+}
+
+dl div {
+    display: grid;
+    gap: .2rem;
+}
+
+dt {
+    font-weight: 700;
+}
+
+dd {
+    margin: 0;
+}
+
+@media (min-width: 960px) {
+    .live-score-layout {
+        grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
+    }
+}

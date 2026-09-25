@@ -1,0 +1,46 @@
+@page "/live-score"
+@using SilverbridgeWeb.WebUI.Components.ScoreConnect
+
+<PageTitle>Live Score - Silverbridge Harps GAC</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="live-score-page">
+    <PageHeader Eyebrow="Match day trial"
+                Title="Live score"
+                Description="Follow the scoreboard as a game is updated from the sideline." />
+
+    <div class="live-score-layout">
+        <section class="live-score-panel" aria-labelledby="live-score-title">
+            <div class="live-score-panel__intro">
+                <h2 id="live-score-title">Silverbridge scoreboard</h2>
+                <p>
+                    This trial connects directly to the match-day scoreboard and refreshes automatically.
+                </p>
+            </div>
+
+            <LiveScoreboard BoardId="SILVERBRIDGESB"
+                            AriaLabel="Silverbridge Harps live match scoreboard" />
+        </section>
+
+        <aside class="live-score-guidance" aria-labelledby="score-status-title">
+            <h2 id="score-status-title">Scoreboard status</h2>
+            <dl>
+                <div>
+                    <dt>Not started</dt>
+                    <dd>The board is connected and waiting for the game to begin.</dd>
+                </div>
+                <div>
+                    <dt>Live</dt>
+                    <dd>The clock and scores are being updated during the game.</dd>
+                </div>
+                <div>
+                    <dt>Full time</dt>
+                    <dd>The game has finished and the final score remains available.</dd>
+                </div>
+                <div>
+                    <dt>Board offline or reconnecting</dt>
+                    <dd>The most recent score may be shown while the connection is restored.</dd>
+                </div>
+            </dl>
+        </aside>
+    </div>
+</MudContainer>

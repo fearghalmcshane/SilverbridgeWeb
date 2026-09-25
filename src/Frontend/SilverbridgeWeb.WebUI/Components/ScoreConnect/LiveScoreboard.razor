@@ -1,0 +1,50 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+
+<section class="live-scoreboard" aria-label="@AriaLabel">
+    <div class="live-scoreboard__host" @ref="_host"></div>
+</section>
+
+@code {
+    private const string ModulePath = "./js/fslScoreboard.js";
+
+    private ElementReference _host;
+    private IJSObjectReference? _module;
+
+    [Parameter, EditorRequired]
+    public string BoardId { get; set; } = string.Empty;
+
+    [Parameter]
+    public string AriaLabel { get; set; } = "Live match scoreboard";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        _module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", ModulePath);
+        await _module.InvokeVoidAsync("initialize", _host, BoardId);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await _module.InvokeVoidAsync("dispose", _host);
+            await _module.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+            _module = null;
+        }
+
+        GC.SuppressFinalize(this);
+    }
+}
