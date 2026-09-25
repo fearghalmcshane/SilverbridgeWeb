@@ -1,0 +1,6 @@
+.live-scoreboard,
+.live-scoreboard__host {
+    display: block;
+    min-width: 0;
+    width: 100%;
+}
