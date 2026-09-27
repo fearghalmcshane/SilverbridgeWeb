@@ -1,4 +1,5 @@
 ﻿using Aspire.Hosting.Azure;
+using Azure.Provisioning.Storage;
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
@@ -28,10 +29,23 @@ if (!builder.ExecutionContext.IsPublishMode)
     storage.RunAsEmulator(emulator =>
     {
         emulator.WithDataVolume();
+        emulator.WithBlobPort(10000);
     });
 }
 
 IResourceBuilder<AzureBlobStorageContainerResource> newsMedia = storage.AddBlobContainer("newsMedia", "news-media");
+
+// News media is embedded in pages by URL, so browsers fetch it anonymously. Granting this in Bicep keeps the
+// app identity (Storage Blob Data Contributor) free of container-ACL rights, which it cannot be granted anyway.
+storage.ConfigureInfrastructure(infrastructure =>
+{
+    StorageAccount account = infrastructure.GetProvisionableResources().OfType<StorageAccount>().Single();
+    account.AllowBlobPublicAccess = true;
+
+    // Blob (not Container) level: anonymous read of individual blobs, no container listing.
+    BlobContainer mediaContainer = infrastructure.GetProvisionableResources().OfType<BlobContainer>().Single();
+    mediaContainer.PublicAccess = StoragePublicAccessType.Blob;
+});
 
 IResourceBuilder<RedisResource> redis = builder.AddRedis("redis")
     .WithDataVolume();

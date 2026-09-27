@@ -6,7 +6,8 @@
             <span class="scoreboard__label">Home</span>
             <strong>@HomeTeam</strong>
         </div>
-        <div class="scoreboard__score" aria-label="@($"{HomeTeam} {FormatScore(HomeGoals, HomePoints)}, {AwayTeam} {FormatScore(AwayGoals, AwayPoints)}")">
+        <div class="scoreboard__score"
+             aria-label="@($"{HomeTeam} {FormatScore(HomeGoals, HomePoints)}, {AwayTeam} {FormatScore(AwayGoals, AwayPoints)}")">
             <span>@FormatScore(HomeGoals, HomePoints)</span>
             <small aria-hidden="true">FT</small>
             <span>@FormatScore(AwayGoals, AwayPoints)</span>
@@ -22,15 +23,22 @@
         <div class="scoreboard__meta">
             @if (!string.IsNullOrWhiteSpace(Competition))
             {
-                <span><MudIcon Icon="@Icons.Material.Outlined.EmojiEvents" Size="Size.Small" aria-hidden="true" />@Competition</span>
+                <span>
+                    <MudIcon Icon="@Icons.Material.Outlined.EmojiEvents" Size="Size.Small" aria-hidden="true" />@Competition
+                </span>
             }
             @if (MatchDateUtc.HasValue)
             {
-                <span><MudIcon Icon="@Icons.Material.Outlined.CalendarMonth" Size="Size.Small" aria-hidden="true" />@MatchDateUtc.Value.ToLocalTime().ToString("dd MMM yyyy")</span>
+                <span>
+                    <MudIcon Icon="@Icons.Material.Outlined.CalendarMonth" Size="Size.Small" aria-hidden="true" />
+                    @ClubTime.ToLocal(MatchDateUtc.Value).ToString("dd MMM yyyy")
+                </span>
             }
             @if (!string.IsNullOrWhiteSpace(Venue))
             {
-                <span><MudIcon Icon="@Icons.Material.Outlined.Place" Size="Size.Small" aria-hidden="true" />@Venue</span>
+                <span>
+                    <MudIcon Icon="@Icons.Material.Outlined.Place" Size="Size.Small" aria-hidden="true" />@Venue
+                </span>
             }
         </div>
     }

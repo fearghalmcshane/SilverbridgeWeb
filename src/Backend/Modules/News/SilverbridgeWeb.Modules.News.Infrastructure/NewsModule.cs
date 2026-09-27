@@ -1,4 +1,3 @@
-using Azure.Storage.Blobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
@@ -51,13 +50,9 @@ public static class NewsModule
         services.AddScoped<IArticleRepository, ArticleRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
 
-        services.Configure<FileStorageOptions>(configuration.GetSection("News:FileStorage"));
-
-        string blobStorageConnectionString = configuration.GetConnectionString("newsMedia")!;
-
-        services.AddSingleton(_ => new BlobServiceClient(blobStorageConnectionString));
-
         services.AddScoped<IFileStorageService, AzureBlobFileStorageService>();
+
+        services.AddHostedService<NewsMediaContainerInitializer>();
 
         services.Configure<OutboxOptions>(configuration.GetSection("News:Outbox"));
 

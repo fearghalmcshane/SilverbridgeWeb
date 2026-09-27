@@ -36,6 +36,10 @@ builder.Services.AddInfrastructure(
 
 builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing", "attendance", "foireann", "bookings", "news"]);
 
+// Registered here rather than in AddNewsModule because the Aspire client integration extends
+// IHostApplicationBuilder, resolving the container-scoped connection string for both Azurite and managed identity.
+builder.AddAzureBlobContainerClient("newsMedia");
+
 builder.Services.AddEventsModule(builder.Configuration);
 builder.Services.AddUsersModule(builder.Configuration);
 builder.Services.AddTicketingModule(builder.Configuration);

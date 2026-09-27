@@ -7,38 +7,47 @@
     <MudNavLink Href="/news" Icon="@Icons.Material.Filled.Article" Match="NavLinkMatch.Prefix">News</MudNavLink>
 
     <MudNavGroup Title="Games" Icon="@Icons.Material.Filled.SportsFootball" Expanded="true">
-        <MudNavLink Href="/fixtures" Icon="@Icons.Material.Filled.CalendarMonth" Match="NavLinkMatch.Prefix">Fixtures & results</MudNavLink>
-    </MudNavGroup>
+        <MudNavLink Href="/fixtures" Icon="@Icons.Material.Filled.CalendarMonth" Match="NavLinkMatch.Prefix">Fixtures &
+            results</MudNavLink>
+        </MudNavGroup>
 
-    <AuthorizeView>
-        <Authorized>
-            <MudNavGroup Title="Member area" Icon="@Icons.Material.Filled.VerifiedUser">
-                <MudNavLink Href="/categories" Icon="@Icons.Material.Filled.Category" Match="NavLinkMatch.Prefix">Categories</MudNavLink>
-            </MudNavGroup>
-        </Authorized>
-    </AuthorizeView>
+        <AuthorizeView>
+            <Authorized>
+                <MudNavGroup Title="Member area" Icon="@Icons.Material.Filled.VerifiedUser">
+                </MudNavGroup>
+            </Authorized>
+        </AuthorizeView>
 
-    <MudNavGroup Title="Facilities" Icon="@Icons.Material.Filled.Domain">
-        <MudNavLink Href="/gym" Icon="@Icons.Material.Filled.FitnessCenter" Match="NavLinkMatch.Prefix">Gym</MudNavLink>
-        <MudNavLink Href="/clubkeeley" Icon="@Icons.Material.Filled.WorkspacePremium" Match="NavLinkMatch.Prefix">Club Keeley</MudNavLink>
-        @if (_canViewBookings)
-        {
-            <MudNavLink Href="/facility-bookings" Icon="@Icons.Material.Filled.CalendarMonth" Match="NavLinkMatch.Prefix">Facility Bookings</MudNavLink>
-        }
-    </MudNavGroup>
+        <MudNavGroup Title="Facilities" Icon="@Icons.Material.Filled.Domain">
+            <MudNavLink Href="/gym" Icon="@Icons.Material.Filled.FitnessCenter" Match="NavLinkMatch.Prefix">Gym</MudNavLink>
+            <MudNavLink Href="/clubkeeley" Icon="@Icons.Material.Filled.WorkspacePremium" Match="NavLinkMatch.Prefix">Club
+                Keeley</MudNavLink>
+                @if (_canViewBookings)
+                {
+                    <MudNavLink Href="/facility-bookings" Icon="@Icons.Material.Filled.CalendarMonth" Match="NavLinkMatch.Prefix">
+                        Facility Bookings</MudNavLink>
+                    }
+                </MudNavGroup>
 
-    <MudNavGroup Title="Our club" Icon="@Icons.Material.Filled.Groups">
-        <MudNavLink Href="/committee" Icon="@Icons.Material.Filled.Contacts" Match="NavLinkMatch.Prefix">Committee</MudNavLink>
-        <MudNavLink Href="/involved" Icon="@Icons.Material.Filled.People" Match="NavLinkMatch.Prefix">Get Involved</MudNavLink>
-        <MudNavLink Href="/contact" Icon="@Icons.Material.Filled.ContactSupport" Match="NavLinkMatch.Prefix">Contact Us</MudNavLink>
-    </MudNavGroup>
+                <MudNavGroup Title="Our club" Icon="@Icons.Material.Filled.Groups">
+                    <MudNavLink Href="/committee" Icon="@Icons.Material.Filled.Contacts" Match="NavLinkMatch.Prefix">Committee
+                    </MudNavLink>
+                    <MudNavLink Href="/involved" Icon="@Icons.Material.Filled.People" Match="NavLinkMatch.Prefix">Get Involved
+                    </MudNavLink>
+                    <MudNavLink Href="/contact" Icon="@Icons.Material.Filled.ContactSupport" Match="NavLinkMatch.Prefix">Contact Us
+                    </MudNavLink>
+                </MudNavGroup>
 
-    <MudNavGroup Title="Club links" Icon="@Icons.Material.Filled.OpenInNew">
-        <MudNavLink Href="https://silverbridge.clubzap.com/draws" Target="_blank" rel="noopener noreferrer" Icon="@Icons.Material.Filled.ConfirmationNumber" Match="NavLinkMatch.All">Club lotto</MudNavLink>
-        <MudNavLink Href="https://www.oneills.com/uk_en/shop-by-team/gaa/ireland/silverbridge-harps.html" Target="_blank" rel="noopener noreferrer" Icon="@Icons.Material.Filled.ShoppingBag" Match="NavLinkMatch.All">O'Neills shop</MudNavLink>
-        <MudNavLink Href="https://playr-fit.com/collections/silverbridge-clg" Target="_blank" rel="noopener noreferrer" Icon="@Icons.Material.Filled.ShoppingBag" Match="NavLinkMatch.All">PlayrFit shop</MudNavLink>
-    </MudNavGroup>
-</MudNavMenu>
+                <MudNavGroup Title="Club links" Icon="@Icons.Material.Filled.OpenInNew">
+                    <MudNavLink Href="https://silverbridge.clubzap.com/draws" Target="_blank" rel="noopener noreferrer"
+                                Icon="@Icons.Material.Filled.ConfirmationNumber" Match="NavLinkMatch.All">Club lotto</MudNavLink>
+                    <MudNavLink Href="https://www.oneills.com/uk_en/shop-by-team/gaa/ireland/silverbridge-harps.html"
+                                Target="_blank" rel="noopener noreferrer" Icon="@Icons.Material.Filled.ShoppingBag"
+                                Match="NavLinkMatch.All">O'Neills shop</MudNavLink>
+                    <MudNavLink Href="https://playr-fit.com/collections/silverbridge-clg" Target="_blank" rel="noopener noreferrer"
+                                Icon="@Icons.Material.Filled.ShoppingBag" Match="NavLinkMatch.All">PlayrFit shop</MudNavLink>
+                </MudNavGroup>
+            </MudNavMenu>
 
 @code {
     private bool _canViewBookings;

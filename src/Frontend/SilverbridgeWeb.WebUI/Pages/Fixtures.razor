@@ -6,8 +6,7 @@
 <PageTitle>Fixtures & Results - Silverbridge Harps GAC</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="fixtures-page">
-    <PageHeader Eyebrow="Follow the teams"
-                Title="Fixtures &amp; results"
+    <PageHeader Eyebrow="Follow the teams" Title="Fixtures &amp; results"
                 Description="Upcoming games and recent results across Silverbridge Harps teams." />
 
     <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" Class="fixtures-tabs"
@@ -83,8 +82,9 @@
         try
         {
             fixturesLoading = true;
-            string from = DateTime.Today.ToString("yyyy-MM-dd") + "T00:00:00Z";
-            string to = DateTime.Today.AddDays(30).ToString("yyyy-MM-dd") + "T23:59:59Z";
+            DateTime fromLocal = ClubTime.Today;
+            string from = ClubTime.ToUtcIso(fromLocal);
+            string to = ClubTime.ToUtcIso(fromLocal.AddDays(31).AddSeconds(-1));
             upcomingFixtures = await FoireannClient.GetFixturesAsync(
                 isResult: false,
                 startDateFrom: from,
@@ -110,8 +110,9 @@
         try
         {
             resultsLoading = true;
-            string from = DateTime.Today.AddDays(-14).ToString("yyyy-MM-dd") + "T00:00:00Z";
-            string to = DateTime.Today.ToString("yyyy-MM-dd") + "T23:59:59Z";
+            DateTime todayLocal = ClubTime.Today;
+            string from = ClubTime.ToUtcIso(todayLocal.AddDays(-14));
+            string to = ClubTime.ToUtcIso(todayLocal.AddDays(1).AddSeconds(-1));
             recentResults = await FoireannClient.GetFixturesAsync(
                 isResult: true,
                 startDateFrom: from,
@@ -209,7 +210,7 @@ __builder =>
             // Group by date
             var grouped = data.Data
                 .GroupBy(f => f.StartDate.HasValue
-                    ? f.StartDate.Value.LocalDateTime.Date
+                    ? ClubTime.ToLocal(f.StartDate.Value).Date
                     : DateTime.MaxValue.Date)
                 .OrderBy(g => g.Key);
 
@@ -251,7 +252,7 @@ __builder =>
                                     @if (fixture.StartDate.HasValue)
                                     {
                                         <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                                            @fixture.StartDate.Value.LocalDateTime.ToString("HH:mm")
+                                            @ClubTime.ToLocal(fixture.StartDate.Value).ToString("HH:mm")
                                         </MudText>
                                     }
                                 </div>
@@ -266,7 +267,8 @@ __builder =>
                                                Variant="@(string.IsNullOrEmpty(fixture.HomeTeam?.Logo) ? Variant.Filled : Variant.Text)">
                                         @if (!string.IsNullOrEmpty(fixture.HomeTeam?.Logo))
                                         {
-                                            <img src="@fixture.HomeTeam.Logo" alt="@($"{fixture.HomeTeam?.Name ?? fixture.HomeTeamFallbackName} crest")" />
+                                            <img src="@fixture.HomeTeam.Logo"
+                                                 alt="@($"{fixture.HomeTeam?.Name ?? fixture.HomeTeamFallbackName} crest")" />
                                         }
                                         else
                                         {
@@ -306,7 +308,8 @@ __builder =>
                                                Variant="@(string.IsNullOrEmpty(fixture.AwayTeam?.Logo) ? Variant.Filled : Variant.Text)">
                                         @if (!string.IsNullOrEmpty(fixture.AwayTeam?.Logo))
                                         {
-                                            <img src="@fixture.AwayTeam.Logo" alt="@($"{fixture.AwayTeam?.Name ?? fixture.AwayTeamFallbackName} crest")" />
+                                            <img src="@fixture.AwayTeam.Logo"
+                                                 alt="@($"{fixture.AwayTeam?.Name ?? fixture.AwayTeamFallbackName} crest")" />
                                         }
                                         else
                                         {
