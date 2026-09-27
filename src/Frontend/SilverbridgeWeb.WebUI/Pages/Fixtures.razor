@@ -6,8 +6,7 @@
 <PageTitle>Fixtures & Results - Silverbridge Harps GAC</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="fixtures-page">
-    <PageHeader Eyebrow="Follow the teams"
-                Title="Fixtures &amp; results"
+    <PageHeader Eyebrow="Follow the teams" Title="Fixtures &amp; results"
                 Description="Upcoming games and recent results across Silverbridge Harps teams." />
 
     <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" Class="fixtures-tabs"
@@ -268,7 +267,8 @@ __builder =>
                                                Variant="@(string.IsNullOrEmpty(fixture.HomeTeam?.Logo) ? Variant.Filled : Variant.Text)">
                                         @if (!string.IsNullOrEmpty(fixture.HomeTeam?.Logo))
                                         {
-                                            <img src="@fixture.HomeTeam.Logo" alt="@($"{fixture.HomeTeam?.Name ?? fixture.HomeTeamFallbackName} crest")" />
+                                            <img src="@fixture.HomeTeam.Logo"
+                                                 alt="@($"{fixture.HomeTeam?.Name ?? fixture.HomeTeamFallbackName} crest")" />
                                         }
                                         else
                                         {
@@ -308,7 +308,8 @@ __builder =>
                                                Variant="@(string.IsNullOrEmpty(fixture.AwayTeam?.Logo) ? Variant.Filled : Variant.Text)">
                                         @if (!string.IsNullOrEmpty(fixture.AwayTeam?.Logo))
                                         {
-                                            <img src="@fixture.AwayTeam.Logo" alt="@($"{fixture.AwayTeam?.Name ?? fixture.AwayTeamFallbackName} crest")" />
+                                            <img src="@fixture.AwayTeam.Logo"
+                                                 alt="@($"{fixture.AwayTeam?.Name ?? fixture.AwayTeamFallbackName} crest")" />
                                         }
                                         else
                                         {

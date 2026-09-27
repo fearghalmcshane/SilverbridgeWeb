@@ -14,8 +14,7 @@
 <PageTitle>@(IsEditMode ? "Edit Article" : "Create Article") - Silverbridge Harps GAC</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="article-editor-page">
-    <PageHeader Title="@(IsEditMode ? "Edit Article" : "Create Article")"
-                Eyebrow="Communications"
+    <PageHeader Title="@(IsEditMode ? "Edit Article" : "Create Article")" Eyebrow="Communications"
                 Description="@(IsEditMode ? "Update article content, publishing details and media." : "Draft a new story for the Silverbridge community.")">
         <Actions>
             <MudButton Href="/admin/news" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBack">
@@ -26,17 +25,13 @@
 
     @if (_isLoading)
     {
-        <StatePanel Title="Loading article editor"
-                    Description="Preparing categories, content and media."
+        <StatePanel Title="Loading article editor" Description="Preparing categories, content and media."
                     Icon="@Icons.Material.Outlined.EditNote" />
     }
     else if (!_canManageNews)
     {
-        <StatePanel Title="Access unavailable"
-                    Description="You do not have permission to manage news."
-                    Icon="@Icons.Material.Outlined.Lock"
-                    IconColor="Color.Error"
-                    Role="alert" />
+        <StatePanel Title="Access unavailable" Description="You do not have permission to manage news."
+                    Icon="@Icons.Material.Outlined.Lock" IconColor="Color.Error" Role="alert" />
     }
     else
     {
@@ -55,42 +50,23 @@
                             <SectionHeader Title="Article Content"
                                            Description="Write a clear headline, summary and full article." />
                             <MudStack Spacing="3">
-                                <MudTextField T="string"
-                                              Label="Title"
-                                              Value="_model.Title"
-                                              ValueChanged="OnTitleChanged"
-                                              Immediate="true"
-                                              For="@(() => _model.Title)"
-                                              Required="true" />
+                                <MudTextField T="string" Label="Title" Value="_model.Title" ValueChanged="OnTitleChanged"
+                                              Immediate="true" For="@(() => _model.Title)" Required="true" />
 
                                 <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2" AlignItems="AlignItems.End">
-                                    <MudTextField T="string"
-                                                  Label="Slug"
-                                                  Value="_model.Slug"
-                                                  ValueChanged="OnSlugChanged"
-                                                  Immediate="true"
-                                                  For="@(() => _model.Slug)"
-                                                  Required="true"
-                                                  Class="flex-grow-1" />
-                                    <MudButton Variant="Variant.Outlined"
-                                               Color="Color.Secondary"
-                                               StartIcon="@Icons.Material.Filled.AutoFixHigh"
-                                               OnClick="GenerateSlugFromTitle">
+                                    <MudTextField T="string" Label="Slug" Value="_model.Slug" ValueChanged="OnSlugChanged"
+                                                  Immediate="true" For="@(() => _model.Slug)" Required="true" Class="flex-grow-1" />
+                                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary"
+                                               StartIcon="@Icons.Material.Filled.AutoFixHigh" OnClick="GenerateSlugFromTitle">
                                         Generate
                                     </MudButton>
                                 </MudStack>
 
-                                <MudTextField @bind-Value="_model.Summary"
-                                              Label="Summary"
-                                              For="@(() => _model.Summary)"
-                                              Lines="4"
-                                              Required="true" />
+                                <MudTextField @bind-Value="_model.Summary" Label="Summary" For="@(() => _model.Summary)"
+                                              Lines="4" Required="true" />
 
-                                <MudTextField @bind-Value="_model.Content"
-                                              Label="Content"
-                                              For="@(() => _model.Content)"
-                                              Lines="12"
-                                              Required="true" />
+                                <MudTextField @bind-Value="_model.Content" Label="Content" For="@(() => _model.Content)"
+                                              Lines="12" Required="true" />
                             </MudStack>
                         </MudCardContent>
                     </MudCard>
@@ -100,29 +76,32 @@
                             <SectionHeader Title="Article Type"
                                            Description="Choose a template. Match reports show a scoreline above the article text." />
                             <MudStack Spacing="3">
-                                <MudSelect T="NewsArticleType"
-                                           Value="_model.ArticleType"
-                                           ValueChanged="OnArticleTypeChanged"
-                                           Label="Template">
-                                    <MudSelectItem T="NewsArticleType" Value="NewsArticleType.Standard">Standard article</MudSelectItem>
-                                    <MudSelectItem T="NewsArticleType" Value="NewsArticleType.MatchReport">Match report</MudSelectItem>
+                                <MudSelect T="NewsArticleType" Value="_model.ArticleType"
+                                           ValueChanged="OnArticleTypeChanged" Label="Template">
+                                    <MudSelectItem T="NewsArticleType" Value="NewsArticleType.Standard">Standard article
+                                    </MudSelectItem>
+                                    <MudSelectItem T="NewsArticleType" Value="NewsArticleType.MatchReport">Match report
+                                    </MudSelectItem>
                                 </MudSelect>
 
                                 @if (_model.ArticleType == NewsArticleType.MatchReport)
                                 {
                                     <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
-                                        <MudTextField T="string" @bind-Value="_model.HomeTeam" Label="Home team" Class="flex-grow-1" Required="true" />
+                                        <MudTextField T="string" @bind-Value="_model.HomeTeam" Label="Home team"
+                                                      Class="flex-grow-1" Required="true" />
                                         <MudNumericField T="int" @bind-Value="_model.HomeGoals" Label="Home goals" Min="0" />
                                         <MudNumericField T="int" @bind-Value="_model.HomePoints" Label="Home points" Min="0" />
                                     </MudStack>
                                     <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
-                                        <MudTextField T="string" @bind-Value="_model.AwayTeam" Label="Away team" Class="flex-grow-1" Required="true" />
+                                        <MudTextField T="string" @bind-Value="_model.AwayTeam" Label="Away team"
+                                                      Class="flex-grow-1" Required="true" />
                                         <MudNumericField T="int" @bind-Value="_model.AwayGoals" Label="Away goals" Min="0" />
                                         <MudNumericField T="int" @bind-Value="_model.AwayPoints" Label="Away points" Min="0" />
                                     </MudStack>
                                     <MudTextField T="string" @bind-Value="_model.Competition" Label="Competition (optional)" />
                                     <MudTextField T="string" @bind-Value="_model.Venue" Label="Venue (optional)" />
-                                    <MudDatePicker Date="_model.MatchDate" DateChanged="OnMatchDateChanged" Label="Match date (optional)" />
+                                    <MudDatePicker Date="_model.MatchDate" DateChanged="OnMatchDateChanged"
+                                                   Label="Match date (optional)" />
                                 }
                             </MudStack>
                         </MudCardContent>
@@ -135,11 +114,8 @@
                             <SectionHeader Title="Publishing"
                                            Description="Choose the category and manage this article's status." />
                             <MudStack Spacing="3">
-                                <MudSelect T="Guid"
-                                           @bind-Value="_model.CategoryId"
-                                           Label="Category"
-                                           For="@(() => _model.CategoryId)"
-                                           Required="true">
+                                <MudSelect T="Guid" @bind-Value="_model.CategoryId" Label="Category"
+                                           For="@(() => _model.CategoryId)" Required="true">
                                     @foreach (NewsCategoryResponse category in _categories)
                                     {
                                         <MudSelectItem T="Guid" Value="@category.Id">@category.Name</MudSelectItem>
@@ -157,7 +133,8 @@
                                 {
                                     <MudStack Spacing="1">
                                         <MudText Typo="Typo.subtitle2">Status</MudText>
-                                        <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(_article.Status)" Class="align-self-start">
+                                        <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(_article.Status)"
+                                                 Class="align-self-start">
                                             @_article.Status
                                         </MudChip>
                                         <MudText Typo="Typo.caption" Color="Color.Secondary">
@@ -174,22 +151,18 @@
                             </MudStack>
                         </MudCardContent>
                         <MudCardActions Class="article-actions">
-                            <MudButton Variant="Variant.Filled"
-                                       Color="Color.Primary"
-                                       ButtonType="ButtonType.Submit"
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit"
                                        Disabled="@(_isSaving || _categories.Count == 0)">
                                 @(IsEditMode ? "Save Changes" : "Create Article")
                             </MudButton>
                             @if (IsEditMode)
                             {
-                                <MudButton Variant="Variant.Text"
-                                           Color="Color.Success"
+                                <MudButton Variant="Variant.Text" Color="Color.Success"
                                            Disabled="@(_isSaving || _article?.Status != NewsArticleStatus.Draft)"
                                            OnClick="PublishAsync">
                                     Publish
                                 </MudButton>
-                                <MudButton Variant="Variant.Text"
-                                           Color="Color.Error"
+                                <MudButton Variant="Variant.Text" Color="Color.Error"
                                            Disabled="@(_isSaving || _article?.Status == NewsArticleStatus.Archived)"
                                            OnClick="ArchiveAsync">
                                     Archive
@@ -211,8 +184,7 @@
                             {
                                 <MudStack Spacing="2">
                                     <label class="file-upload-label" for="article-media">Choose media file</label>
-                                    <InputFile id="article-media"
-                                               OnChange="OnFileSelected"
+                                    <InputFile id="article-media" OnChange="OnFileSelected"
                                                accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.mov"
                                                aria-describedby="article-media-help" />
                                     <MudText id="article-media-help" Typo="Typo.caption" Color="Color.Secondary">
@@ -220,14 +192,13 @@
                                     </MudText>
                                     @if (_selectedFile is not null)
                                     {
-                                        <MudText Typo="Typo.caption">Selected: @_selectedFile.Name (@_selectedFile.ContentType)</MudText>
+                                        <MudText Typo="Typo.caption">Selected: @_selectedFile.Name (@_selectedFile.ContentType)
+                                        </MudText>
                                     }
                                     <MudTextField @bind-Value="_mediaAltText" Label="Alt text" />
                                     <MudNumericField T="int" @bind-Value="_mediaDisplayOrder" Label="Display order" Min="0" />
-                                    <MudButton Variant="Variant.Outlined"
-                                               Color="Color.Primary"
-                                               StartIcon="@Icons.Material.Filled.Upload"
-                                               OnClick="UploadMediaAsync"
+                                    <MudButton Variant="Variant.Outlined" Color="Color.Primary"
+                                               StartIcon="@Icons.Material.Filled.Upload" OnClick="UploadMediaAsync"
                                                Disabled="@(_selectedFile is null || _isUploading)">
                                         Upload media
                                     </MudButton>
@@ -237,7 +208,8 @@
                                 {
                                     <MudDivider Class="my-4" />
                                     <MudList T="string" Dense="true">
-                                        @foreach (NewsArticleMediaResponse media in _article.Media.OrderBy(item => item.DisplayOrder))
+                                        @foreach (NewsArticleMediaResponse media in _article.Media.OrderBy(item =>
+                            item.DisplayOrder))
                                         {
                                             <MudListItem Text="@($"{media.MediaType} · order {media.DisplayOrder}")"
                                                          SecondaryText="@(string.IsNullOrWhiteSpace(media.AltText) ? media.BlobUrl : media.AltText)" />
@@ -373,7 +345,8 @@
         {
             _errorMessage = "Article not found.";
         }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized || ex.StatusCode == HttpStatusCode.Forbidden)
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized || ex.StatusCode ==
+HttpStatusCode.Forbidden)
         {
             _canManageNews = false;
         }

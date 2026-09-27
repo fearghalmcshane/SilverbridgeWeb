@@ -5,13 +5,13 @@
 <PageTitle>News - Silverbridge Harps GAC</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="news-page">
-    <PageHeader Eyebrow="From around the club"
-                Title="Club news"
+    <PageHeader Eyebrow="From around the club" Title="Club news"
                 Description="Latest updates, announcements and match-day stories from Silverbridge Harps." />
 
     <section class="news-filter" aria-label="Filter news articles">
         <div>
-            <MudSelect T="Guid?" Label="Category" Value="_selectedCategoryId" ValueChanged="OnCategoryChanged" Clearable="true">
+            <MudSelect T="Guid?" Label="Category" Value="_selectedCategoryId" ValueChanged="OnCategoryChanged"
+                       Clearable="true">
                 <MudSelectItem T="Guid?" Value="@((Guid?)null)">All categories</MudSelectItem>
                 @foreach (NewsCategoryResponse category in _categories)
                 {
@@ -27,16 +27,12 @@
     }
     else if (_errorMessage is not null)
     {
-        <StatePanel Title="News is unavailable"
-                    Description="@_errorMessage"
-                    Icon="@Icons.Material.Outlined.CloudOff"
-                    IconColor="Color.Error"
-                    Role="alert" />
+        <StatePanel Title="News is unavailable" Description="@_errorMessage" Icon="@Icons.Material.Outlined.CloudOff"
+                    IconColor="Color.Error" Role="alert" />
     }
     else if (_articles.Count == 0)
     {
-        <StatePanel Title="No articles found"
-                    Description="Try choosing another category or check back soon."
+        <StatePanel Title="No articles found" Description="Try choosing another category or check back soon."
                     Icon="@Icons.Material.Outlined.Article" />
     }
     else
@@ -50,11 +46,10 @@
                             <div class="news-card__placeholder" aria-hidden="true">
                                 <MudIcon Icon="@Icons.Material.Outlined.Newspaper" />
                             </div>
-                        @if (!string.IsNullOrWhiteSpace(article.FeaturedImageUrl))
-                        {
-                            <img src="@article.FeaturedImageUrl" alt="" loading="lazy"
-                                 onerror="this.hidden=true" />
-                        }
+                            @if (!string.IsNullOrWhiteSpace(article.FeaturedImageUrl))
+                            {
+                                <img src="@article.FeaturedImageUrl" alt="" loading="lazy" onerror="this.hidden=true" />
+                            }
                         </div>
                         <MudCardContent>
                             <div class="news-card__meta">
@@ -78,9 +73,7 @@
                             <p class="news-card__summary">@article.Summary</p>
                         </MudCardContent>
                         <MudCardActions>
-                            <MudButton Href="@($"/news/{article.Slug}")"
-                                       Variant="Variant.Text"
-                                       Color="Color.Primary"
+                            <MudButton Href="@($"/news/{article.Slug}")" Variant="Variant.Text" Color="Color.Primary"
                                        EndIcon="@Icons.Material.Filled.ArrowForward">
                                 Read article
                             </MudButton>
@@ -92,9 +85,7 @@
 
         @if (TotalPages > 1)
         {
-            <MudPagination Class="news-pagination"
-                           Count="@TotalPages"
-                           Selected="@_currentPage"
+            <MudPagination Class="news-pagination" Count="@TotalPages" Selected="@_currentPage"
                            SelectedChanged="OnPageChanged" />
         }
     }
