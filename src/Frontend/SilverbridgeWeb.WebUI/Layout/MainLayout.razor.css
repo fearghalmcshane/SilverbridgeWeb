@@ -64,6 +64,8 @@
     padding-block: 2.5rem;
     border-top: 1px solid var(--mud-palette-divider);
     background: var(--mud-palette-surface);
+    /* Matches the MudMainContent drawer transition so both shift together. */
+    transition: margin 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
 }
 
 .footer-content {
@@ -111,7 +113,7 @@
 }
 
 @media (min-width: 960px) {
-    .site-footer {
+    .mud-drawer-open-responsive-md-left .site-footer {
         margin-left: var(--mud-drawer-width-left);
     }
 }

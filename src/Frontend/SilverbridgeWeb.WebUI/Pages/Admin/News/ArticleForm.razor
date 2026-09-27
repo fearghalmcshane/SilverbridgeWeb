@@ -646,7 +646,7 @@
         }
     }
 
-    private static string FormatDate(DateTime dateTime) => dateTime.ToLocalTime().ToString("dd MMM yyyy HH:mm");
+    private static string FormatDate(DateTime dateTime) => ClubTime.ToLocal(dateTime).ToString("dd MMM yyyy HH:mm");
 
     private static Color GetStatusColor(NewsArticleStatus status) => status switch
     {

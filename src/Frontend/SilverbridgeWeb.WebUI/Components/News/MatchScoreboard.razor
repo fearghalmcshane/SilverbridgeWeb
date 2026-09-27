@@ -26,7 +26,7 @@
             }
             @if (MatchDateUtc.HasValue)
             {
-                <span><MudIcon Icon="@Icons.Material.Outlined.CalendarMonth" Size="Size.Small" aria-hidden="true" />@MatchDateUtc.Value.ToLocalTime().ToString("dd MMM yyyy")</span>
+                <span><MudIcon Icon="@Icons.Material.Outlined.CalendarMonth" Size="Size.Small" aria-hidden="true" />@ClubTime.ToLocal(MatchDateUtc.Value).ToString("dd MMM yyyy")</span>
             }
             @if (!string.IsNullOrWhiteSpace(Venue))
             {

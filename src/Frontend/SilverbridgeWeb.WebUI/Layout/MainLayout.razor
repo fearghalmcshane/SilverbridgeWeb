@@ -13,10 +13,7 @@
 
 <MudLayout>
     <MudAppBar Elevation="0" Class="app-header" role="banner">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu"
-                       Color="Color.Inherit"
-                       Edge="Edge.Start"
-                       OnClick="ToggleDrawer"
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="ToggleDrawer"
                        aria-label="Toggle primary navigation" />
         <a href="/" class="brand-link" aria-label="Silverbridge Harps home">
             <MudAvatar Size="Size.Medium" Class="club-avatar">
@@ -29,11 +26,8 @@
         </a>
         <MudSpacer />
         <LoginDisplay />
-        <MudMenu Icon="@ThemeIcon"
-                 IconColor="Color.Inherit"
-                 AriaLabel="@ThemeMenuLabel"
-                 AnchorOrigin="Origin.BottomRight"
-                 TransformOrigin="Origin.TopRight">
+        <MudMenu Icon="@ThemeIcon" IconColor="Color.Inherit" AriaLabel="@ThemeMenuLabel"
+                 AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <MudMenuItem OnClick="@(() => SetThemePreferenceAsync(ThemePreference.System))">
                 <MudIcon Icon="@GetPreferenceIcon(ThemePreference.System)" Class="mr-3" />
                 Use system setting
@@ -49,13 +43,8 @@
         </MudMenu>
     </MudAppBar>
 
-    <MudDrawer @bind-Open="_drawerOpen"
-               Variant="DrawerVariant.Responsive"
-               Breakpoint="Breakpoint.Md"
-               ClipMode="DrawerClipMode.Always"
-               Elevation="1"
-               Class="app-drawer"
-               aria-label="Primary navigation">
+    <MudDrawer @bind-Open="_drawerOpen" Variant="DrawerVariant.Responsive" Breakpoint="Breakpoint.Md"
+               ClipMode="DrawerClipMode.Always" Elevation="1" Class="app-drawer" aria-label="Primary navigation">
         <NavMenu />
     </MudDrawer>
 
@@ -78,17 +67,16 @@
                     </div>
                     <nav class="social-links" aria-label="Silverbridge social media">
                         <MudIconButton Icon="@Icons.Custom.Brands.Facebook" Color="Color.Primary"
-                                       Href="https://www.facebook.com/SilverbridgeGaa" Target="_blank"
-                                       rel="noopener noreferrer" aria-label="Silverbridge Harps on Facebook" />
+                                       Href="https://www.facebook.com/SilverbridgeGaa" Target="_blank" rel="noopener noreferrer"
+                                       aria-label="Silverbridge Harps on Facebook" />
                         <MudIconButton Icon="@Icons.Custom.Brands.Instagram" Color="Color.Primary"
-                                       Href="https://www.instagram.com/silverbridgegaa" Target="_blank"
-                                       rel="noopener noreferrer" aria-label="Silverbridge Harps on Instagram" />
+                                       Href="https://www.instagram.com/silverbridgegaa" Target="_blank" rel="noopener noreferrer"
+                                       aria-label="Silverbridge Harps on Instagram" />
                         <MudIconButton Icon="@Icons.Custom.Brands.X" Color="Color.Primary"
-                                       Href="https://x.com/silverbridgegaa" Target="_blank"
-                                       rel="noopener noreferrer" aria-label="Silverbridge Harps on X" />
-                        <MudIconButton Icon="@Icons.Custom.Brands.YouTube" Color="Color.Primary"
-                                       Href="@YouTubeUrl" Target="_blank"
-                                       rel="noopener noreferrer" aria-label="Silverbridge Harps on YouTube" />
+                                       Href="https://x.com/silverbridgegaa" Target="_blank" rel="noopener noreferrer"
+                                       aria-label="Silverbridge Harps on X" />
+                        <MudIconButton Icon="@Icons.Custom.Brands.YouTube" Color="Color.Primary" Href="@YouTubeUrl"
+                                       Target="_blank" rel="noopener noreferrer" aria-label="Silverbridge Harps on YouTube" />
                         <MudIconButton Icon="@Icons.Custom.Brands.WhatsApp" Color="Color.Primary"
                                        Href="https://chat.whatsapp.com/LSLEuKCokSm5UCbqDRNMIt" Target="_blank"
                                        rel="noopener noreferrer" aria-label="Silverbridge Harps WhatsApp community" />
@@ -101,7 +89,7 @@
 
 @code {
     private readonly MudTheme _theme = SilverbridgeTheme.Create();
-    private bool _drawerOpen = true;
+    private bool _drawerOpen = false;
     private bool _isDarkMode;
     private bool _themeInitialized;
     private ThemePreference _themePreference = ThemePreference.System;

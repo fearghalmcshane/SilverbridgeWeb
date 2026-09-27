@@ -62,7 +62,7 @@
                                 @if (article.PublishedAtUtc.HasValue)
                                 {
                                     <time datetime="@article.PublishedAtUtc.Value.ToString("O")">
-                                        @article.PublishedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy")
+                                        @ClubTime.ToLocal(article.PublishedAtUtc.Value).ToString("dd MMM yyyy")
                                     </time>
                                 }
                             </div>

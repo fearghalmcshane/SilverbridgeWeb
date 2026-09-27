@@ -265,7 +265,7 @@
     }
 
     private static string FormatDate(DateTime? publishedAtUtc) =>
-        publishedAtUtc.HasValue ? publishedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm") : "—";
+        publishedAtUtc.HasValue ? ClubTime.ToLocal(publishedAtUtc.Value).ToString("dd MMM yyyy HH:mm") : "—";
 
     private static string FormatScore(int? goals, int? points) => $"{goals ?? 0}-{points ?? 0}";
 
