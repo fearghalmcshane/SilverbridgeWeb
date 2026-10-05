@@ -37,7 +37,7 @@ public sealed class ClerkWebhookRelayTests
         ClerkWebhookRelayResponse result = await relay.ForwardAsync(context.Request, CancellationToken.None);
 
         handler.Request.Should().NotBeNull();
-        handler.Request!.Method.Should().Be(HttpMethod.Post);
+        handler.Request.Method.Should().Be(HttpMethod.Post);
         handler.Request.RequestUri.Should().Be(new Uri("https://silverbridgeweb-api/users/webhooks/clerk"));
         handler.BodyWasReadBeforeSend.Should().BeFalse();
         handler.Body.Should().Equal(Encoding.UTF8.GetBytes(payload));
