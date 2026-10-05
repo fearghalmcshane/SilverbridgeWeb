@@ -246,13 +246,15 @@ test/
 
 ## Deployment
 
-The app is deployed to **Azure Container Apps** using the Azure Developer CLI (`azd`):
+The app is deployed to **Azure Container Apps** using the Aspire CLI:
 
 ```bash
-azd up
+aspire deploy --apphost ./src/Aspire/SilverbridgeWeb.AppHost/SilverbridgeWeb.AppHost.csproj
 ```
 
-Configuration is defined in `azure.yaml`. Infrastructure is provisioned via .NET Aspire's Azure integration (PostgreSQL Flexible Server, Redis Cache, Container Apps).
+The production GitHub Actions workflow deploys on pushes to `main` and can also be started manually. It authenticates to Azure with OIDC and supplies deployment settings and secrets to `aspire deploy`.
+
+The WebUI custom domain (`silverbridgeharps.club`) and its existing Container Apps environment certificate (`silverbridgeharps.club-silverbr-260913213917`) are configured on the WebUI resource in the AppHost. Aspire reapplies this binding on deployment. The certificate must already exist in the target Container Apps environment, and the domain's DNS records and ownership validation must remain configured in Azure.
 
 ## Key Conventions
 

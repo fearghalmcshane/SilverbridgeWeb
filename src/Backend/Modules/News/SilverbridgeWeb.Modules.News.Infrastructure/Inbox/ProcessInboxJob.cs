@@ -32,7 +32,7 @@ internal sealed class ProcessInboxJob(
         }
 
         await using DbConnection connection = await dbConnectionFactory.OpenConnectionAsync();
-        await using DbTransaction transaction = await connection.BeginTransactionAsync();
+        await using DbTransaction transaction = await connection.BeginTransactionAsync(context.CancellationToken);
 
         IReadOnlyList<InboxMessageResponse> inboxMessages = await GetInboxMessagesAsync(connection, transaction);
 
@@ -58,6 +58,10 @@ internal sealed class ProcessInboxJob(
                     await integrationEventHandler.Handle(integrationEvent, context.CancellationToken);
                 }
             }
+            catch (OperationCanceledException) when (context.CancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
             catch (Exception caughtException)
             {
                 logger.LogError(
@@ -72,7 +76,7 @@ internal sealed class ProcessInboxJob(
             await UpdateInboxMessageAsync(connection, transaction, inboxMessage, exception);
         }
 
-        await transaction.CommitAsync();
+        await transaction.CommitAsync(context.CancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
         {

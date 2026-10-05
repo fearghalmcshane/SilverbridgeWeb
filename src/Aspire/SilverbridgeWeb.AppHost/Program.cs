@@ -56,6 +56,13 @@ IResourceBuilder<ParameterResource> clerkWebhookSigningSecret = builder.AddParam
 IResourceBuilder<ParameterResource> clerkClientId = builder.AddParameter("clerk-client-id");
 IResourceBuilder<ParameterResource> clerkClientSecret = builder.AddParameter("clerk-client-secret", secret: true);
 
+IResourceBuilder<ParameterResource> webUiCustomDomain = builder.AddParameter(
+    "webui-custom-domain",
+    value: "silverbridgeharps.club");
+IResourceBuilder<ParameterResource> webUiCustomDomainCertificate = builder.AddParameter(
+    "webui-custom-domain-certificate",
+    value: "silverbridgeharps.club-silverbr-260913213917");
+
 IResourceBuilder<ParameterResource> foireannPrimaryKey = builder.AddParameter("foireann-primary-api-key", secret: true);
 IResourceBuilder<ParameterResource> foireannSecondaryKey = builder.AddParameter("foireann-secondary-api-key", secret: true);
 
@@ -87,7 +94,11 @@ builder.AddProject<Projects.SilverbridgeWeb_WebUI>("silverbridgeweb-webui")
     .WaitFor(api)
     .WithEnvironment("Clerk__Authority", clerkAuthority)
     .WithEnvironment("Clerk__ClientId", clerkClientId)
-    .WithEnvironment("Clerk__ClientSecret", clerkClientSecret);
+    .WithEnvironment("Clerk__ClientSecret", clerkClientSecret)
+    .PublishAsAzureContainerApp((_, app) =>
+    {
+        app.ConfigureCustomDomain(webUiCustomDomain, webUiCustomDomainCertificate);
+    });
 
 string acaEnvironmentName = Environment.GetEnvironmentVariable("ACA_ENVIRONMENT_NAME") ?? "silverbridgeweb-env";
 

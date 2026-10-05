@@ -33,7 +33,7 @@ internal sealed class ProcessOutboxJob(
         }
 
         await using DbConnection connection = await dbConnectionFactory.OpenConnectionAsync();
-        await using DbTransaction transaction = await connection.BeginTransactionAsync();
+        await using DbTransaction transaction = await connection.BeginTransactionAsync(context.CancellationToken);
 
         IReadOnlyList<OutboxMessageResponse> outboxMessages = await GetOutboxMessagesAsync(connection, transaction);
 
@@ -55,8 +55,12 @@ internal sealed class ProcessOutboxJob(
 
                 foreach (IDomainEventHandler domainEventHandler in domainEventHandlers)
                 {
-                    await domainEventHandler.Handle(domainEvent);
+                    await domainEventHandler.Handle(domainEvent, context.CancellationToken);
                 }
+            }
+            catch (OperationCanceledException) when (context.CancellationToken.IsCancellationRequested)
+            {
+                throw;
             }
             catch (Exception caughtException)
             {
@@ -72,7 +76,7 @@ internal sealed class ProcessOutboxJob(
             await UpdateOutboxMessageAsync(connection, transaction, outboxMessage, exception);
         }
 
-        await transaction.CommitAsync();
+        await transaction.CommitAsync(context.CancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
         {

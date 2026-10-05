@@ -50,3 +50,5 @@ jobs:
           Parameters__clerk-client-id: ${{ secrets.ASPIRE_CLERK_CLIENT_ID }}
           Parameters__clerk-client-secret: ${{ secrets.ASPIRE_CLERK_CLIENT_SECRET }}
           Parameters__clerk-api-key: ${{ secrets.ASPIRE_CLERK_API_KEY }}
+          Parameters__webui-custom-domain: silverbridgeharps.club
+          Parameters__webui-custom-domain-certificate: silverbridgeharps.club-silverbr-260913213917
