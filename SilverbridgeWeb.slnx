@@ -65,6 +65,18 @@
     <Project Path="src/Backend/Modules/Bookings/SilverbridgeWeb.Modules.Bookings.IntegrationEvents/SilverbridgeWeb.Modules.Bookings.IntegrationEvents.csproj" />
     <Project Path="src/Backend/Modules/Bookings/SilverbridgeWeb.Modules.Bookings.Presentation/SilverbridgeWeb.Modules.Bookings.Presentation.csproj" />
   </Folder>
+  <Folder Name="/src/Backend/Modules/Matches/">
+    <Project Path="src/Backend/Modules/Matches/SilverbridgeWeb.Modules.Matches.Application/SilverbridgeWeb.Modules.Matches.Application.csproj" />
+    <Project Path="src/Backend/Modules/Matches/SilverbridgeWeb.Modules.Matches.Domain/SilverbridgeWeb.Modules.Matches.Domain.csproj" />
+    <Project Path="src/Backend/Modules/Matches/SilverbridgeWeb.Modules.Matches.Infrastructure/SilverbridgeWeb.Modules.Matches.Infrastructure.csproj" />
+    <Project Path="src/Backend/Modules/Matches/SilverbridgeWeb.Modules.Matches.IntegrationEvents/SilverbridgeWeb.Modules.Matches.IntegrationEvents.csproj" />
+    <Project Path="src/Backend/Modules/Matches/SilverbridgeWeb.Modules.Matches.Presentation/SilverbridgeWeb.Modules.Matches.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Backend/Modules/Matches/test/">
+    <Project Path="src/Backend/Modules/Matches/test/SilverbridgeWeb.Modules.Matches.ArchitectureTests/SilverbridgeWeb.Modules.Matches.ArchitectureTests.csproj" />
+    <Project Path="src/Backend/Modules/Matches/test/SilverbridgeWeb.Modules.Matches.IntegrationTests/SilverbridgeWeb.Modules.Matches.IntegrationTests.csproj" />
+    <Project Path="src/Backend/Modules/Matches/test/SilverbridgeWeb.Modules.Matches.UnitTests/SilverbridgeWeb.Modules.Matches.UnitTests.csproj" />
+  </Folder>
   <Folder Name="/src/Backend/Modules/News/">
     <Project Path="src/Backend/Modules/News/SilverbridgeWeb.Modules.News.Application/SilverbridgeWeb.Modules.News.Application.csproj" />
     <Project Path="src/Backend/Modules/News/SilverbridgeWeb.Modules.News.Domain/SilverbridgeWeb.Modules.News.Domain.csproj" />

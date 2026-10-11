@@ -18,4 +18,7 @@ public abstract class BaseTest
 
     protected const string NewsNamespace = "SilverbridgeWeb.Modules.News";
     protected const string NewsIntegrationEventsNamespace = "SilverbridgeWeb.Modules.News.IntegrationEvents";
+
+    protected const string MatchesNamespace = "SilverbridgeWeb.Modules.Matches";
+    protected const string MatchesIntegrationEventsNamespace = "SilverbridgeWeb.Modules.Matches.IntegrationEvents";
 }

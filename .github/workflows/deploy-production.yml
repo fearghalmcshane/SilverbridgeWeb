@@ -47,6 +47,7 @@ jobs:
           Parameters__foireann-secondary-api-key: ${{ secrets.ASPIRE_FOIREANN_SECONDARY_API_KEY }}
           Parameters__clerk-authority: ${{ secrets.ASPIRE_CLERK_AUTHORITY }}
           Parameters__clerk-webhook-signing-secret: ${{ secrets.ASPIRE_CLERK_WEBHOOK_SIGNING_SECRET }}
+          Parameters__team-tally-webhook-signing-secret: ${{ secrets.ASPIRE_TEAM_TALLY_WEBHOOK_SIGNING_SECRET }}
           Parameters__clerk-client-id: ${{ secrets.ASPIRE_CLERK_CLIENT_ID }}
           Parameters__clerk-client-secret: ${{ secrets.ASPIRE_CLERK_CLIENT_SECRET }}
           Parameters__clerk-api-key: ${{ secrets.ASPIRE_CLERK_API_KEY }}

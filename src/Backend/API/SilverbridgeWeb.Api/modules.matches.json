@@ -1,0 +1,8 @@
+{
+  "Matches": {
+    "Outbox": {
+      "IntervalInSeconds": 10,
+      "BatchSize": 20
+    }
+  }
+}

@@ -19,13 +19,14 @@ public class ModuleTests : BaseTest
     [Fact]
     public void UsersModule_ShouldNotHaveDependencyOn_AnyOtherModule()
     {
-        string[] otherModules = [EventsNamespace, TicketingNamespace, AttendanceNamespace, NewsNamespace];
+        string[] otherModules = [EventsNamespace, TicketingNamespace, AttendanceNamespace, NewsNamespace, MatchesNamespace];
         string[] integrationEventsModules =
         [
             EventsIntegrationEventsNamespace,
             TicketingIntegrationEventsNamespace,
             AttendanceIntegrationEventsNamespace,
-            NewsIntegrationEventsNamespace
+            NewsIntegrationEventsNamespace,
+            MatchesIntegrationEventsNamespace
         ];
 
         List<Assembly> usersAssemblies =
@@ -48,13 +49,14 @@ public class ModuleTests : BaseTest
     [Fact]
     public void EventsModule_ShouldNotHaveDependencyOn_AnyOtherModule()
     {
-        string[] otherModules = [UsersNamespace, TicketingNamespace, AttendanceNamespace, NewsNamespace];
+        string[] otherModules = [UsersNamespace, TicketingNamespace, AttendanceNamespace, NewsNamespace, MatchesNamespace];
         string[] integrationEventsModules =
         [
             UsersIntegrationEventsNamespace,
             TicketingIntegrationEventsNamespace,
             AttendanceIntegrationEventsNamespace,
-            NewsIntegrationEventsNamespace
+            NewsIntegrationEventsNamespace,
+            MatchesIntegrationEventsNamespace
         ];
 
         List<Assembly> eventsAssemblies =
@@ -77,13 +79,14 @@ public class ModuleTests : BaseTest
     [Fact]
     public void TicketingModule_ShouldNotHaveDependencyOn_AnyOtherModule()
     {
-        string[] otherModules = [EventsNamespace, UsersNamespace, AttendanceNamespace, NewsNamespace];
+        string[] otherModules = [EventsNamespace, UsersNamespace, AttendanceNamespace, NewsNamespace, MatchesNamespace];
         string[] integrationEventsModules =
         [
             EventsIntegrationEventsNamespace,
             UsersIntegrationEventsNamespace,
             AttendanceIntegrationEventsNamespace,
-            NewsIntegrationEventsNamespace
+            NewsIntegrationEventsNamespace,
+            MatchesIntegrationEventsNamespace
         ];
 
         List<Assembly> ticketingAssemblies =
@@ -106,13 +109,14 @@ public class ModuleTests : BaseTest
     [Fact]
     public void AttendanceModule_ShouldNotHaveDependencyOn_AnyOtherModule()
     {
-        string[] otherModules = [UsersNamespace, TicketingNamespace, EventsNamespace, NewsNamespace];
+        string[] otherModules = [UsersNamespace, TicketingNamespace, EventsNamespace, NewsNamespace, MatchesNamespace];
         string[] integrationEventsModules =
         [
             UsersIntegrationEventsNamespace,
             TicketingIntegrationEventsNamespace,
             EventsIntegrationEventsNamespace,
-            NewsIntegrationEventsNamespace
+            NewsIntegrationEventsNamespace,
+            MatchesIntegrationEventsNamespace
         ];
 
         List<Assembly> attendanceAssemblies =
@@ -135,13 +139,14 @@ public class ModuleTests : BaseTest
     [Fact]
     public void NewsModule_ShouldNotHaveDependencyOn_AnyOtherModule()
     {
-        string[] otherModules = [UsersNamespace, EventsNamespace, TicketingNamespace, AttendanceNamespace];
+        string[] otherModules = [UsersNamespace, EventsNamespace, TicketingNamespace, AttendanceNamespace, MatchesNamespace];
         string[] integrationEventsModules =
         [
             UsersIntegrationEventsNamespace,
             EventsIntegrationEventsNamespace,
             TicketingIntegrationEventsNamespace,
-            AttendanceIntegrationEventsNamespace
+            AttendanceIntegrationEventsNamespace,
+            MatchesIntegrationEventsNamespace
         ];
 
         List<Assembly> newsAssemblies =
@@ -157,6 +162,62 @@ public class ModuleTests : BaseTest
             .DoNotHaveDependencyOnAny(integrationEventsModules)
             .Should()
             .NotHaveDependencyOnAny(otherModules)
+            .GetResult()
+            .ShouldBeSuccessful();
+    }
+
+    [Fact]
+    public void MatchesModule_ShouldNotHaveDependencyOn_AnyOtherModule()
+    {
+        string[] otherModules =
+        [
+            UsersNamespace, EventsNamespace, TicketingNamespace, AttendanceNamespace, NewsNamespace,
+            "SilverbridgeWeb.Modules.Bookings", "SilverbridgeWeb.Modules.Foireann"
+        ];
+        string[] integrationEventsModules =
+        [
+            UsersIntegrationEventsNamespace, EventsIntegrationEventsNamespace, TicketingIntegrationEventsNamespace,
+            AttendanceIntegrationEventsNamespace, NewsIntegrationEventsNamespace,
+            "SilverbridgeWeb.Modules.Bookings.IntegrationEvents"
+        ];
+        List<Assembly> matchesAssemblies =
+        [
+            typeof(Modules.Matches.Domain.Matches.MatchCompletion).Assembly,
+            Modules.Matches.Application.AssemblyReference.Assembly,
+            Modules.Matches.Presentation.AssemblyReference.Assembly,
+            typeof(Modules.Matches.Infrastructure.MatchesModule).Assembly
+        ];
+
+        Types.InAssemblies(matchesAssemblies)
+            .That()
+            .DoNotHaveDependencyOnAny(integrationEventsModules)
+            .Should()
+            .NotHaveDependencyOnAny(otherModules)
+            .GetResult()
+            .ShouldBeSuccessful();
+    }
+
+    [Fact]
+    public void BookingsAndFoireannModules_ShouldNotDependOn_MatchesImplementation()
+    {
+        List<Assembly> moduleAssemblies =
+        [
+            typeof(Modules.Bookings.Domain.Bookings.Booking).Assembly,
+            Modules.Bookings.Application.AssemblyReference.Assembly,
+            Modules.Bookings.Presentation.AssemblyReference.Assembly,
+            typeof(Modules.Bookings.Infrastructure.BookingsModule).Assembly,
+            Modules.Foireann.Application.AssemblyReference.Assembly,
+            Modules.Foireann.Presentation.AssemblyReference.Assembly,
+            typeof(Modules.Foireann.Infrastructure.FoireannModule).Assembly
+        ];
+
+        Types.InAssemblies(moduleAssemblies)
+            .Should()
+            .NotHaveDependencyOnAny(
+                "SilverbridgeWeb.Modules.Matches.Domain",
+                "SilverbridgeWeb.Modules.Matches.Application",
+                "SilverbridgeWeb.Modules.Matches.Infrastructure",
+                "SilverbridgeWeb.Modules.Matches.Presentation")
             .GetResult()
             .ShouldBeSuccessful();
     }

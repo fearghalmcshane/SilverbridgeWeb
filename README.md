@@ -41,6 +41,7 @@ The following parameters must be set before running (via `appsettings.Developmen
 | ------------------------------ | ----------------------------------- |
 | `clerk-authority`              | Your Clerk issuer URL               |
 | `clerk-webhook-signing-secret` | Clerk webhook signing secret        |
+| `team-tally-webhook-signing-secret` | Team Tally webhook signing secret |
 | `clerk-client-id`              | Clerk OIDC client ID (frontend)     |
 | `clerk-client-secret`          | Clerk OIDC client secret (frontend) |
 | `foireann-primary-api-key`     | Foireann API primary key            |
@@ -93,6 +94,7 @@ graph TB
     User(["User / Browser"])
     Clerk(["Clerk\n(Auth)"])
     Foireann(["Foireann API\n(External)"])
+    TeamTally(["Team Tally\n(Match webhooks)"])
 
     subgraph Azure Container Apps
         WebUI["Blazor WebUI"]
@@ -106,6 +108,7 @@ graph TB
             Bookings["Bookings"]
             Teams["Teams"]
             News["News"]
+            Matches["Matches"]
             FoireannMod["Foireann"]
         end
     end
@@ -116,6 +119,8 @@ graph TB
     end
 
     User -->|"HTTPS"| WebUI
+    TeamTally -->|"Signed webhook"| WebUI
+    WebUI -->|"Webhook relay"| API
     User -->|"Auth"| Clerk
     WebUI -->|"REST"| API
     WebUI -->|"OIDC"| Clerk
@@ -176,6 +181,7 @@ graph LR
 | **Bookings**   | Facility and resource bookings             |
 | **Teams**      | Team management                            |
 | **News**       | News and announcements                     |
+| **Matches**    | Completed match capture from Team Tally    |
 | **Foireann**   | Integration with the Foireann GAA platform |
 
 ### Module Layer Structure
@@ -216,6 +222,97 @@ Modules are isolated — they never reference each other directly. Communication
 ### Database
 
 Each module owns its own PostgreSQL schema (e.g. `users`, `events`, `ticketing`). Migrations are per-module under `Module.Infrastructure/Database/Migrations/`.
+
+### Team Tally webhooks
+
+Configure Team Tally to POST `match.completed` events to
+`https://silverbridgeharps.club/webhooks/team-tally`. The public WebUI forwards the
+unchanged payload and `TeamTally-Signature` header to the private API at
+`matches/webhooks/team-tally`. The relay does not forward browser credentials or
+retry deliveries; Team Tally owns delivery retries. Both hops enforce a 1 MiB
+body limit, including requests without a content length.
+
+The API authenticates the raw body before parsing it. The signature contract is
+`TeamTally-Signature: t=<Unix seconds>,v1=<Base64 signature>`, where the signature
+is HMAC-SHA256 over the UTF-8 timestamp, a literal `.`, and the original body bytes,
+using the raw UTF-8 signing secret. Timestamps must be within five minutes of the
+server clock in either direction. JSON reformatting changes the signature.
+The JSON event ID is independent of the signature timestamp. An old sample
+timestamp must be replaced and signed again when testing a delivery.
+
+Set the secret in the AppHost's local user secrets as
+`Parameters:team-tally-webhook-signing-secret`; Aspire supplies it only to the API
+as `TeamTally__WebhookSigningSecret`. For production, configure the
+`ASPIRE_TEAM_TALLY_WEBHOOK_SIGNING_SECRET` GitHub environment secret, which the
+deployment workflow passes to Aspire. Never put the value in module JSON files.
+Missing configuration fails validation rather than accepting unsigned requests.
+Before activating production deliveries, check a real Team Tally signed delivery
+against this contract and confirm the provider's retry policy.
+
+The Matches module owns `matches.match_completions`. It stores a queryable
+snapshot of match metadata and both team/opponent scores, provider IDs/version,
+three distinct timestamps (provider event creation, match end, server receipt),
+and the original JSON, including extra fields. The **first verified, valid
+completion per Team Tally match wins**. Repeated deliveries, even with different
+event IDs or changed scores, return success without another row, overwrite, or
+event. Reusing an event ID for a different match is a conflict. Compatible
+payload versions are accepted without a version-date whitelist.
+
+Invalid signatures return 401, malformed completed-match payloads or fields
+exceeding storage limits return 400,
+oversized requests return 413, and storage failures return a non-success response.
+Verified unsupported events, including `result.amended`, are logged and
+acknowledged without storage. Amendments, local team/coach mapping, player
+statistics, UI, and automatic News creation are not implemented.
+
+The completion and its domain outbox event commit together before returning 200.
+The Matches outbox publishes `MatchCompletedIntegrationEvent` with a stable ID
+and typed snapshot, without the original JSON. Delivery is **at-least-once**:
+future consumers must be idempotent. The in-process event bus succeeds when no
+consumer is registered; adding a subscriber later does not deliver historical
+events automatically. Persisted completions are the source for a future explicit
+backfill.
+
+Matches-only outbox settings live in `modules.matches.json`. Failed publication
+uses persisted exponential backoff and **five total attempts**. Successful
+messages get `processed_on_utc`; exhausted messages remain unprocessed with
+`exhausted_on_utc` and their latest `error`. Logs identify failed/exhausted message
+IDs without logging webhook payloads or secrets. Existing modules' outbox
+behavior is unchanged. Inspect exhausted messages in PostgreSQL:
+
+```sql
+SELECT id, attempt_count, exhausted_on_utc, error
+FROM matches.outbox_messages
+WHERE exhausted_on_utc IS NOT NULL
+ORDER BY exhausted_on_utc;
+```
+
+After resolving the failure, replay one explicitly identified message:
+
+```sql
+UPDATE matches.outbox_messages
+SET attempt_count = 0,
+    next_attempt_on_utc = NULL,
+    exhausted_on_utc = NULL,
+    error = NULL
+WHERE id = '<message UUID>'
+  AND processed_on_utc IS NULL
+  AND exhausted_on_utc IS NOT NULL;
+```
+
+Keep its original ID/content and successful `matches.outbox_message_consumers`
+markers. A crash between publication and committing retry state may cause
+redelivery; a database outage may prevent recording an attempt.
+
+Focused validation (PostgreSQL integration tests require a running Docker engine):
+
+```powershell
+dotnet test src\Backend\Modules\Matches\test\SilverbridgeWeb.Modules.Matches.UnitTests
+dotnet test src\Backend\Modules\Matches\test\SilverbridgeWeb.Modules.Matches.IntegrationTests
+dotnet test src\Backend\Modules\Matches\test\SilverbridgeWeb.Modules.Matches.ArchitectureTests
+dotnet test src\Frontend\test\SilverbridgeWeb.WebUI.ComponentTests --filter "FullyQualifiedName~WebhookRelayTests"
+dotnet test test\SilverbridgeWeb.ArchitectureTests
+```
 
 ### Common Projects
 

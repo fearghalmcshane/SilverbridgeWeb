@@ -9,6 +9,7 @@ using SilverbridgeWeb.Modules.Bookings.Infrastructure;
 using SilverbridgeWeb.Modules.Events.Infrastructure;
 using SilverbridgeWeb.Modules.Foireann.Infrastructure;
 using SilverbridgeWeb.Modules.News.Infrastructure;
+using SilverbridgeWeb.Modules.Matches.Infrastructure;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure;
 using SilverbridgeWeb.Modules.Users.Infrastructure;
 
@@ -26,7 +27,8 @@ builder.Services.AddApplication([
     SilverbridgeWeb.Modules.Attendance.Application.AssemblyReference.Assembly,
     SilverbridgeWeb.Modules.Foireann.Application.AssemblyReference.Assembly,
     SilverbridgeWeb.Modules.Bookings.Application.AssemblyReference.Assembly,
-    SilverbridgeWeb.Modules.News.Application.AssemblyReference.Assembly]);
+    SilverbridgeWeb.Modules.News.Application.AssemblyReference.Assembly,
+    SilverbridgeWeb.Modules.Matches.Application.AssemblyReference.Assembly]);
 
 builder.Services.AddInfrastructure(
     builder.Configuration.GetConnectionString("silverbridgeDb")!,
@@ -34,7 +36,7 @@ builder.Services.AddInfrastructure(
     builder.Configuration["Clerk:Authority"]!
 );
 
-builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing", "attendance", "foireann", "bookings", "news"]);
+builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing", "attendance", "foireann", "bookings", "news", "matches"]);
 
 // Registered here rather than in AddNewsModule because the Aspire client integration extends
 // IHostApplicationBuilder, resolving the container-scoped connection string for both Azurite and managed identity.
@@ -47,6 +49,7 @@ builder.Services.AddAttendanceModule(builder.Configuration);
 builder.Services.AddFoireannModule(builder.Configuration);
 builder.Services.AddBookingsModule(builder.Configuration);
 builder.Services.AddNewsModule(builder.Configuration);
+builder.Services.AddMatchesModule(builder.Configuration);
 
 builder.Services.AddCors();
 builder.Services.AddOpenApi();

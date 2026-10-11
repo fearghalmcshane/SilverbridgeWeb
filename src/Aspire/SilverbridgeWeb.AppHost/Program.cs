@@ -1,4 +1,4 @@
-﻿using Aspire.Hosting.Azure;
+using Aspire.Hosting.Azure;
 using Azure.Provisioning.Storage;
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
@@ -53,6 +53,7 @@ IResourceBuilder<RedisResource> redis = builder.AddRedis("redis")
 IResourceBuilder<ParameterResource> clerkAuthority = builder.AddParameter("clerk-authority");
 IResourceBuilder<ParameterResource> clerkApiKey = builder.AddParameter("clerk-api-key", secret: true);
 IResourceBuilder<ParameterResource> clerkWebhookSigningSecret = builder.AddParameter("clerk-webhook-signing-secret", secret: true);
+IResourceBuilder<ParameterResource> teamTallyWebhookSigningSecret = builder.AddParameter("team-tally-webhook-signing-secret", secret: true);
 IResourceBuilder<ParameterResource> clerkClientId = builder.AddParameter("clerk-client-id");
 IResourceBuilder<ParameterResource> clerkClientSecret = builder.AddParameter("clerk-client-secret", secret: true);
 
@@ -81,6 +82,7 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Silverbridge
     .WaitForCompletion(migrator)
     .WithEnvironment("Clerk__Authority", clerkAuthority)
     .WithEnvironment("Clerk__WebhookSigningSecret", clerkWebhookSigningSecret)
+    .WithEnvironment("TeamTally__WebhookSigningSecret", teamTallyWebhookSigningSecret)
     .WithEnvironment("Foireann__PrimaryApiKey", foireannPrimaryKey)
     .WithEnvironment("Foireann__SecondaryApiKey", foireannSecondaryKey)
     .WithHttpHealthCheck("/health");
