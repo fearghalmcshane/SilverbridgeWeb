@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SilverbridgeWeb.Common.Application;
@@ -26,6 +27,7 @@ using SilverbridgeWeb.Modules.Matches.Application;
 using SilverbridgeWeb.Modules.Matches.Infrastructure;
 using SilverbridgeWeb.Modules.Matches.Domain.Matches;
 using SilverbridgeWeb.Modules.Matches.Infrastructure.Database;
+using SilverbridgeWeb.Modules.Matches.Infrastructure.Matches;
 using SilverbridgeWeb.Modules.Matches.Infrastructure.Outbox;
 using SilverbridgeWeb.WebUI.Services.Webhooks;
 using Microsoft.Extensions.Logging;
@@ -121,6 +123,20 @@ public sealed class TeamTallyWebhookPostgreSqlTests
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             }
         }
+
+        using HttpResponseMessage existingMatchConflict = await SendAsync(
+            client, CreatePayload("evt-1", "match/concurrent", "2-10"), cancellationToken);
+        Assert.Equal(HttpStatusCode.Conflict, existingMatchConflict.StatusCode);
+
+        string oversizedNamePayload = CreatePayload("evt-too-long", "match/too-long", "2-10")
+            .Replace("Cúil Óg", new string('x', 301), StringComparison.Ordinal);
+        using HttpResponseMessage invalidLengthResponse = await SendAsync(client, oversizedNamePayload, cancellationToken);
+        Assert.Equal(HttpStatusCode.BadRequest, invalidLengthResponse.StatusCode);
+
+        string mixedCasePayload = CreatePayload("evt-status", "match/opaque", "2-10")
+            .Replace("\"completed\"", "\"Completed\"", StringComparison.Ordinal);
+        using HttpResponseMessage mixedCaseResponse = await SendAsync(client, mixedCasePayload, cancellationToken);
+        Assert.Equal(HttpStatusCode.OK, mixedCaseResponse.StatusCode);
 
         await using AsyncServiceScope verifyScope = app.Services.CreateAsyncScope();
         MatchesDbContext verifyDatabase = verifyScope.ServiceProvider.GetRequiredService<MatchesDbContext>();
@@ -223,6 +239,71 @@ public sealed class TeamTallyWebhookPostgreSqlTests
 
         await relayApp.StopAsync(cancellationToken);
         await app.StopAsync(cancellationToken);
+    }
+
+    [Fact]
+    public async Task Capture_ConcurrentMatchAndEventOwnersDoNotMaskConflict()
+    {
+        CancellationToken cancellationToken = TestContext.Current.CancellationToken;
+        await using PostgreSqlContainer postgres = new PostgreSqlBuilder("postgres:16-alpine").Build();
+        await postgres.StartAsync(cancellationToken);
+        DbContextOptions<MatchesDbContext> options = new DbContextOptionsBuilder<MatchesDbContext>()
+            .UseNpgsql(postgres.GetConnectionString())
+            .UseSnakeCaseNamingConvention()
+            .AddInterceptors(new InsertOutboxMessagesInterceptor())
+            .Options;
+        await using var winnerDatabase = new MatchesDbContext(options);
+        await winnerDatabase.Database.MigrateAsync(cancellationToken);
+
+        var concurrentInsert = new ConcurrentInsertInterceptor(async () =>
+        {
+            winnerDatabase.Add(CreateCompletion("evt-owned", "match/owner"));
+            winnerDatabase.Add(CreateCompletion("evt-winner", "match/target"));
+            await winnerDatabase.SaveChangesAsync(cancellationToken);
+        });
+        DbContextOptions<MatchesDbContext> contenderOptions = new DbContextOptionsBuilder<MatchesDbContext>()
+            .UseNpgsql(postgres.GetConnectionString())
+            .UseSnakeCaseNamingConvention()
+            .AddInterceptors(concurrentInsert, new InsertOutboxMessagesInterceptor())
+            .Options;
+        await using var contenderDatabase = new MatchesDbContext(contenderOptions);
+        var repository = new MatchCompletionRepository(contenderDatabase);
+
+        MatchCompletionCaptureOutcome outcome = await repository.CaptureAsync(
+            CreateCompletion("evt-owned", "match/target"), cancellationToken);
+
+        Assert.True(concurrentInsert.WasInvoked);
+        Assert.Equal(MatchCompletionCaptureOutcome.EventIdConflict, outcome);
+        Assert.Equal(2, await winnerDatabase.Set<MatchCompletion>().CountAsync(cancellationToken));
+        Assert.Equal(2, await winnerDatabase.Set<OutboxMessage>().CountAsync(cancellationToken));
+        Assert.Empty(contenderDatabase.ChangeTracker.Entries());
+    }
+
+    private static MatchCompletion CreateCompletion(string eventId, string matchId)
+    {
+        string payload = CreatePayload(eventId, matchId, "2-10");
+        SilverbridgeWeb.Modules.Matches.Presentation.ParsedTeamTallyEvent parsed =
+            SilverbridgeWeb.Modules.Matches.Presentation.TeamTallyWebhookPayloadParser.Parse(payload, DateTime.UtcNow);
+        return MatchCompletion.Create(parsed.Completion!, payload);
+    }
+
+    private sealed class ConcurrentInsertInterceptor(Func<Task> insertWinners) : SaveChangesInterceptor
+    {
+        public bool WasInvoked { get; private set; }
+
+        public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
+            DbContextEventData eventData,
+            InterceptionResult<int> result,
+            CancellationToken cancellationToken = default)
+        {
+            if (!WasInvoked)
+            {
+                WasInvoked = true;
+                await insertWinners();
+            }
+
+            return result;
+        }
     }
 
     [Fact]

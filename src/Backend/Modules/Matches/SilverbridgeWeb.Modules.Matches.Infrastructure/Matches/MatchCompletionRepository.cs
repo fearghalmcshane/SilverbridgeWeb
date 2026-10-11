@@ -15,24 +15,10 @@ internal sealed class MatchCompletionRepository(MatchesDbContext dbContext) : IM
         MatchCompletion completion,
         CancellationToken cancellationToken)
     {
-        MatchCompletion? existingMatch = await dbContext.MatchCompletions
-            .AsNoTracking()
-            .SingleOrDefaultAsync(
-                item => item.ProviderMatchId == completion.ProviderMatchId,
-                cancellationToken);
-        if (existingMatch is not null)
+        MatchCompletionCaptureOutcome? existing = await ResolveExistingAsync(completion, cancellationToken);
+        if (existing.HasValue)
         {
-            return MatchCompletionCaptureOutcome.AlreadyCaptured;
-        }
-
-        MatchCompletion? existingEvent = await dbContext.MatchCompletions
-            .AsNoTracking()
-            .SingleOrDefaultAsync(
-                item => item.ProviderEventId == completion.ProviderEventId,
-                cancellationToken);
-        if (existingEvent is not null)
-        {
-            return MatchCompletionCaptureOutcome.EventIdConflict;
+            return existing.Value;
         }
 
         dbContext.MatchCompletions.Add(completion);
@@ -52,28 +38,35 @@ internal sealed class MatchCompletionRepository(MatchesDbContext dbContext) : IM
             }
 
             dbContext.ChangeTracker.Clear();
-            MatchCompletion? winner = await dbContext.MatchCompletions
-                .AsNoTracking()
-                .SingleOrDefaultAsync(
-                    item => item.ProviderMatchId == completion.ProviderMatchId,
-                    cancellationToken);
-            if (winner is not null)
+            MatchCompletionCaptureOutcome? recovered = await ResolveExistingAsync(completion, cancellationToken);
+            if (recovered.HasValue)
             {
-                return MatchCompletionCaptureOutcome.AlreadyCaptured;
-            }
-
-            MatchCompletion? eventOwner = await dbContext.MatchCompletions
-                .AsNoTracking()
-                .SingleOrDefaultAsync(
-                    item => item.ProviderEventId == completion.ProviderEventId,
-                    cancellationToken);
-            if (eventOwner is not null && eventOwner.ProviderMatchId != completion.ProviderMatchId)
-            {
-                return MatchCompletionCaptureOutcome.EventIdConflict;
+                return recovered.Value;
             }
 
             throw;
         }
+    }
+
+    private async Task<MatchCompletionCaptureOutcome?> ResolveExistingAsync(
+        MatchCompletion completion,
+        CancellationToken cancellationToken)
+    {
+        List<MatchCompletion> existing = await dbContext.MatchCompletions
+            .AsNoTracking()
+            .Where(item => item.ProviderEventId == completion.ProviderEventId ||
+                item.ProviderMatchId == completion.ProviderMatchId)
+            .ToListAsync(cancellationToken);
+
+        if (existing.Any(item => item.ProviderEventId == completion.ProviderEventId &&
+            item.ProviderMatchId != completion.ProviderMatchId))
+        {
+            return MatchCompletionCaptureOutcome.EventIdConflict;
+        }
+
+        return existing.Any(item => item.ProviderMatchId == completion.ProviderMatchId)
+            ? MatchCompletionCaptureOutcome.AlreadyCaptured
+            : null;
     }
 
     private static bool IsRelevantUniqueViolation(DbUpdateException exception)

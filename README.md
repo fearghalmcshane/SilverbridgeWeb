@@ -258,7 +258,8 @@ event IDs or changed scores, return success without another row, overwrite, or
 event. Reusing an event ID for a different match is a conflict. Compatible
 payload versions are accepted without a version-date whitelist.
 
-Invalid signatures return 401, malformed completed-match payloads return 400,
+Invalid signatures return 401, malformed completed-match payloads or fields
+exceeding storage limits return 400,
 oversized requests return 413, and storage failures return a non-success response.
 Verified unsupported events, including `result.amended`, are logged and
 acknowledged without storage. Amendments, local team/coach mapping, player
