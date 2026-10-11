@@ -90,6 +90,26 @@ public sealed class TeamTallyWebhookPostgreSqlTests
         string relayAddress = relayServer.Features.Get<IServerAddressesFeature>()!.Addresses.Single();
         using var client = new HttpClient { BaseAddress = new Uri(relayAddress) };
 
+        const string pingPayload =
+            """
+            {"id":"63979784-2ce8-44b8-94f6-9557e527dd59","type":"ping","api_version":"2026-10-01",
+             "created_at":"2026-10-11T20:43:10.982Z",
+             "data":{"message":"Test event from Team Tally. Your endpoint is set up.",
+                     "endpoint_id":"6161f545-65ef-46fd-ab07-42f337abfecb"}}
+            """;
+        using HttpResponseMessage pingResponse = await SendAsync(client, pingPayload, cancellationToken);
+        Assert.Equal(HttpStatusCode.OK, pingResponse.StatusCode);
+        using var unsignedPingContent = new StringContent(pingPayload);
+        using HttpResponseMessage unsignedPingResponse = await client.PostAsync(
+            "/webhooks/team-tally", unsignedPingContent, cancellationToken);
+        Assert.Equal(HttpStatusCode.Unauthorized, unsignedPingResponse.StatusCode);
+        await using (AsyncServiceScope pingScope = app.Services.CreateAsyncScope())
+        {
+            MatchesDbContext pingDatabase = pingScope.ServiceProvider.GetRequiredService<MatchesDbContext>();
+            Assert.Empty(await pingDatabase.Set<MatchCompletion>().ToListAsync(cancellationToken));
+            Assert.Empty(await pingDatabase.Set<OutboxMessage>().ToListAsync(cancellationToken));
+        }
+
         using HttpResponseMessage relayOversizedResponse = await SendOversizedAsync(
             client,
             "/webhooks/team-tally",
@@ -379,7 +399,7 @@ public sealed class TeamTallyWebhookPostgreSqlTests
         string timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture);
         byte[] signedPayload = Encoding.UTF8.GetBytes(timestamp + ".").Concat(body).ToArray();
         using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(Secret));
-        string signature = Convert.ToBase64String(hmac.ComputeHash(signedPayload));
+        string signature = Convert.ToHexString(hmac.ComputeHash(signedPayload)).ToLowerInvariant();
         using var request = new HttpRequestMessage(HttpMethod.Post, "/webhooks/team-tally")
         {
             Content = new ByteArrayContent(body)
@@ -405,10 +425,10 @@ public sealed class TeamTallyWebhookPostgreSqlTests
     private static string CreatePayload(string eventId, string matchId, string display) =>
         """
         {"id":"__EVENT__","type":"match.completed","api_version":"v3","created_at":"2026-10-11T20:00:00Z",
-         "data":{"id":"__MATCH__","status":"completed","sport":"hurling","ended_at":"2026-10-11T19:00:00Z",
-         "team":{"name":"Cúil Óg","score":{"goals":2,"points":10,"total":16,"display":"__DISPLAY__"}},
-         "opponent":{"name":"Áth na Rí","score":{"goals":1,"points":8,"total":11,"display":"1-8"}},
-         "result":"win","summary":"Won"}}
+         "data":{"match":{"id":"__MATCH__","status":"completed","sport":"hurling","ended_at":"2026-10-11T19:00:00Z",
+         "team":{"name":"Cúil Óg","goals":2,"points":10,"total":16,"score":"__DISPLAY__"},
+         "opponent":{"name":"Áth na Rí","goals":1,"points":8,"total":11,"score":"1-8"},
+         "result":"win","summary":"Won"}}}
         """
         .Replace("__EVENT__", eventId, StringComparison.Ordinal)
         .Replace("__MATCH__", matchId, StringComparison.Ordinal)

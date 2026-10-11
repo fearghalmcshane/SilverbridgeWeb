@@ -9,6 +9,37 @@ public sealed class TeamTallySignatureVerifierTests
 {
     private const string Secret = "raw-secret-é";
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Verify_AcceptsHexDigestWithHeaderWhitespace(bool uppercase)
+    {
+        byte[] body = Encoding.UTF8.GetBytes("{ \"type\": \"ping\" }");
+        DateTime now = DateTime.UnixEpoch.AddSeconds(1_791_127_264);
+        const string timestamp = "1791127264";
+        string signature = Convert.ToHexString(Convert.FromBase64String(CreateSignature(timestamp, body)));
+        if (!uppercase)
+        {
+            signature = signature.ToLowerInvariant();
+        }
+
+        Assert.True(TeamTallySignatureVerifier.Verify(body, $"t={timestamp}, v1={signature}", Secret, now));
+        Assert.False(TeamTallySignatureVerifier.Verify(body, $"t={timestamp},v1={signature}", "wrong-secret", now));
+        Assert.False(TeamTallySignatureVerifier.Verify("{}"u8, $"t={timestamp},v1={signature}", Secret, now));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("v1=abc")]
+    [InlineData("t=1791127264,v1=0123")]
+    [InlineData("t=1791127264,v1=gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg")]
+    [InlineData("t=1791127264,v1=0000000000000000000000000000000000000000000000000000000000000000")]
+    public void Verify_RejectsMissingMalformedOrIncorrectHexSignature(string? header)
+    {
+        Assert.False(TeamTallySignatureVerifier.Verify(
+            "{}"u8, header, Secret, DateTime.UnixEpoch.AddSeconds(1_791_127_264)));
+    }
+
     [Fact]
     public void Verify_AcceptsCorrectRawBodySignatureAndRotationSignature()
     {

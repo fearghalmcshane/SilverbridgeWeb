@@ -10,12 +10,24 @@ public static class TeamTallySignatureVerifier
 
     public static bool Verify(ReadOnlySpan<byte> body, string? signatureHeader, string? secret, DateTime utcNow)
     {
+        return Verify(body, signatureHeader, secret, utcNow, out _);
+    }
+
+    public static bool Verify(
+        ReadOnlySpan<byte> body,
+        string? signatureHeader,
+        string? secret,
+        DateTime utcNow,
+        out string rejectionReason)
+    {
+        rejectionReason = "Missing signature header or signing secret";
         if (string.IsNullOrWhiteSpace(signatureHeader) || string.IsNullOrEmpty(secret))
         {
             return false;
         }
 
-        string[] components = signatureHeader.Split(',', StringSplitOptions.None);
+        rejectionReason = "Malformed signature header";
+        string[] components = signatureHeader.Split(',', StringSplitOptions.TrimEntries);
         if (components.Length < 2 ||
             !components[0].StartsWith("t=", StringComparison.Ordinal) ||
             !long.TryParse(components[0].AsSpan(2), NumberStyles.None, CultureInfo.InvariantCulture, out long timestamp))
@@ -36,6 +48,7 @@ public static class TeamTallySignatureVerifier
         DateTimeOffset now = new(DateTime.SpecifyKind(utcNow, DateTimeKind.Utc));
         if (signedAt < now - s_tolerance || signedAt > now + s_tolerance)
         {
+            rejectionReason = "Signature timestamp outside five-minute tolerance";
             return false;
         }
 
@@ -56,14 +69,17 @@ public static class TeamTallySignatureVerifier
             byte[] decoded;
             try
             {
-                decoded = Convert.FromBase64String(encoded);
+                decoded = encoded.Length == 64
+                    ? Convert.FromHexString(encoded)
+                    : Convert.FromBase64String(encoded);
             }
             catch (FormatException)
             {
                 return false;
             }
 
-            if (decoded.Length != 32 || !Convert.ToBase64String(decoded).Equals(encoded, StringComparison.Ordinal))
+            if (decoded.Length != 32 ||
+                encoded.Length != 64 && !Convert.ToBase64String(decoded).Equals(encoded, StringComparison.Ordinal))
             {
                 return false;
             }
@@ -92,6 +108,7 @@ public static class TeamTallySignatureVerifier
             matched |= CryptographicOperations.FixedTimeEquals(expected, signature);
         }
 
+        rejectionReason = matched ? string.Empty : "Signature digest mismatch";
         return matched;
     }
 }

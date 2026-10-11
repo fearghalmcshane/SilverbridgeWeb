@@ -41,9 +41,10 @@ internal sealed class TeamTallyWebhook : IEndpoint
                         ? context.Request.Headers["TeamTally-Signature"].ToString()
                         : null;
                     TeamTallyWebhookOptions config = options.Value;
-                    if (!TeamTallySignatureVerifier.Verify(body, signature, config.WebhookSigningSecret, dateTimeProvider.UtcNow))
+                    if (!TeamTallySignatureVerifier.Verify(
+                        body, signature, config.WebhookSigningSecret, dateTimeProvider.UtcNow, out string rejectionReason))
                     {
-                        logger.LogWarning("Rejected Team Tally webhook with an invalid signature.");
+                        logger.LogWarning("Rejected Team Tally webhook: {RejectionReason}.", rejectionReason);
                         return Results.Unauthorized();
                     }
 
@@ -54,17 +55,30 @@ internal sealed class TeamTallyWebhook : IEndpoint
                         originalJson = s_strictUtf8.GetString(body);
                         parsed = TeamTallyWebhookPayloadParser.Parse(originalJson, dateTimeProvider.UtcNow);
                     }
-                    catch (DecoderFallbackException)
+                    catch (DecoderFallbackException exception)
                     {
+                        logger.LogWarning(exception, "Rejected Team Tally webhook with invalid UTF-8.");
                         return Results.BadRequest();
                     }
-                    catch (System.Text.Json.JsonException)
+                    catch (System.Text.Json.JsonException exception)
                     {
+                        logger.LogWarning(exception, "Rejected Team Tally webhook with invalid JSON.");
                         return Results.BadRequest();
                     }
-                    catch (TeamTallyPayloadException)
+                    catch (TeamTallyPayloadException exception)
                     {
+                        logger.LogWarning(exception, "Rejected Team Tally webhook with invalid payload shape.");
                         return Results.BadRequest();
+                    }
+
+                    if (parsed.EventType == "ping")
+                    {
+                        if (logger.IsEnabled(LogLevel.Information))
+                        {
+                            logger.LogInformation("Acknowledged verified Team Tally ping {EventId}.", parsed.EventId);
+                        }
+
+                        return Results.Ok();
                     }
 
                     if (parsed.Completion is null)

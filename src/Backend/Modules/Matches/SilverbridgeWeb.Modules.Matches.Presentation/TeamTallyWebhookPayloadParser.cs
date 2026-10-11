@@ -25,7 +25,7 @@ public sealed class TeamTallyWebhookPayloadParser
             return new ParsedTeamTallyEvent(eventId, eventType, apiVersion, createdAt, null);
         }
 
-        JsonElement data = RequiredObject(root, "data");
+        JsonElement data = RequiredObject(RequiredObject(root, "data"), "match");
         string matchId = RequiredString(data, "id");
         string status = RequiredString(data, "status");
         if (!status.Equals("completed", StringComparison.OrdinalIgnoreCase))
@@ -52,9 +52,9 @@ public sealed class TeamTallyWebhookPayloadParser
             venue.ValueKind == JsonValueKind.Object ? OptionalString(venue, "name") : null,
             venue.ValueKind == JsonValueKind.Object ? OptionalString(venue, "type") : null,
             RequiredString(team, "name"),
-            ParseScore(RequiredObject(team, "score"), "team.score"),
+            ParseScore(team, "team"),
             RequiredString(opponent, "name"),
-            ParseScore(RequiredObject(opponent, "score"), "opponent.score"),
+            ParseScore(opponent, "opponent"),
             RequiredString(data, "result"),
             OptionalString(data, "summary"),
             OptionalUri(data, "live_url"));
@@ -67,7 +67,7 @@ public sealed class TeamTallyWebhookPayloadParser
             RequiredNonnegativeInteger(score, "goals", path),
             RequiredNonnegativeInteger(score, "points", path),
             RequiredNonnegativeInteger(score, "total", path),
-            RequiredString(score, "display"));
+            RequiredString(score, "score"));
 
     private static int RequiredNonnegativeInteger(JsonElement element, string name, string path)
     {
