@@ -233,9 +233,12 @@ retry deliveries; Team Tally owns delivery retries. Both hops enforce a 1 MiB
 body limit, including requests without a content length.
 
 The API authenticates the raw body before parsing it. The signature contract is
-`TeamTally-Signature: t=<Unix seconds>,v1=<Base64 signature>`, where the signature
+`TeamTally-Signature: t=<Unix seconds>,v1=<signature>`, where `v1` is a 64-character
+hexadecimal HMAC digest (Base64 encoding is also accepted for compatibility).
+The signature
 is HMAC-SHA256 over the UTF-8 timestamp, a literal `.`, and the original body bytes,
-using the raw UTF-8 signing secret. Timestamps must be within five minutes of the
+using the raw UTF-8 signing secret. Whitespace around comma-separated header
+components is accepted. Timestamps must be within five minutes of the
 server clock in either direction. JSON reformatting changes the signature.
 The JSON event ID is independent of the signature timestamp. An old sample
 timestamp must be replaced and signed again when testing a delivery.
@@ -249,6 +252,8 @@ Missing configuration fails validation rather than accepting unsigned requests.
 Before activating production deliveries, check a real Team Tally signed delivery
 against this contract and confirm the provider's retry policy.
 
+Completed match payloads contain `data.match`. The `team` and `opponent` objects
+each contain flat `goals`, `points`, `total` fields and a display string in `score`.
 The Matches module owns `matches.match_completions`. It stores a queryable
 snapshot of match metadata and both team/opponent scores, provider IDs/version,
 three distinct timestamps (provider event creation, match end, server receipt),
@@ -261,6 +266,11 @@ payload versions are accepted without a version-date whitelist.
 Invalid signatures return 401, malformed completed-match payloads or fields
 exceeding storage limits return 400,
 oversized requests return 413, and storage failures return a non-success response.
+Signed `ping` test events return 200 and are explicitly logged without storing
+a match or raising an event. Pings still require a valid, current signature;
+the payload's `created_at` is not the signature timestamp. Rejection logs
+distinguish a missing/malformed signature, an expired timestamp, and a digest
+mismatch, without logging signatures, secrets, or payloads.
 Verified unsupported events, including `result.amended`, are logged and
 acknowledged without storage. Amendments, local team/coach mapping, player
 statistics, UI, and automatic News creation are not implemented.

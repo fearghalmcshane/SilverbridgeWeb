@@ -15,10 +15,10 @@ public sealed class CaptureMatchCompletionCommandValidatorTests
         string json =
             """
             {"id":"evt","type":"match.completed","api_version":"v3","created_at":"2026-10-11T20:00:00Z",
-             "data":{"id":"match","status":"__STATUS__","sport":"hurling","ended_at":"2026-10-11T19:00:00Z",
-             "team":{"name":"Team","score":{"goals":2,"points":10,"total":16,"display":"2-10"}},
-             "opponent":{"name":"Opponent","score":{"goals":1,"points":8,"total":11,"display":"1-8"}},
-             "result":"win"}}
+             "data":{"match":{"id":"match","status":"__STATUS__","sport":"hurling","ended_at":"2026-10-11T19:00:00Z",
+             "team":{"name":"Team","goals":2,"points":10,"total":16,"score":"2-10"},
+             "opponent":{"name":"Opponent","goals":1,"points":8,"total":11,"score":"1-8"},
+             "result":"win"}}}
             """.Replace("__STATUS__", status, StringComparison.Ordinal);
         ParsedTeamTallyEvent parsed = TeamTallyWebhookPayloadParser.Parse(json, DateTime.UtcNow);
         var validator = new CaptureMatchCompletionCommandValidator();
