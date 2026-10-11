@@ -7,6 +7,7 @@ using SilverbridgeWeb.Modules.Attendance.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Bookings.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Events.Infrastructure.Database;
 using SilverbridgeWeb.Modules.News.Infrastructure.Database;
+using SilverbridgeWeb.Modules.Matches.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Users.Application;
 using SilverbridgeWeb.Modules.Ticketing.Infrastructure.Database;
 using SilverbridgeWeb.Modules.Users.Infrastructure;
@@ -58,6 +59,12 @@ builder.Services.AddDbContext<NewsDbContext>(options =>
     options
         .UseNpgsql(connectionString, npgsql =>
             npgsql.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "news"))
+        .UseSnakeCaseNamingConvention());
+
+builder.Services.AddDbContext<MatchesDbContext>(options =>
+    options
+        .UseNpgsql(connectionString, npgsql =>
+            npgsql.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "matches"))
         .UseSnakeCaseNamingConvention());
 
 await builder.Build().RunAsync();

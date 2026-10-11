@@ -67,6 +67,14 @@ builder.Services.AddHttpClient<ClerkWebhookRelay>(client =>
 .RemoveAllResilienceHandlers();
 #pragma warning restore EXTEXP0001
 
+#pragma warning disable EXTEXP0001 // Team Tally owns delivery retries.
+builder.Services.AddHttpClient<TeamTallyWebhookRelay>(client =>
+{
+    client.BaseAddress = new("https+http://silverbridgeweb-api/");
+})
+.RemoveAllResilienceHandlers();
+#pragma warning restore EXTEXP0001
+
 const string clerkOidcScheme = "Clerk";
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -152,5 +160,7 @@ app.MapPost(ClerkWebhookRelay.PublicPath, async (
 .AllowAnonymous()
 .DisableAntiforgery()
 .WithMetadata(new RequestSizeLimitAttribute(ClerkWebhookRelay.MaxRequestBodySize));
+
+TeamTallyWebhookRelay.MapEndpoint(app);
 
 await app.RunAsync().ConfigureAwait(false);
