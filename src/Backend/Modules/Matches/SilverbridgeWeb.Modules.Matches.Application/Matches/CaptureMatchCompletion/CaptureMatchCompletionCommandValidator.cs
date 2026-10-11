@@ -3,7 +3,7 @@ using SilverbridgeWeb.Modules.Matches.Domain.Matches;
 
 namespace SilverbridgeWeb.Modules.Matches.Application.Matches.CaptureMatchCompletion;
 
-public sealed class CaptureMatchCompletionCommandValidator : AbstractValidator<CaptureMatchCompletionCommand>
+internal sealed class CaptureMatchCompletionCommandValidator : AbstractValidator<CaptureMatchCompletionCommand>
 {
     public CaptureMatchCompletionCommandValidator()
     {
