@@ -24,6 +24,8 @@ internal static class MatchReportDraftComposer
     internal const int MaxSlugLength = 200;
     internal const int MaxSummaryLength = 1000;
 
+    private static readonly TimeZoneInfo ClubTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Dublin");
+
     // Leaves room for a "-NN" collision suffix without exceeding the slug column limit.
     private const int MaxBaseSlugLength = MaxSlugLength - 4;
 
@@ -39,7 +41,8 @@ internal static class MatchReportDraftComposer
             : (command.TeamName, command.TeamGoals, command.TeamPoints, command.TeamScoreDisplay);
 
         string scoreLine = $"{homeTeam} {homeScore} – {awayScore} {awayTeam}";
-        string matchDate = command.EndedAtUtc.ToString("d MMMM yyyy", CultureInfo.InvariantCulture);
+        DateTime endedAtClubTime = ToClubTime(command.EndedAtUtc);
+        string matchDate = endedAtClubTime.ToString("d MMMM yyyy", CultureInfo.InvariantCulture);
         string? competition = CompetitionLabel(command.Competition, command.Stage);
 
         var summary = new StringBuilder(scoreLine);
@@ -73,7 +76,7 @@ internal static class MatchReportDraftComposer
 
         return new MatchReportDraft(
             Truncate(Headline(command, competition), MaxTitleLength),
-            Slug(command.TeamName, command.OpponentName, command.EndedAtUtc),
+            Slug(command.TeamName, command.OpponentName, endedAtClubTime),
             Truncate(summary.ToString(), MaxSummaryLength),
             content.ToString(),
             homeTeam,
@@ -116,9 +119,13 @@ internal static class MatchReportDraftComposer
         };
     }
 
-    private static string Slug(string team, string opponent, DateTime endedAtUtc)
+    // Servers run in UTC, so the club zone must be explicit for user-facing dates.
+    private static DateTime ToClubTime(DateTime utc) =>
+        TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(utc, DateTimeKind.Utc), ClubTimeZone);
+
+    private static string Slug(string team, string opponent, DateTime endedAtClubTime)
     {
-        string date = endedAtUtc.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        string date = endedAtClubTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
         string teamSlug = Slugify(team);
         string opponentSlug = Slugify(opponent);
         string names = teamSlug.Length == 0 || opponentSlug.Length == 0

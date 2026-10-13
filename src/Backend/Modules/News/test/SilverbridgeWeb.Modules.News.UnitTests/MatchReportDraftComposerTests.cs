@@ -73,6 +73,17 @@ public sealed class MatchReportDraftComposerTests
     }
 
     [Fact]
+    public void Compose_UsesClubLocalDate_WhenMatchEndsAfterMidnightIrishTime()
+    {
+        MatchReportDraft draft = MatchReportDraftComposer.Compose(
+            MatchReportCommands.Completed() with { EndedAtUtc = new DateTime(2026, 7, 11, 23, 30, 0, DateTimeKind.Utc) });
+
+        Assert.EndsWith("12 July 2026", draft.Summary, StringComparison.Ordinal);
+        Assert.Contains("Date: 12 July 2026.", draft.Content, StringComparison.Ordinal);
+        Assert.Equal("silverbridge-harps-v-armagh-harps-2026-07-12", draft.Slug);
+    }
+
+    [Fact]
     public void Compose_BuildsSlugWithoutDiacritics()
     {
         MatchReportDraft draft = MatchReportDraftComposer.Compose(
