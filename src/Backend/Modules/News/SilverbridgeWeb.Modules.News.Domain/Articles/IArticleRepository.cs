@@ -14,5 +14,10 @@ public interface IArticleRepository
 
     void RemoveMatchReportDetails(MatchReportDetails details);
 
+    Task<bool> MatchReportExistsForSourceAsync(
+        string sourceProvider,
+        string sourceMatchId,
+        CancellationToken cancellationToken = default);
+
     Task<bool> IsSlugInUseAsync(string slug, Guid? excludeArticleId, CancellationToken cancellationToken = default);
 }

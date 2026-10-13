@@ -29,7 +29,7 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
             },
             new
             {
-                Id = Guid.Parse("83eafc8f-b4b6-4f4f-8f7c-4f7e15371641"),
+                Id = WellKnownCategories.MatchReportsId,
                 Name = "Match Reports",
                 IsArchived = false
             },

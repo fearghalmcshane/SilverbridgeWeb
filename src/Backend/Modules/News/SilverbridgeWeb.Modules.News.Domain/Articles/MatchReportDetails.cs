@@ -34,6 +34,20 @@ public sealed class MatchReportDetails : Entity
 
     public DateTime? MatchDateUtc { get; private set; }
 
+    /// <summary>
+    /// External system that generated this report (e.g. <see cref="MatchReportSources.TeamTally"/>);
+    /// null for manually authored reports.
+    /// </summary>
+    public string? SourceProvider { get; private set; }
+
+    public string? SourceMatchId { get; private set; }
+
+    internal void LinkSource(string sourceProvider, string sourceMatchId)
+    {
+        SourceProvider = sourceProvider;
+        SourceMatchId = sourceMatchId;
+    }
+
     internal static MatchReportDetails Create(
         Guid articleId,
         string homeTeam,

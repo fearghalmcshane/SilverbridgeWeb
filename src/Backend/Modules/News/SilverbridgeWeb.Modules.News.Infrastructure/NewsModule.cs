@@ -5,8 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SilverbridgeWeb.Common.Application.EventBus;
 using SilverbridgeWeb.Common.Application.Messaging;
+using SilverbridgeWeb.Common.Infrastructure.Eventbus;
 using SilverbridgeWeb.Common.Infrastructure.Outbox;
 using SilverbridgeWeb.Common.Presentation.Endpoints;
+using SilverbridgeWeb.Modules.Matches.IntegrationEvents;
 using SilverbridgeWeb.Modules.News.Application.Abstractions.Data;
 using SilverbridgeWeb.Modules.News.Application.Abstractions.Storage;
 using SilverbridgeWeb.Modules.News.Domain.Articles;
@@ -28,11 +30,18 @@ public static class NewsModule
 
         services.AddIntegrationEventHandlers();
 
+        services.AddConsumers();
+
         services.AddInfrastructure(configuration);
 
         services.AddEndpoints(Presentation.AssemblyReference.Assembly);
 
         return services;
+    }
+
+    private static void AddConsumers(this IServiceCollection services)
+    {
+        services.AddScoped<IIntegrationEventConsumer<MatchCompletedIntegrationEvent>, IntegrationEventConsumer<MatchCompletedIntegrationEvent>>();
     }
 
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)

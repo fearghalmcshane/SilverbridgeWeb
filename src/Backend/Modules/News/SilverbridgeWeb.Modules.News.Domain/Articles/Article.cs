@@ -124,6 +124,21 @@ public sealed class Article : Entity
     }
 
     /// <summary>
+    /// Records the external match this report was generated from, so redelivered events don't create duplicates.
+    /// </summary>
+    public Result LinkMatchReportSource(string sourceProvider, string sourceMatchId)
+    {
+        if (MatchReportDetails is null)
+        {
+            return Result.Failure(ArticleErrors.MatchReportDetailsMissing);
+        }
+
+        MatchReportDetails.LinkSource(sourceProvider, sourceMatchId);
+
+        return Result.Success();
+    }
+
+    /// <summary>
     /// Detaches the match-report details from this article (e.g. when the article type changes away from
     /// <see cref="Articles.ArticleType.MatchReport"/>) and returns the removed entity, if any, so the
     /// repository can also remove it from the database.
