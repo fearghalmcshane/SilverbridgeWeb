@@ -24,6 +24,10 @@ public static class ArticleErrors
         "Articles.AlreadyArchived",
         "The article has already been archived");
 
+    public static readonly Error MatchReportDetailsMissing = Error.Problem(
+        "Articles.MatchReportDetailsMissing",
+        "The article has no match report details");
+
     public static readonly Error SlugAlreadyInUse = Error.Problem(
         "Articles.SlugAlreadyInUse",
         "The article slug is already in use");

@@ -86,6 +86,8 @@
   </Folder>
   <Folder Name="/src/Backend/Modules/News/test/">
     <Project Path="src/Backend/Modules/News/test/SilverbridgeWeb.Modules.News.ArchitectureTests/SilverbridgeWeb.Modules.News.ArchitectureTests.csproj" />
+    <Project Path="src/Backend/Modules/News/test/SilverbridgeWeb.Modules.News.IntegrationTests/SilverbridgeWeb.Modules.News.IntegrationTests.csproj" />
+    <Project Path="src/Backend/Modules/News/test/SilverbridgeWeb.Modules.News.UnitTests/SilverbridgeWeb.Modules.News.UnitTests.csproj" />
   </Folder>
   <Folder Name="/src/Backend/Modules/Users/">
     <Project Path="src/Backend/Modules/Users/SilverbridgeWeb.Modules.Users.Application/SilverbridgeWeb.Modules.Users.Application.csproj" />

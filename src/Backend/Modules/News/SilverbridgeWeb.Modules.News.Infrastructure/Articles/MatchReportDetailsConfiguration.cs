@@ -29,5 +29,14 @@ internal sealed class MatchReportDetailsConfiguration : IEntityTypeConfiguration
         builder.Property(m => m.Competition).HasMaxLength(200);
 
         builder.Property(m => m.Venue).HasMaxLength(200);
+
+        builder.Property(m => m.SourceProvider).HasMaxLength(50);
+
+        builder.Property(m => m.SourceMatchId).HasMaxLength(200);
+
+        // One generated report per external match, so redelivered integration events can't create duplicates.
+        builder.HasIndex(m => new { m.SourceProvider, m.SourceMatchId })
+            .IsUnique()
+            .HasFilter("source_match_id IS NOT NULL");
     }
 }

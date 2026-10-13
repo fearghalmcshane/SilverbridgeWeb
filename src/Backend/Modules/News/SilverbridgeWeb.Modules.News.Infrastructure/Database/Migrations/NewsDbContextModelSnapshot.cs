@@ -18,7 +18,7 @@ namespace SilverbridgeWeb.Modules.News.Infrastructure.Database.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("news")
-                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -296,6 +296,16 @@ namespace SilverbridgeWeb.Modules.News.Infrastructure.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("match_date_utc");
 
+                    b.Property<string>("SourceMatchId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("source_match_id");
+
+                    b.Property<string>("SourceProvider")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("source_provider");
+
                     b.Property<string>("Venue")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
@@ -303,6 +313,11 @@ namespace SilverbridgeWeb.Modules.News.Infrastructure.Database.Migrations
 
                     b.HasKey("ArticleId")
                         .HasName("pk_match_report_details");
+
+                    b.HasIndex("SourceProvider", "SourceMatchId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_match_report_details_source_provider_source_match_id")
+                        .HasFilter("source_match_id IS NOT NULL");
 
                     b.ToTable("match_report_details", "news");
                 });

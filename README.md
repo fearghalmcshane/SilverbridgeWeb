@@ -273,15 +273,26 @@ distinguish a missing/malformed signature, an expired timestamp, and a digest
 mismatch, without logging signatures, secrets, or payloads.
 Verified unsupported events, including `result.amended`, are logged and
 acknowledged without storage. Amendments, local team/coach mapping, player
-statistics, UI, and automatic News creation are not implemented.
+statistics, and UI are not implemented.
 
 The completion and its domain outbox event commit together before returning 200.
 The Matches outbox publishes `MatchCompletedIntegrationEvent` with a stable ID
 and typed snapshot, without the original JSON. Delivery is **at-least-once**:
-future consumers must be idempotent. The in-process event bus succeeds when no
-consumer is registered; adding a subscriber later does not deliver historical
-events automatically. Persisted completions are the source for a future explicit
-backfill.
+consumers must be idempotent. Adding a subscriber later does not deliver
+historical events automatically. Persisted completions are the source for a
+future explicit backfill.
+
+**News match reports**: the News module consumes `MatchCompletedIntegrationEvent`
+through its inbox and creates a **Draft** match report in the *Match Reports*
+category for manual review and publishing (there is no auto-publish setting yet).
+The author is shown as "Team Tally". The headline, summary, slug and placeholder
+content are generated from the result (e.g. "Silverbridge Harps beat Armagh
+Harps in Championship Final"). Match details (home/away team, goals, points,
+competition, venue and match date) are filled from the snapshot. A venue type
+of `away` makes the opponent the home team; `home`, neutral or missing makes the
+club the home team. Each report records its source (`TeamTally` plus the provider
+match ID) behind a unique index, so redelivered or repeated events for the same
+match never create a second report. Earlier completions are not backfilled.
 
 Matches-only outbox settings live in `modules.matches.json`. Failed publication
 uses persisted exponential backoff and **five total attempts**. Successful

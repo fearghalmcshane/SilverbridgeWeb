@@ -57,6 +57,16 @@ internal sealed class ArticleRepository(NewsDbContext context) : IArticleReposit
         context.Set<MatchReportDetails>().Remove(details);
     }
 
+    public async Task<bool> MatchReportExistsForSourceAsync(
+        string sourceProvider,
+        string sourceMatchId,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.Set<MatchReportDetails>().AnyAsync(
+            details => details.SourceProvider == sourceProvider && details.SourceMatchId == sourceMatchId,
+            cancellationToken);
+    }
+
     public async Task<bool> IsSlugInUseAsync(string slug, Guid? excludeArticleId, CancellationToken cancellationToken = default)
     {
         return await context.Articles.AnyAsync(
