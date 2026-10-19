@@ -87,6 +87,14 @@ The WebUI uses a custom MudBlazor theme based on Silverbridge blue (`#263C9F`) a
 
 New pages should use `PageHeader`, `SectionHeader`, and `StatePanel`, provide one semantic `h1`, preserve visible keyboard focus, and remain usable from 320px wide without horizontal scrolling.
 
+### Live score (FSL ScoreConnect)
+
+`/live-score` embeds the FSL ScoreConnect widget (`wwwroot/js/fslScoreboard.js`), which polls the club's pitchside board from the browser. Separately, the WebUI server reads the same board status through `LiveScoreStatusService` (`Services/ScoreConnect/`) to drive the "Live score" nav badge, the home page "Live now" banner, the page's "No game on right now" empty state, and `ClubScoreboard` — our own Blazor scoreboard design, currently shown as a preview below the FSL widget. The status is cached in memory (3s by default) and shared by all visitors; `ClubScoreboard` refreshes every 3s (ticking the clock locally each second) and the badge, banner and page every 30s.
+
+Defaults target the Silverbridge board and can be overridden with a `ScoreConnect` configuration section (`ApiBaseUrl`, `PublishableKey`, `BoardId`, `CacheDuration`, `RefreshInterval`, `ScoreboardRefreshInterval`, `ShowPeriod`). The publishable key is FSL's public browser key, not a secret.
+
+The feed's `status`/`online` fields reflect the ScoreConnect box's internet connection, not whether the board itself is powered on, so "Live" can show while the board is off. Likewise the `period` field reads `H1` even with the board off, so `ClubScoreboard` hides the half/period label unless `ShowPeriod` is enabled (pending confirmation from FSL that it tracks the match).
+
 ### System Overview
 
 ```mermaid

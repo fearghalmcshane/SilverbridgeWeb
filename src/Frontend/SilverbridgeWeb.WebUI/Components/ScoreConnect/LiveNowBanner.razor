@@ -1,0 +1,55 @@
+@using SilverbridgeWeb.WebUI.Services.ScoreConnect
+@implements IDisposable
+@inject ILiveScoreStatusProvider StatusProvider
+@inject TimeProvider TimeProvider
+
+@if (_snapshot is { IsLive: true, Home: { } home, Away: { } away })
+{
+    <aside class="live-now-banner" aria-label="Game in progress">
+        <a href="/live-score" class="live-now-banner__link">
+            <span class="live-now-banner__badge">
+                <span class="live-dot" aria-hidden="true"></span>
+                Live
+            </span>
+            <span class="live-now-banner__match">
+                <span class="live-now-banner__team">@home.Name</span>
+                <strong class="live-now-banner__score">@home.Score</strong>
+                <span aria-hidden="true">v</span>
+                <span class="visually-hidden">versus</span>
+                <strong class="live-now-banner__score">@away.Score</strong>
+                <span class="live-now-banner__team">@away.Name</span>
+            </span>
+            <span class="live-now-banner__clock">@_snapshot.GetElapsedMinutes(TimeProvider.GetUtcNow())'</span>
+            <span class="live-now-banner__cta">
+                Follow live
+                <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Size="Size.Small" aria-hidden="true" />
+            </span>
+        </a>
+    </aside>
+}
+
+@code {
+    private LiveScoreSnapshot? _snapshot;
+    private LiveScoreRefresher? _refresher;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _refresher = new LiveScoreRefresher(StatusProvider, snapshot => InvokeAsync(() =>
+        {
+            _snapshot = snapshot;
+            StateHasChanged();
+        }));
+
+        _snapshot = await StatusProvider.GetSnapshotAsync();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _refresher?.Start();
+        }
+    }
+
+    public void Dispose() => _refresher?.Dispose();
+}

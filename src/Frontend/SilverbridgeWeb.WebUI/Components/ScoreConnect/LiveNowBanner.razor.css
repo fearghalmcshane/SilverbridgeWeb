@@ -1,0 +1,66 @@
+.live-now-banner {
+    background: #131211;
+    color: #fff;
+}
+
+.live-now-banner__link {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem 1rem;
+    width: min(calc(100% - 2rem), 80rem);
+    margin-inline: auto;
+    padding-block: .75rem;
+    color: inherit;
+    text-decoration: none;
+}
+
+.live-now-banner__link:hover .live-now-banner__cta,
+.live-now-banner__link:focus-visible .live-now-banner__cta {
+    text-decoration: underline;
+}
+
+.live-now-banner__link:focus-visible {
+    outline: 3px solid #f79a28;
+    outline-offset: 2px;
+}
+
+.live-now-banner__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.live-now-banner__match {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: .35rem .5rem;
+    min-width: 0;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.live-now-banner__team {
+    overflow-wrap: anywhere;
+}
+
+.live-now-banner__score,
+.live-now-banner__clock {
+    color: #f79a28;
+    font-variant-numeric: tabular-nums;
+}
+
+.live-now-banner__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    font-size: .9rem;
+    font-weight: 600;
+}
