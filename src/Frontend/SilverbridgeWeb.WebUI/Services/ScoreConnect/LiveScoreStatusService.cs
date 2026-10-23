@@ -1,8 +1,10 @@
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using Polly;
 
 namespace SilverbridgeWeb.WebUI.Services.ScoreConnect;
 
@@ -19,6 +21,8 @@ internal sealed partial class LiveScoreStatusService(
 {
     private const int MaxTeamNameLength = 40;
 
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> FetchLocks = new(StringComparer.Ordinal);
+
     private readonly ScoreConnectOptions _options = options.Value;
 
     public TimeSpan RefreshInterval => _options.RefreshInterval;
@@ -34,9 +38,23 @@ internal sealed partial class LiveScoreStatusService(
             return cached;
         }
 
-        LiveScoreSnapshot snapshot = await FetchAsync(cancellationToken);
-        cache.Set(CacheKey, snapshot, _options.CacheDuration);
-        return snapshot;
+        SemaphoreSlim fetchLock = FetchLocks.GetOrAdd(CacheKey, static _ => new SemaphoreSlim(1, 1));
+        await fetchLock.WaitAsync(cancellationToken);
+        try
+        {
+            if (cache.TryGetValue(CacheKey, out cached) && cached is not null)
+            {
+                return cached;
+            }
+
+            LiveScoreSnapshot snapshot = await FetchAsync(cancellationToken);
+            cache.Set(CacheKey, snapshot, _options.CacheDuration);
+            return snapshot;
+        }
+        finally
+        {
+            fetchLock.Release();
+        }
     }
 
     private async Task<LiveScoreSnapshot> FetchAsync(CancellationToken cancellationToken)
@@ -56,7 +74,7 @@ internal sealed partial class LiveScoreStatusService(
             return Parse(document.RootElement, timeProvider.GetUtcNow());
         }
         catch (Exception exception) when (
-            exception is HttpRequestException or JsonException
+            exception is HttpRequestException or JsonException or ExecutionRejectedException
             || exception is OperationCanceledException && !cancellationToken.IsCancellationRequested)
         {
             LogFetchFailed(logger, _options.BoardId, exception);

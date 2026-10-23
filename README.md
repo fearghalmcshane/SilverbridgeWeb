@@ -93,6 +93,8 @@ New pages should use `PageHeader`, `SectionHeader`, and `StatePanel`, provide on
 
 Defaults target the Silverbridge board and can be overridden with a `ScoreConnect` configuration section (`ApiBaseUrl`, `PublishableKey`, `BoardId`, `CacheDuration`, `RefreshInterval`, `ScoreboardRefreshInterval`, `ShowPeriod`). The publishable key is FSL's public browser key, not a secret.
 
+Concurrent server-side cache misses are coordinated per board across provider instances. Provider failures, including resilience timeouts and open circuits, are logged and cached as unavailable; caller cancellation still propagates.
+
 The feed's `status`/`online` fields reflect the ScoreConnect box's internet connection, not whether the board itself is powered on, so "Live" can show while the board is off. Likewise the `period` field reads `H1` even with the board off, so `ClubScoreboard` hides the half/period label unless `ShowPeriod` is enabled (pending confirmation from FSL that it tracks the match).
 
 ### System Overview

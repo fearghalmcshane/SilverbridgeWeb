@@ -132,7 +132,7 @@
 
 [data-stale="true"] .club-scoreboard__teams,
 [data-stale="true"] .club-scoreboard__clock {
-    opacity: .45;
+    opacity: .85;
 }
 
 .club-scoreboard__message {

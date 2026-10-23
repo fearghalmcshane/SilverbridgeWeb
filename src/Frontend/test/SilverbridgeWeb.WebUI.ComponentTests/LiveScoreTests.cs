@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using MudBlazor.Services;
+using Polly.CircuitBreaker;
+using Polly.Timeout;
 using SilverbridgeWeb.WebUI.Components.ScoreConnect;
 using SilverbridgeWeb.WebUI.Pages;
 using SilverbridgeWeb.WebUI.Services.ScoreConnect;
@@ -82,6 +84,105 @@ public sealed class LiveScoreTests : IDisposable
 
         first.State.Should().Be(LiveScoreState.Unavailable);
         second.Should().BeSameAs(first);
+        handler.RequestCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task CoalescesConcurrentCacheMissesAcrossProviderInstances()
+    {
+        var responseReady = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var handler = new StubHandler(HttpStatusCode.OK, """[{"status":"live","online":true}]""")
+        {
+            BeforeResponse = cancellationToken => responseReady.Task.WaitAsync(cancellationToken)
+        };
+        LiveScoreStatusService firstService = CreateService(handler);
+        LiveScoreStatusService secondService = CreateService(handler);
+
+        Task<LiveScoreSnapshot> first = firstService.GetSnapshotAsync(Xunit.TestContext.Current.CancellationToken);
+        Task<LiveScoreSnapshot> second = secondService.GetSnapshotAsync(Xunit.TestContext.Current.CancellationToken);
+        int requestsWhilePending = handler.RequestCount;
+        responseReady.SetResult();
+        LiveScoreSnapshot[] snapshots = await Task.WhenAll(first, second);
+
+        requestsWhilePending.Should().Be(1);
+        handler.RequestCount.Should().Be(1);
+        snapshots[0].State.Should().Be(LiveScoreState.Live);
+        snapshots[1].Should().BeSameAs(snapshots[0]);
+
+        _cache.Compact(1);
+        responseReady = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        first = firstService.GetSnapshotAsync(Xunit.TestContext.Current.CancellationToken);
+        second = secondService.GetSnapshotAsync(Xunit.TestContext.Current.CancellationToken);
+        requestsWhilePending = handler.RequestCount;
+        responseReady.SetResult();
+        snapshots = await Task.WhenAll(first, second);
+
+        requestsWhilePending.Should().Be(2);
+        handler.RequestCount.Should().Be(2);
+        snapshots[1].Should().BeSameAs(snapshots[0]);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ReturnsUnavailableWhenResiliencePolicyRejectsRequest(bool timeout)
+    {
+        Exception exception = timeout ? new TimeoutRejectedException() : new BrokenCircuitException();
+        using var handler = new StubHandler(HttpStatusCode.OK, "[]")
+        {
+            BeforeResponse = _ => Task.FromException(exception)
+        };
+        LiveScoreStatusService service = CreateService(handler);
+
+        LiveScoreSnapshot first = await service.GetSnapshotAsync(Xunit.TestContext.Current.CancellationToken);
+        LiveScoreSnapshot second = await service.GetSnapshotAsync(Xunit.TestContext.Current.CancellationToken);
+
+        first.State.Should().Be(LiveScoreState.Unavailable);
+        second.Should().BeSameAs(first);
+        handler.RequestCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task PropagatesFetchCancellationWithoutCachingAndReleasesLock()
+    {
+        var responseReady = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(Xunit.TestContext.Current.CancellationToken);
+        using var handler = new StubHandler(HttpStatusCode.OK, """[{"status":"live","online":true}]""")
+        {
+            BeforeResponse = cancellationToken => responseReady.Task.WaitAsync(cancellationToken)
+        };
+        LiveScoreStatusService service = CreateService(handler);
+        Task<LiveScoreSnapshot> pending = service.GetSnapshotAsync(cancellation.Token);
+
+        await cancellation.CancelAsync();
+
+        Func<Task> fetch = () => pending;
+        await fetch.Should().ThrowAsync<OperationCanceledException>();
+        responseReady.SetResult();
+        LiveScoreSnapshot snapshot = await CreateService(handler).GetSnapshotAsync(Xunit.TestContext.Current.CancellationToken);
+        snapshot.State.Should().Be(LiveScoreState.Live);
+        handler.RequestCount.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task CancellingWaitingCallerDoesNotCancelSharedFetch()
+    {
+        var responseReady = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var handler = new StubHandler(HttpStatusCode.OK, """[{"status":"live","online":true}]""")
+        {
+            BeforeResponse = cancellationToken => responseReady.Task.WaitAsync(cancellationToken)
+        };
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(Xunit.TestContext.Current.CancellationToken);
+        Task<LiveScoreSnapshot> first = CreateService(handler).GetSnapshotAsync(Xunit.TestContext.Current.CancellationToken);
+        Task<LiveScoreSnapshot> second = CreateService(handler).GetSnapshotAsync(cancellation.Token);
+
+        await cancellation.CancelAsync();
+        responseReady.SetResult();
+
+        Func<Task> fetch = () => second;
+        await fetch.Should().ThrowAsync<OperationCanceledException>();
+        LiveScoreSnapshot snapshot = await first;
+        snapshot.State.Should().Be(LiveScoreState.Live);
         handler.RequestCount.Should().Be(1);
     }
 
@@ -246,21 +347,28 @@ public sealed class LiveScoreTests : IDisposable
 
     private sealed class StubHandler(HttpStatusCode statusCode, string body) : HttpMessageHandler
     {
+        public Func<CancellationToken, Task>? BeforeResponse { get; init; }
+
         public Uri? RequestUri { get; private set; }
 
         public string? ApiKey { get; private set; }
 
         public int RequestCount { get; private set; }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             RequestCount++;
             RequestUri = request.RequestUri;
             ApiKey = request.Headers.TryGetValues("apikey", out IEnumerable<string>? values) ? values.Single() : null;
-            return Task.FromResult(new HttpResponseMessage(statusCode)
+            if (BeforeResponse is not null)
+            {
+                await BeforeResponse(cancellationToken);
+            }
+
+            return new HttpResponseMessage(statusCode)
             {
                 Content = new StringContent(body, Encoding.UTF8, "application/json")
-            });
+            };
         }
     }
 }
