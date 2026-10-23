@@ -1,46 +1,125 @@
 @page "/live-score"
+@using Microsoft.Extensions.Options
 @using SilverbridgeWeb.WebUI.Components.ScoreConnect
+@using SilverbridgeWeb.WebUI.Services.ScoreConnect
+@implements IAsyncDisposable
+@inject ILiveScoreStatusProvider StatusProvider
+@inject IOptions<ScoreConnectOptions> ScoreConnectOptions
+@inject IJSRuntime JSRuntime
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
 
 <PageTitle>Live Score - Silverbridge Harps GAC</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="live-score-page">
-    <PageHeader Eyebrow="Match day trial"
+    <PageHeader Eyebrow="Match day"
                 Title="Live score"
-                Description="Follow the scoreboard as a game is updated from the sideline." />
+                Description="Follow Silverbridge games live from the pitchside scoreboard.">
+        <Actions>
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Share"
+                       OnClick="ShareAsync">
+                Share
+            </MudButton>
+        </Actions>
+    </PageHeader>
 
-    <div class="live-score-layout">
-        <section class="live-score-panel" aria-labelledby="live-score-title">
-            <div class="live-score-panel__intro">
-                <h2 id="live-score-title">Silverbridge scoreboard</h2>
-                <p>
-                    This trial connects directly to the match-day scoreboard and refreshes automatically.
-                </p>
+    <div class="live-score-content">
+        @if (_snapshot is null)
+        {
+            <div class="live-score-loading" role="status">
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" aria-hidden="true" />
+                <span class="visually-hidden">Checking the scoreboard</span>
             </div>
+        }
+        else if (_snapshot.ShowScoreboard)
+        {
+            <section class="live-score-panel">
+                <LiveScoreboard BoardId="@ScoreConnectOptions.Value.BoardId"
+                                AriaLabel="Silverbridge Harps live match scoreboard" />
+            </section>
 
-            <LiveScoreboard BoardId="SILVERBRIDGESB"
-                            AriaLabel="Silverbridge Harps live match scoreboard" />
-        </section>
-
-        <aside class="live-score-guidance" aria-labelledby="score-status-title">
-            <h2 id="score-status-title">Scoreboard status</h2>
-            <dl>
-                <div>
-                    <dt>Not started</dt>
-                    <dd>The board is connected and waiting for the game to begin.</dd>
-                </div>
-                <div>
-                    <dt>Live</dt>
-                    <dd>The clock and scores are being updated during the game.</dd>
-                </div>
-                <div>
-                    <dt>Full time</dt>
-                    <dd>The game has finished and the final score remains available.</dd>
-                </div>
-                <div>
-                    <dt>Board offline or reconnecting</dt>
-                    <dd>The most recent score may be shown while the connection is restored.</dd>
-                </div>
-            </dl>
-        </aside>
+            <section class="live-score-panel live-score-preview">
+                <SectionHeader Title="Preview: new scoreboard design"
+                               Description="Our own scoreboard built from the same pitchside feed. It's shown here for comparison while we try it out." />
+                <ClubScoreboard AriaLabel="Silverbridge Harps live match scoreboard (preview)" />
+            </section>
+        }
+        else
+        {
+            <StatePanel Icon="@Icons.Material.Outlined.Scoreboard"
+                        Title="No game on right now"
+                        Description="The live score will appear here automatically when the Silverbridge scoreboard is switched on for a game.">
+                <Actions>
+                    <MudButton Href="/fixtures"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               EndIcon="@Icons.Material.Filled.ArrowForward">
+                        Fixtures &amp; results
+                    </MudButton>
+                </Actions>
+            </StatePanel>
+        }
     </div>
 </MudContainer>
+
+@code {
+    private const string ShareModulePath = "./js/share.js";
+
+    private LiveScoreSnapshot? _snapshot;
+    private LiveScoreRefresher? _refresher;
+    private IJSObjectReference? _shareModule;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _refresher = new LiveScoreRefresher(StatusProvider, snapshot => InvokeAsync(() =>
+        {
+            _snapshot = snapshot;
+            StateHasChanged();
+        }));
+
+        _snapshot = await StatusProvider.GetSnapshotAsync();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _refresher?.Start();
+        }
+    }
+
+    private async Task ShareAsync()
+    {
+        _shareModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", ShareModulePath);
+        string result = await _shareModule.InvokeAsync<string>("share", "Silverbridge Harps live score", Navigation.Uri);
+
+        switch (result)
+        {
+            case "copied":
+                Snackbar.Add("Link copied to clipboard", Severity.Success);
+                break;
+            case "unsupported":
+                Snackbar.Add("Sharing isn't available in this browser. Copy the address bar link instead.", Severity.Info);
+                break;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _refresher?.Dispose();
+
+        if (_shareModule is not null)
+        {
+            try
+            {
+                await _shareModule.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                _shareModule = null;
+            }
+        }
+    }
+}

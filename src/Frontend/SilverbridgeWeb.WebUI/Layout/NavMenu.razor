@@ -1,3 +1,4 @@
+@using SilverbridgeWeb.WebUI.Components.ScoreConnect
 @using SilverbridgeWeb.WebUI.Services.ApiClients
 @using SilverbridgeWeb.WebUI.Services.Authorization
 @inject UsersApiClient UsersApiClient
@@ -9,6 +10,7 @@
     <MudNavGroup Title="Games" Icon="@Icons.Material.Filled.SportsFootball" Expanded="true">
         <MudNavLink Href="/fixtures" Icon="@Icons.Material.Filled.CalendarMonth" Match="NavLinkMatch.Prefix">Fixtures &
             results</MudNavLink>
+        <LiveScoreNavLink />
         </MudNavGroup>
 
         <AuthorizeView>

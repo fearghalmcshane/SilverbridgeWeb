@@ -1,0 +1,43 @@
+@using SilverbridgeWeb.WebUI.Services.ScoreConnect
+@implements IDisposable
+@inject ILiveScoreStatusProvider StatusProvider
+
+<MudNavLink Href="/live-score" Icon="@Icons.Material.Filled.Scoreboard" Match="NavLinkMatch.Prefix">
+    <span class="live-score-nav">
+        Live score
+        @if (_isLive)
+        {
+            <span class="live-dot" aria-hidden="true"></span>
+            <span class="visually-hidden">(game in progress)</span>
+        }
+    </span>
+</MudNavLink>
+
+@code {
+    private bool _isLive;
+    private LiveScoreRefresher? _refresher;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _refresher = new LiveScoreRefresher(StatusProvider, snapshot => InvokeAsync(() =>
+        {
+            if (_isLive != snapshot.IsLive)
+            {
+                _isLive = snapshot.IsLive;
+                StateHasChanged();
+            }
+        }));
+
+        _isLive = (await StatusProvider.GetSnapshotAsync()).IsLive;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _refresher?.Start();
+        }
+    }
+
+    public void Dispose() => _refresher?.Dispose();
+}

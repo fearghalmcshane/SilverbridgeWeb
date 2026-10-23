@@ -2,12 +2,15 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http.Resilience;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using MudBlazor.Services;
 using SilverbridgeWeb.WebUI;
 using SilverbridgeWeb.WebUI.Authentication;
 using SilverbridgeWeb.WebUI.Services.ApiClients;
+using SilverbridgeWeb.WebUI.Services.ScoreConnect;
 using SilverbridgeWeb.WebUI.Services.Theme;
 using SilverbridgeWeb.WebUI.Services.Webhooks;
 
@@ -58,6 +61,15 @@ builder.Services.AddHttpClient<UsersApiClient>(client =>
     client.BaseAddress = new("https+http://silverbridgeweb-api/");
 })
 .AddHttpMessageHandler<AuthorizationHandler>();
+
+builder.Services.AddMemoryCache();
+builder.Services.TryAddSingleton(TimeProvider.System);
+builder.Services.AddOptions<ScoreConnectOptions>()
+    .Bind(builder.Configuration.GetSection(ScoreConnectOptions.SectionName));
+builder.Services.AddHttpClient<ILiveScoreStatusProvider, LiveScoreStatusService>((services, client) =>
+{
+    client.BaseAddress = services.GetRequiredService<IOptions<ScoreConnectOptions>>().Value.ApiBaseUrl;
+});
 
 #pragma warning disable EXTEXP0001 // Webhook delivery retries are managed by Clerk, not the forwarding client.
 builder.Services.AddHttpClient<ClerkWebhookRelay>(client =>

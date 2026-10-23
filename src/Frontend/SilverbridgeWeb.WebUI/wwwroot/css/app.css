@@ -129,6 +129,26 @@ code {
     color: var(--mud-palette-tertiary, #0c6b58);
 }
 
+.live-dot {
+    display: inline-block;
+    flex: none;
+    width: .6rem;
+    height: .6rem;
+    border-radius: 50%;
+    background: #3fcf55;
+    animation: live-dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes live-dot-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .35;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     html {
         scroll-behavior: auto;
