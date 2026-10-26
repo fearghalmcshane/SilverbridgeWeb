@@ -9,11 +9,13 @@ Website for Silverbridge Harps GFC (GAA club): .NET 10 modular monolith API + Bl
 ```bash
 dotnet build                                   # warnings are errors (see below)
 dotnet run --project src/Aspire/SilverbridgeWeb.AppHost   # full local stack (needs Docker); pgAdmin on :5050
-dotnet test --filter "FullyQualifiedName!~SilverbridgeWeb.WebUI.BrowserTests"   # what CI runs first
+dotnet test --filter-not-namespace "SilverbridgeWeb.WebUI.BrowserTests*" --ignore-exit-code 8   # what CI runs first
 dotnet test test/SilverbridgeWeb.ArchitectureTests        # global layer/module-isolation rules
 dotnet test src/Backend/Modules/<Module>/test/SilverbridgeWeb.Modules.<Module>.<Unit|Integration|Architecture>Tests
-dotnet test <project> --filter "FullyQualifiedName~SomeTestClass"   # single test/class
+dotnet test <project> --filter-class "*SomeTestClass"   # single class (--filter-method for a test)
 ```
+
+- `global.json` opts `dotnet test` into Microsoft Testing Platform mode (required by xunit.v3 4.x on the .NET 10 SDK), so use xUnit's MTP filter options (`--filter-class`, `--filter-not-namespace`, ...) rather than VSTest `--filter` expressions. Exit code 8 means a project ran zero tests.
 
 - Integration tests (Matches, News) use Testcontainers PostgreSQL — Docker must be running.
 - Browser tests (`src/Frontend/test/SilverbridgeWeb.WebUI.BrowserTests`) use Playwright; install Chromium once via `bin/<Config>/net10.0/playwright.ps1 install chromium` after building.

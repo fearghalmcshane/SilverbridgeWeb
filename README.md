@@ -56,7 +56,8 @@ dotnet build
 # Build (Release)
 dotnet build --configuration Release
 
-# Run all tests
+# Run all tests (global.json opts into Microsoft Testing Platform mode; use xUnit
+# filters such as --filter-class / --filter-not-namespace instead of VSTest --filter)
 dotnet test
 
 # Frontend component tests
@@ -339,7 +340,7 @@ Focused validation (PostgreSQL integration tests require a running Docker engine
 dotnet test src\Backend\Modules\Matches\test\SilverbridgeWeb.Modules.Matches.UnitTests
 dotnet test src\Backend\Modules\Matches\test\SilverbridgeWeb.Modules.Matches.IntegrationTests
 dotnet test src\Backend\Modules\Matches\test\SilverbridgeWeb.Modules.Matches.ArchitectureTests
-dotnet test src\Frontend\test\SilverbridgeWeb.WebUI.ComponentTests --filter "FullyQualifiedName~WebhookRelayTests"
+dotnet test src\Frontend\test\SilverbridgeWeb.WebUI.ComponentTests --filter-class "*WebhookRelayTests"
 dotnet test test\SilverbridgeWeb.ArchitectureTests
 ```
 

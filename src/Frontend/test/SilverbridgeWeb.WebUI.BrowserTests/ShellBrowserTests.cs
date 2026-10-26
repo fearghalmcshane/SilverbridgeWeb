@@ -1,6 +1,6 @@
 using FluentAssertions;
 using Microsoft.Playwright;
-using Microsoft.Playwright.Xunit;
+using Microsoft.Playwright.Xunit.v3;
 using Xunit;
 
 namespace SilverbridgeWeb.WebUI.BrowserTests;
