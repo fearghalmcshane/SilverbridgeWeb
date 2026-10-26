@@ -116,7 +116,6 @@ graph TB
             Ticketing["Ticketing"]
             Attendance["Attendance"]
             Bookings["Bookings"]
-            Teams["Teams"]
             News["News"]
             Matches["Matches"]
             FoireannMod["Foireann"]
@@ -189,7 +188,6 @@ graph LR
 | **Ticketing**  | Ticket sales and management                |
 | **Attendance** | Attendance tracking                        |
 | **Bookings**   | Facility and resource bookings             |
-| **Teams**      | Team management                            |
 | **News**       | News and announcements                     |
 | **Matches**    | Completed match capture from Team Tally    |
 | **Foireann**   | Integration with the Foireann GAA platform |

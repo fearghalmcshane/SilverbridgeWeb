@@ -39,7 +39,10 @@ The application is organized into independent **modules**, each with its own bou
 - **Events** - Event creation and management
 - **Ticketing** - Ticket sales and management
 - **Attendance** - Attendance tracking
-- **Foireann** - Team/staff management
+- **Bookings** - Facility and resource bookings
+- **News** - News and announcements (including draft match reports from Team Tally)
+- **Matches** - Completed match capture from Team Tally webhooks
+- **Foireann** - Integration with the Foireann GAA platform (external API; no Domain layer or database)
 
 ### Module Layer Structure
 
@@ -196,7 +199,7 @@ Modules use separate JSON config files:
 Loaded via:
 
 ```csharp
-builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing", "attendance", "foireann"]);
+builder.Configuration.AddModuleConfiguration(["events", "users", "ticketing", "attendance", "foireann", "bookings", "news", "matches"]);
 ```
 
 ### Code Style
@@ -256,8 +259,8 @@ dotnet test test/SilverbridgeWeb.ArchitectureTests
 Each module can have:
 
 - `{Module}.ArchitectureTests` - Layer and naming rules
-- Integration tests (to be added)
-- Unit tests (to be added)
+- `{Module}.UnitTests` - Unit tests (currently Matches and News)
+- `{Module}.IntegrationTests` - PostgreSQL integration tests via Testcontainers (currently Matches and News; require Docker)
 
 ## Package Management
 
@@ -269,10 +272,10 @@ Uses **Central Package Management** (`Directory.Packages.props`):
 
 Key packages:
 
-- **Aspire** 13.2.4
+- **Aspire** 13.6.1
 - **FluentValidation** 12.1.1
-- **EF Core** 10.0.7
-- **MudBlazor** 9.4.0 (frontend)
+- **EF Core** 10.0.12
+- **MudBlazor** 9.11.0 (frontend)
 
 ## Development Workflow
 
