@@ -1,0 +1,179 @@
+.club-scoreboard {
+    --scoreboard-navy: #101a47;
+    --scoreboard-blue: #263c9f;
+    --scoreboard-yellow: #fccf02;
+    --scoreboard-text: #fff;
+    --scoreboard-muted: rgba(255, 255, 255, .72);
+
+    width: min(100%, 620px);
+    margin-inline: auto;
+    overflow: hidden;
+    border-radius: 1rem;
+    background: linear-gradient(160deg, var(--scoreboard-blue) 0%, var(--scoreboard-navy) 55%);
+    color: var(--scoreboard-text);
+    box-shadow: 0 .75rem 2rem rgba(16, 26, 71, .25);
+}
+
+.club-scoreboard__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem 1rem;
+    padding: 1rem clamp(1rem, 4vw, 1.5rem);
+    border-bottom: 3px solid var(--scoreboard-yellow);
+    background: rgba(0, 0, 0, .18);
+}
+
+.club-scoreboard__status {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .85rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.club-scoreboard__dot {
+    width: .65rem;
+    height: .65rem;
+    border-radius: 50%;
+    background: #8a94a8;
+}
+
+[data-state="live"] .club-scoreboard__dot {
+    background: #3fcf55;
+    animation: live-dot-pulse 2s ease-in-out infinite;
+}
+
+[data-state="finished"] .club-scoreboard__dot {
+    background: var(--scoreboard-yellow);
+}
+
+[data-state="reconnecting"] .club-scoreboard__dot,
+[data-state="offline"] .club-scoreboard__dot {
+    background: #e2574c;
+}
+
+.club-scoreboard__period {
+    order: 3;
+    flex-basis: 100%;
+    color: var(--scoreboard-muted);
+    font-size: .85rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.club-scoreboard__clock {
+    color: var(--scoreboard-yellow);
+    font-size: clamp(1.75rem, 8vw, 2.5rem);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+.club-scoreboard__teams {
+    display: grid;
+    padding-inline: clamp(1rem, 4vw, 1.5rem);
+}
+
+.club-scoreboard__team {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 1rem;
+    border-left: 4px solid transparent;
+    margin-left: calc(-1 * clamp(1rem, 4vw, 1.5rem));
+    padding-left: calc(clamp(1rem, 4vw, 1.5rem) - 4px);
+}
+
+.club-scoreboard__team + .club-scoreboard__team {
+    border-top: 1px solid rgba(255, 255, 255, .16);
+}
+
+.club-scoreboard__team[data-leading="true"] {
+    border-left-color: var(--scoreboard-yellow);
+}
+
+.club-scoreboard__name {
+    min-width: 0;
+    overflow: hidden;
+    font-size: clamp(1.15rem, 5.5vw, 1.9rem);
+    font-weight: 800;
+    line-height: 1.1;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.club-scoreboard__score {
+    display: inline-flex;
+    flex: none;
+    align-items: baseline;
+    gap: .4rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.club-scoreboard__goals-points {
+    color: var(--scoreboard-yellow);
+    font-size: clamp(1.6rem, 8vw, 2.6rem);
+    font-weight: 800;
+    line-height: 1;
+}
+
+.club-scoreboard__total {
+    color: var(--scoreboard-muted);
+    font-size: clamp(.9rem, 3.5vw, 1.1rem);
+    font-weight: 600;
+}
+
+[data-stale="true"] .club-scoreboard__teams,
+[data-stale="true"] .club-scoreboard__clock {
+    opacity: .85;
+}
+
+.club-scoreboard__message {
+    margin: 0;
+    padding: 2rem 1rem;
+    color: var(--scoreboard-muted);
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.club-scoreboard__footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .25rem .5rem;
+    margin: 0;
+    padding: .75rem 1rem;
+    border-top: 1px solid rgba(255, 255, 255, .16);
+    color: var(--scoreboard-muted);
+    font-size: .8rem;
+}
+
+.club-scoreboard__footer a {
+    color: var(--scoreboard-text);
+    font-weight: 600;
+}
+
+.club-scoreboard__footer a:focus-visible {
+    outline: 3px solid var(--scoreboard-yellow);
+    outline-offset: 2px;
+}
+
+@media (max-width: 479.98px) {
+    .club-scoreboard__footer {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .club-scoreboard__separator {
+        display: none;
+    }
+}

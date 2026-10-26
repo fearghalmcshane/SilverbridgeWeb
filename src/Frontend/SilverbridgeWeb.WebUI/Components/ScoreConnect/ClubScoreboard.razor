@@ -1,0 +1,163 @@
+@using System.Globalization
+@using Microsoft.Extensions.Options
+@using SilverbridgeWeb.WebUI.Services.ScoreConnect
+@implements IDisposable
+@inject ILiveScoreStatusProvider StatusProvider
+@inject IOptions<ScoreConnectOptions> ScoreConnectSettings
+@inject TimeProvider TimeProvider
+
+<section class="club-scoreboard" data-state="@StateKey" data-stale="@IsStale.ToString().ToLowerInvariant()"
+         aria-label="@AriaLabel">
+    @if (_snapshot is null)
+    {
+        <p class="club-scoreboard__message">Connecting to the scoreboard…</p>
+    }
+    else
+    {
+        <div class="club-scoreboard__bar">
+            <span class="club-scoreboard__status">
+                <span class="club-scoreboard__dot" aria-hidden="true"></span>
+                @StatusText
+            </span>
+            @if (PeriodText is { } period)
+            {
+                <span class="club-scoreboard__period">@period</span>
+            }
+            <span class="club-scoreboard__clock" role="timer" aria-label="Match clock @Clock">@Clock</span>
+        </div>
+
+        @if (_snapshot is { Home: { } home, Away: { } away })
+        {
+            <div class="club-scoreboard__teams" aria-live="polite" aria-atomic="true">
+                @TeamRow(home, home.Total > away.Total)
+                @TeamRow(away, away.Total > home.Total)
+            </div>
+        }
+        else
+        {
+            <p class="club-scoreboard__message">No scores from the board yet</p>
+        }
+
+        <p class="club-scoreboard__footer">
+            <span>Updated @ClubTime.ToLocal(_snapshot.RetrievedAtUtc).ToString("HH:mm:ss", CultureInfo.InvariantCulture)</span>
+            <span class="club-scoreboard__separator" aria-hidden="true">·</span>
+            <a href="https://www.fslscoreboards.com" target="_blank" rel="noopener noreferrer">
+                Powered by FSL Scoreboards
+            </a>
+        </p>
+    }
+</section>
+
+@code {
+    private LiveScoreSnapshot? _snapshot;
+    private LiveScoreRefresher? _refresher;
+    private CancellationTokenSource? _ticker;
+
+    [Parameter]
+    public string AriaLabel { get; set; } = "Live match scoreboard";
+
+    private bool IsStale => _snapshot is { BoardOnline: false } or { State: LiveScoreState.Offline or LiveScoreState.Unavailable };
+
+    private string StateKey => _snapshot?.State switch
+    {
+        LiveScoreState.Live when IsStale => "reconnecting",
+        LiveScoreState.Live => "live",
+        LiveScoreState.FullTime => "finished",
+        LiveScoreState.NotStarted => "idle",
+        _ => "offline"
+    };
+
+    private string StatusText => StateKey switch
+    {
+        "reconnecting" => "Reconnecting",
+        "live" => "Live",
+        "finished" => "Full time",
+        "idle" => "Not started",
+        _ => "Board offline"
+    };
+
+    private string? PeriodText => !ScoreConnectSettings.Value.ShowPeriod ? null : _snapshot?.Period?.ToUpperInvariant() switch
+    {
+        null => null,
+        "H1" => "1st half",
+        "H2" => "2nd half",
+        "HT" => "Half time",
+        "ET1" => "Extra time · 1st half",
+        "ET2" => "Extra time · 2nd half",
+        "FT" => "Full time",
+        "PEN" => "Penalties",
+        _ => _snapshot.Period
+    };
+
+    private string Clock
+    {
+        get
+        {
+            int seconds = _snapshot?.GetClockSeconds(TimeProvider.GetUtcNow()) ?? 0;
+            return string.Create(CultureInfo.InvariantCulture, $"{seconds / 60:00}:{seconds % 60:00}");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _refresher = new LiveScoreRefresher(
+            StatusProvider,
+            snapshot => InvokeAsync(() =>
+            {
+                _snapshot = snapshot;
+                StateHasChanged();
+            }),
+            StatusProvider.ScoreboardRefreshInterval);
+
+        _snapshot = await StatusProvider.GetSnapshotAsync();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        _refresher?.Start();
+        _ticker = new CancellationTokenSource();
+        _ = TickClockAsync(_ticker.Token);
+    }
+
+    private async Task TickClockAsync(CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+        try
+        {
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                if (_snapshot is { ClockRunning: true })
+                {
+                    await InvokeAsync(StateHasChanged);
+                }
+            }
+        }
+        catch (Exception exception) when (exception is OperationCanceledException or ObjectDisposedException)
+        {
+            // The component was disposed.
+        }
+    }
+
+    public void Dispose()
+    {
+        _refresher?.Dispose();
+        _ticker?.Cancel();
+        _ticker?.Dispose();
+    }
+
+    private static RenderFragment TeamRow(LiveScoreTeam team, bool leading) => __builder =>
+    {
+        <div class="club-scoreboard__team" data-leading="@leading.ToString().ToLowerInvariant()">
+            <span class="club-scoreboard__name">@team.Name</span>
+            <span class="club-scoreboard__score">
+                <span class="club-scoreboard__goals-points">@team.Score</span>
+                <span class="club-scoreboard__total">(@team.Total)</span>
+            </span>
+        </div>
+    };
+}
