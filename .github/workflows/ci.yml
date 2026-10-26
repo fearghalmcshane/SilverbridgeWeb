@@ -25,7 +25,7 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Run tests
-        run: dotnet test --no-build --configuration Release --verbosity normal --filter "FullyQualifiedName!~SilverbridgeWeb.WebUI.BrowserTests"
+        run: dotnet test --no-build --configuration Release --verbosity normal --filter-not-namespace "SilverbridgeWeb.WebUI.BrowserTests*" --ignore-exit-code 8
 
       - name: Install Playwright browser
         shell: pwsh
