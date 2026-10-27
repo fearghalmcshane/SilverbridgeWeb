@@ -96,7 +96,7 @@ Defaults target the Silverbridge board and can be overridden with a `ScoreConnec
 
 Concurrent server-side cache misses are coordinated per board across provider instances. Provider failures, including resilience timeouts and open circuits, are logged and cached as unavailable; caller cancellation still propagates.
 
-The feed's `status`/`online` fields reflect the ScoreConnect box's internet connection, not whether the board itself is powered on, so "Live" can show while the board is off. Likewise the `period` field reads `H1` even with the board off, so `ClubScoreboard` hides the half/period label unless `ShowPeriod` is enabled (pending confirmation from FSL that it tracks the match).
+The feed's `status`/`online` fields reflect the ScoreConnect box's internet connection, not whether the board itself is powered on, so "Live" can show while the board is off. To take the site out of live mode, switch off the ScoreConnect box: `online` becomes `false` (with `status` left at `live`), which the site treats as offline — no nav badge or home banner, and the page shows its empty state. Likewise the `period` field reads `H1` even with the board off, so `ClubScoreboard` hides the half/period label unless `ShowPeriod` is enabled (pending confirmation from FSL that it tracks the match).
 
 ### System Overview
 

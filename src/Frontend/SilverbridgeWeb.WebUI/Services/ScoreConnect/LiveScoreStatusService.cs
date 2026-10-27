@@ -95,10 +95,11 @@ internal sealed partial class LiveScoreStatusService(
         bool online = !row.TryGetProperty("online", out JsonElement onlineElement)
             || onlineElement.ValueKind != JsonValueKind.False;
 
+        // Matches FSL's widget: online:false (ScoreConnect box switched off) wins over a stale status of "live".
         LiveScoreState state = status switch
         {
-            "live" => LiveScoreState.Live,
             _ when !online => LiveScoreState.Offline,
+            "live" => LiveScoreState.Live,
             "finished" => LiveScoreState.FullTime,
             _ => LiveScoreState.NotStarted
         };
