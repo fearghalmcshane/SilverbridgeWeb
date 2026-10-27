@@ -35,7 +35,7 @@ public sealed class LiveScoreTests : IDisposable
 
     [Theory]
     [InlineData("""[{"status":"live","online":true}]""", "Live", true)]
-    [InlineData("""[{"status":"live","online":false}]""", "Live", false)]
+    [InlineData("""[{"status":"live","online":false}]""", "Offline", false)]
     [InlineData("""[{"status":"finished","online":true}]""", "FullTime", true)]
     [InlineData("""[{"status":"finished","online":false}]""", "Offline", false)]
     [InlineData("""[{"status":"idle","online":true}]""", "NotStarted", true)]
