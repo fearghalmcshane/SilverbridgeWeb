@@ -1,0 +1,21 @@
+{
+  "Payments": {
+    "Outbox": {
+      "IntervalInSeconds": 2,
+      "BatchSize": 50
+    },
+    "Inbox": {
+      "IntervalInSeconds": 2,
+      "BatchSize": 50
+    },
+    "Webhooks": {
+      "IntervalInSeconds": 5,
+      "BatchSize": 20,
+      "MaxAttempts": 10
+    },
+    "Reconciliation": {
+      "IntervalInMinutes": 15,
+      "BatchSize": 50
+    }
+  }
+}

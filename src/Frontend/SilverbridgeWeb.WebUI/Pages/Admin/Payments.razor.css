@@ -1,0 +1,25 @@
+.admin-payments-page {
+    padding-block: 2rem 4rem;
+}
+
+.admin-payments-page ::deep .admin-payments-filters {
+    margin-block: 1.5rem 1rem;
+}
+
+.admin-payments-page ::deep .admin-payments-filters__search {
+    flex: 1 1 16rem;
+    min-width: 0;
+}
+
+.admin-payments-page ::deep .admin-payments-filters__status {
+    flex: 0 1 12rem;
+    min-width: 10rem;
+}
+
+.admin-payments-page ::deep .admin-payments__email {
+    overflow-wrap: anywhere;
+}
+
+.admin-payments-page ::deep .admin-payments-pager {
+    margin-top: 1rem;
+}

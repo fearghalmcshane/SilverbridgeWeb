@@ -46,6 +46,8 @@ The following parameters must be set before running (via `appsettings.Developmen
 | `clerk-client-secret`          | Clerk OIDC client secret (frontend) |
 | `foireann-primary-api-key`     | Foireann API primary key            |
 | `foireann-secondary-api-key`   | Foireann API secondary key          |
+| `stripe-secret-key`            | Stripe secret API key (`sk_test_…` locally) |
+| `stripe-webhook-signing-secret` | Stripe webhook signing secret (`whsec_…`) |
 
 ## Build & Test
 
@@ -191,6 +193,7 @@ graph LR
 | **Bookings**   | Facility and resource bookings             |
 | **News**       | News and announcements                     |
 | **Matches**    | Completed match capture from Team Tally    |
+| **Payments**   | Card and Direct Debit payments via Stripe  |
 | **Foireann**   | Integration with the Foireann GAA platform |
 
 ### Module Layer Structure
@@ -342,6 +345,33 @@ dotnet test src\Backend\Modules\Matches\test\SilverbridgeWeb.Modules.Matches.Int
 dotnet test src\Backend\Modules\Matches\test\SilverbridgeWeb.Modules.Matches.ArchitectureTests
 dotnet test src\Frontend\test\SilverbridgeWeb.WebUI.ComponentTests --filter-class "*WebhookRelayTests"
 dotnet test test\SilverbridgeWeb.ArchitectureTests
+```
+
+### Payments (Stripe)
+
+The Payments module collects money for other modules. It never decides *what* is being paid for; a requesting module asks, and Payments reports the outcome. Payers use Stripe's hosted Checkout page, so card and bank details never reach this site.
+
+**Asking for a payment.** A module references `SilverbridgeWeb.Modules.Payments.IntegrationEvents`, generates a ULID for the request, publishes `PaymentRequestedIntegrationEvent` (source, its own reference, payer, GBP lines in pence, `OneOff` or `MonthlySubscription`) and sends the user to `/payments/{paymentRequestId}`. That page waits briefly for the request to arrive through the inbox, then redirects to Stripe.
+
+**Hearing back.** Payments publishes `PaymentSucceeded`, `PaymentFailed`, `PaymentExpired`, `PaymentRefunded` and, for monthly payments, `SubscriptionActivated`, `SubscriptionPaymentSucceeded`, `SubscriptionPaymentFailed` and `SubscriptionCancelled`. Every outcome carries `Source` and `SourceReference`; consumers ignore events whose `Source` is not theirs. A module can also publish `PaymentRequestCancelledIntegrationEvent`, `RefundRequestedIntegrationEvent` and `SubscriptionCancellationRequestedIntegrationEvent`. A monthly subscription's identifier is the identifier of the request that started it.
+
+**Webhooks.** Stripe calls the public WebUI at `/webhooks/stripe`, which relays the raw body and the `Stripe-Signature` header to the API (`POST payments/webhooks/stripe`). The API verifies the signature, stores the event once in `payments.provider_webhook_events` and answers straight away. `ProcessProviderWebhooksJob` applies stored events; an event that refers to something not recorded yet is retried with back-off (`Payments:Webhooks:MaxAttempts`). `ReconcilePendingPaymentsJob` asks Stripe about any checkout that should have finished but has not been heard from, in case a webhook never arrives.
+
+**Stripe dashboard setup (once per environment):**
+
+1. Create a webhook endpoint for `https://<site>/webhooks/stripe` with these events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`, `refund.created`, `refund.updated`, `refund.failed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`, `invoice.payment_failed`. Store its signing secret as `stripe-webhook-signing-secret`.
+2. Under payment methods, enable Cards (which includes Apple Pay and Google Pay) and Bacs Direct Debit. Checkout offers whatever is enabled.
+3. Turn on customer emails for successful payments and refunds so payers get receipts.
+4. Configure the customer portal (Settings → Billing → Customer portal) so payers can update card or bank details and cancel monthly payments.
+
+**Trying it locally.** Set `Parameters:stripe-secret-key` to a test key, run `stripe listen --forward-to https://localhost:<webui-port>/webhooks/stripe` and use the `whsec_…` it prints as `Parameters:stripe-webhook-signing-secret`. In Development the API maps `POST payments/dev/requests` (body `{ "description": "Test", "amountMinor": 1500 }`, optional `"kind": 1` for monthly), which asks the signed-in user for a payment exactly as a module would and returns the `/payments/{id}` address. Pay with `4242 4242 4242 4242`, decline with `4000 0000 0000 0002`, or test Bacs with sort code `10-88-00` and account `00012345`.
+
+**Who sees what.** Anyone signed in can pay their own requests and see `/account/payments`. The `Treasurer` role (and `Administrator`) has `payments:read`, `payments:refund` and `payments:manage`, which unlock `/admin/payments`, refunds, and cancelling anyone's monthly payment.
+
+```powershell
+dotnet test src\Backend\Modules\Payments\test\SilverbridgeWeb.Modules.Payments.UnitTests
+dotnet test src\Backend\Modules\Payments\test\SilverbridgeWeb.Modules.Payments.IntegrationTests
+dotnet test src\Backend\Modules\Payments\test\SilverbridgeWeb.Modules.Payments.ArchitectureTests
 ```
 
 ### Common Projects

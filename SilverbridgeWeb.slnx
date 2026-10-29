@@ -43,6 +43,18 @@
   <Folder Name="/src/Backend/Modules/Events/test/">
     <Project Path="src/Backend/Modules/Events/test/SilverbridgeWeb.Modules.Events.ArchitectureTests/SilverbridgeWeb.Modules.Events.ArchitectureTests.csproj" Id="1e67ce8c-9a27-4fa6-90a0-1bb71e65e249" />
   </Folder>
+  <Folder Name="/src/Backend/Modules/Payments/">
+    <Project Path="src/Backend/Modules/Payments/SilverbridgeWeb.Modules.Payments.Application/SilverbridgeWeb.Modules.Payments.Application.csproj" />
+    <Project Path="src/Backend/Modules/Payments/SilverbridgeWeb.Modules.Payments.Domain/SilverbridgeWeb.Modules.Payments.Domain.csproj" />
+    <Project Path="src/Backend/Modules/Payments/SilverbridgeWeb.Modules.Payments.Infrastructure/SilverbridgeWeb.Modules.Payments.Infrastructure.csproj" />
+    <Project Path="src/Backend/Modules/Payments/SilverbridgeWeb.Modules.Payments.IntegrationEvents/SilverbridgeWeb.Modules.Payments.IntegrationEvents.csproj" />
+    <Project Path="src/Backend/Modules/Payments/SilverbridgeWeb.Modules.Payments.Presentation/SilverbridgeWeb.Modules.Payments.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Backend/Modules/Payments/test/">
+    <Project Path="src/Backend/Modules/Payments/test/SilverbridgeWeb.Modules.Payments.ArchitectureTests/SilverbridgeWeb.Modules.Payments.ArchitectureTests.csproj" />
+    <Project Path="src/Backend/Modules/Payments/test/SilverbridgeWeb.Modules.Payments.IntegrationTests/SilverbridgeWeb.Modules.Payments.IntegrationTests.csproj" />
+    <Project Path="src/Backend/Modules/Payments/test/SilverbridgeWeb.Modules.Payments.UnitTests/SilverbridgeWeb.Modules.Payments.UnitTests.csproj" />
+  </Folder>
   <Folder Name="/src/Backend/Modules/Ticketing/">
     <Project Path="src/Backend/Modules/Ticketing/SilverbridgeWeb.Modules.Ticketing.Application/SilverbridgeWeb.Modules.Ticketing.Application.csproj" />
     <Project Path="src/Backend/Modules/Ticketing/SilverbridgeWeb.Modules.Ticketing.Domain/SilverbridgeWeb.Modules.Ticketing.Domain.csproj" />

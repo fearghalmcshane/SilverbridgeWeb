@@ -46,7 +46,10 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
             Permission.CreateBookings,
             Permission.ApproveBookings,
             Permission.UpdateBookings,
-            Permission.DeleteBookings);
+            Permission.DeleteBookings,
+            Permission.ReadPayments,
+            Permission.RefundPayments,
+            Permission.ManagePayments);
 
         builder
             .HasMany<Role>()
@@ -85,6 +88,10 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
                     CreateRolePermission(Role.BookingAdministrator, Permission.UpdateBookings),
                     CreateRolePermission(Role.BookingAdministrator, Permission.DeleteBookings),
                     CreateRolePermission(Role.BookingAdministrator, Permission.GetUser),
+                    // Treasurer permissions
+                    CreateRolePermission(Role.Treasurer, Permission.ReadPayments),
+                    CreateRolePermission(Role.Treasurer, Permission.RefundPayments),
+                    CreateRolePermission(Role.Treasurer, Permission.ManagePayments),
                     // Admin permissions
                     CreateRolePermission(Role.Administrator, Permission.GetUser),
                     CreateRolePermission(Role.Administrator, Permission.ModifyUser),
@@ -117,7 +124,10 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
                     CreateRolePermission(Role.Administrator, Permission.CreateBookings),
                     CreateRolePermission(Role.Administrator, Permission.ApproveBookings),
                     CreateRolePermission(Role.Administrator, Permission.UpdateBookings),
-                    CreateRolePermission(Role.Administrator, Permission.DeleteBookings));
+                    CreateRolePermission(Role.Administrator, Permission.DeleteBookings),
+                    CreateRolePermission(Role.Administrator, Permission.ReadPayments),
+                    CreateRolePermission(Role.Administrator, Permission.RefundPayments),
+                    CreateRolePermission(Role.Administrator, Permission.ManagePayments));
             });
     }
 

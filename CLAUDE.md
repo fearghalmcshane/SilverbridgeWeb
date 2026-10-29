@@ -17,11 +17,11 @@ dotnet test <project> --filter-class "*SomeTestClass"   # single class (--filter
 
 - `global.json` opts `dotnet test` into Microsoft Testing Platform mode (required by xunit.v3 4.x on the .NET 10 SDK), so use xUnit's MTP filter options (`--filter-class`, `--filter-not-namespace`, ...) rather than VSTest `--filter` expressions. Exit code 8 means a project ran zero tests.
 
-- Integration tests (Matches, News) use Testcontainers PostgreSQL — Docker must be running.
+- Integration tests (Matches, News, Payments) use Testcontainers PostgreSQL — Docker must be running.
 - Browser tests (`src/Frontend/test/SilverbridgeWeb.WebUI.BrowserTests`) use Playwright; install Chromium once via `bin/<Config>/net10.0/playwright.ps1 install chromium` after building.
 - Component tests use bUnit (`src/Frontend/test/SilverbridgeWeb.WebUI.ComponentTests`).
 - The Aspire CLI is also available (`aspire start`, `aspire describe`, `aspire logs <resource>`, `aspire otel logs`); `.mcp.json` registers the Aspire MCP server and `.github/skills/aspire/SKILL.md` documents the workflow.
-- Local secrets are AppHost parameters (user secrets as `Parameters:<name>`), e.g. `clerk-authority`, `clerk-api-key`, `clerk-webhook-signing-secret`, `team-tally-webhook-signing-secret`, `clerk-client-id/secret`, `foireann-primary/secondary-api-key`. Never put secrets in `modules.*.json`.
+- Local secrets are AppHost parameters (user secrets as `Parameters:<name>`), e.g. `clerk-authority`, `clerk-api-key`, `clerk-webhook-signing-secret`, `team-tally-webhook-signing-secret`, `clerk-client-id/secret`, `foireann-primary/secondary-api-key`, `stripe-secret-key`, `stripe-webhook-signing-secret`. Never put secrets in `modules.*.json`.
 
 ## Architecture
 
@@ -31,7 +31,7 @@ dotnet test <project> --filter-class "*SomeTestClass"   # single class (--filter
 - Auth: API validates Clerk JWTs; WebUI uses Clerk OIDC with cookie session.
 
 ### Modules (`src/Backend/Modules/<Name>/`)
-Attendance, Bookings, Events, Foireann, Matches, News, Ticketing, Users. Each is Clean Architecture: `Domain` ← `Application` ← `Infrastructure` / `Presentation`, plus `IntegrationEvents` (the only project other modules may reference). Foireann is an external-API integration with no Domain/database. Layer and isolation rules are enforced by NetArchTest (global + per-module ArchitectureTests).
+Attendance, Bookings, Events, Foireann, Matches, News, Payments, Ticketing, Users. Each is Clean Architecture: `Domain` ← `Application` ← `Infrastructure` / `Presentation`, plus `IntegrationEvents` (the only project other modules may reference). Foireann is an external-API integration with no Domain/database. Layer and isolation rules are enforced by NetArchTest (global + per-module ArchitectureTests).
 
 - **CQRS**: custom `ISender`/`MessageDispatcher` in `Common.Application` (not MediatR). Commands/queries + handlers + FluentValidation validators live together per feature folder in `Application`. Everything returns `Result`/`Result<T>` (`Common.Domain`); endpoints end with `result.Match(Results.Ok, ApiResults.Problem)`.
 - **Endpoints**: one `internal sealed` class per endpoint implementing `IEndpoint` in `Presentation/<Feature>/`, discovered and mapped by `app.MapEndpoints()`.

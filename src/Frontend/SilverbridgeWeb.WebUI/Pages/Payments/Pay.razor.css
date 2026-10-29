@@ -1,0 +1,40 @@
+.pay-page {
+    padding-block: 2rem 4rem;
+}
+
+.pay-card {
+    margin-top: 1.5rem;
+    border-radius: 1rem;
+}
+
+.pay-lines {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+}
+
+.pay-line,
+.pay-total {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.5rem;
+    overflow-wrap: anywhere;
+}
+
+.pay-line {
+    border-bottom: 1px solid var(--mud-palette-lines-default);
+}
+
+.pay-total {
+    margin-top: 0.5rem;
+    font-size: 1.125rem;
+}
+
+.pay-card ::deep .pay-actions {
+    padding: 0 1rem 1rem;
+}
+
+.pay-note {
+    margin-top: 1rem;
+}

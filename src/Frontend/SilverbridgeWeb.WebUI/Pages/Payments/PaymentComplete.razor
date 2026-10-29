@@ -1,0 +1,165 @@
+@page "/payments/{Id:guid}/complete"
+@attribute [Authorize]
+@implements IAsyncDisposable
+@inject PaymentsApiClient PaymentsApiClient
+
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+
+<PageTitle>Payment status</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="payment-complete-page">
+    <PageHeader Eyebrow="Payments" Title="Payment status" />
+
+    @if (_payment is null && _checking)
+    {
+        <StatePanel Title="Checking your payment"
+                    Description="This only takes a moment."
+                    Icon="@Icons.Material.Outlined.HourglassTop" />
+    }
+    else if (_payment is null)
+    {
+        <StatePanel Title="Payment not found"
+                    Description="We could not find this payment. It may belong to a different account."
+                    Icon="@Icons.Material.Outlined.SearchOff"
+                    Role="alert" />
+    }
+    else
+    {
+        @switch (_payment.Status)
+        {
+            case PaymentStatus.Succeeded or PaymentStatus.Refunded:
+                <StatePanel Title="Payment received"
+                            Description="@($"Thank you. {Money.Format(_payment.AmountMinor, _payment.Currency)} for {_payment.Description} has been paid, and Stripe has emailed your receipt.")"
+                            Icon="@Icons.Material.Outlined.CheckCircle"
+                            IconColor="Color.Success">
+                    <Actions>
+                        <MudButton Href="/account/payments" Variant="Variant.Filled" Color="Color.Primary">My payments</MudButton>
+                        <MudButton Href="/" Variant="Variant.Text" Color="Color.Primary">Home</MudButton>
+                    </Actions>
+                </StatePanel>
+                break;
+            case PaymentStatus.Processing:
+                <StatePanel Title="Payment being processed"
+                            Description="Your payment has been set up. Direct Debit payments can take up to 3 working days to confirm; you do not need to do anything else."
+                            Icon="@Icons.Material.Outlined.Schedule"
+                            IconColor="Color.Info">
+                    <Actions>
+                        <MudButton Href="/account/payments" Variant="Variant.Filled" Color="Color.Primary">My payments</MudButton>
+                    </Actions>
+                </StatePanel>
+                break;
+            case PaymentStatus.Failed:
+                <StatePanel Title="Payment failed"
+                            Description="@(_payment.FailureReason ?? "The payment could not be completed. You have not been charged.")"
+                            Icon="@Icons.Material.Outlined.ErrorOutline"
+                            IconColor="Color.Error"
+                            Role="alert">
+                    <Actions>
+                        <MudButton Href="/account/payments" Variant="Variant.Outlined" Color="Color.Primary">My payments</MudButton>
+                    </Actions>
+                </StatePanel>
+                break;
+            case PaymentStatus.Expired or PaymentStatus.Cancelled:
+                <StatePanel Title="Payment closed"
+                            Description="This payment was not completed and is now closed. You have not been charged."
+                            Icon="@Icons.Material.Outlined.Block"
+                            Role="alert" />
+                break;
+            default:
+                <StatePanel Title="Confirming your payment"
+                            Description="@(_checking ? "We are waiting for confirmation from Stripe. This page updates by itself." : "Confirmation is taking longer than usual. If you completed the payment, it will appear in My payments shortly.")"
+                            Icon="@Icons.Material.Outlined.HourglassTop">
+                    <Actions>
+                        @if (!_checking)
+                        {
+                            <MudButton Href="/account/payments" Variant="Variant.Outlined" Color="Color.Primary">My payments</MudButton>
+                            <MudButton Href="@($"/payments/{Id}")" Variant="Variant.Text" Color="Color.Primary">Back to payment</MudButton>
+                        }
+                    </Actions>
+                </StatePanel>
+                break;
+        }
+
+        @if (_checking)
+        {
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" aria-label="Checking payment status" Class="mt-4" />
+        }
+    }
+</MudContainer>
+
+@code {
+    private const int MaxChecks = 30;
+
+    private readonly CancellationTokenSource _disposed = new();
+    private PaymentResponse? _payment;
+    private bool _checking = true;
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await RefreshAsync();
+        }
+        catch (OperationCanceledException) when (_disposed.IsCancellationRequested)
+        {
+            // The page was closed; there is nothing left to update.
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && _checking)
+        {
+            _ = PollAsync();
+        }
+    }
+
+    /// <summary>Stripe confirms payments by webhook, which can land a few seconds after the payer is sent back here.</summary>
+    private async Task PollAsync()
+    {
+        try
+        {
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(2));
+            for (int check = 0; check < MaxChecks && _checking; check++)
+            {
+                if (!await timer.WaitForNextTickAsync(_disposed.Token))
+                {
+                    break;
+                }
+
+                await RefreshAsync();
+                await InvokeAsync(StateHasChanged);
+            }
+
+            _checking = false;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (OperationCanceledException) when (_disposed.IsCancellationRequested)
+        {
+            // The page was closed; there is nothing left to update.
+        }
+    }
+
+    private async Task RefreshAsync()
+    {
+        try
+        {
+            _payment = await PaymentsApiClient.GetPaymentAsync(Id, _disposed.Token);
+        }
+        catch (HttpRequestException)
+        {
+            // Keep showing the last known state; the next check may succeed.
+        }
+
+        _checking = _payment is null or { Status: PaymentStatus.Pending or PaymentStatus.AwaitingPayment } && _checking;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _disposed.CancelAsync();
+        _disposed.Dispose();
+    }
+}

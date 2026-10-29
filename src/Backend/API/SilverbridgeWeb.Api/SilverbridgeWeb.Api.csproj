@@ -21,6 +21,7 @@
     <ProjectReference Include="..\..\Modules\Bookings\SilverbridgeWeb.Modules.Bookings.Infrastructure\SilverbridgeWeb.Modules.Bookings.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\News\SilverbridgeWeb.Modules.News.Infrastructure\SilverbridgeWeb.Modules.News.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Matches\SilverbridgeWeb.Modules.Matches.Infrastructure\SilverbridgeWeb.Modules.Matches.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Payments\SilverbridgeWeb.Modules.Payments.Infrastructure\SilverbridgeWeb.Modules.Payments.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

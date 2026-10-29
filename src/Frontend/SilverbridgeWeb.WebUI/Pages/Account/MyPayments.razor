@@ -1,0 +1,221 @@
+@page "/account/payments"
+@attribute [Authorize]
+@inject PaymentsApiClient PaymentsApiClient
+@inject NavigationManager Navigation
+
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+
+<PageTitle>My payments</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="my-payments-page">
+    <PageHeader Eyebrow="Your account"
+                Title="My payments"
+                Description="Payments you have made to the club and any monthly payments you have set up." />
+
+    @if (_loading)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" aria-label="Loading payments" />
+    }
+    else if (_error is not null)
+    {
+        <StatePanel Title="Payments unavailable"
+                    Description="@_error"
+                    Icon="@Icons.Material.Outlined.ErrorOutline"
+                    IconColor="Color.Error"
+                    Role="alert" />
+    }
+    else if (_payments is not null)
+    {
+        @if (_actionMessage is not null)
+        {
+            <MudAlert Severity="@_actionSeverity" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="@(() => _actionMessage = null)">
+                @_actionMessage
+            </MudAlert>
+        }
+
+        @if (_payments.Subscriptions.Count > 0)
+        {
+            <section class="my-payments-section">
+                <SectionHeader Title="Monthly payments"
+                               Description="Update your card or bank details, or see past invoices, on Stripe's secure page.">
+                    <Actions>
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Primary"
+                                   OnClick="OpenBillingPortalAsync"
+                                   Disabled="@_working"
+                                   StartIcon="@Icons.Material.Filled.CreditCard">
+                            Manage payment details
+                        </MudButton>
+                    </Actions>
+                </SectionHeader>
+
+                <MudStack Spacing="2">
+                    @foreach (SubscriptionSummaryResponse subscription in _payments.Subscriptions)
+                    {
+                        <MudPaper Outlined="true" Elevation="0" Class="subscription-card">
+                            <div class="subscription-card__details">
+                                <MudText HtmlTag="h3" Typo="Typo.subtitle1">@subscription.Description</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                    @Money.Format(subscription.AmountMinor, subscription.Currency) a month
+                                    · @SubscriptionStatusText(subscription)
+                                </MudText>
+                            </div>
+                            @if (subscription.Status is not SubscriptionStatus.Cancelled)
+                            {
+                                <MudButton Variant="Variant.Text"
+                                           Color="Color.Error"
+                                           OnClick="@(() => _subscriptionToCancel = subscription)"
+                                           Disabled="@_working">
+                                    Cancel
+                                </MudButton>
+                            }
+                        </MudPaper>
+                    }
+                </MudStack>
+            </section>
+        }
+
+        <section class="my-payments-section">
+            <SectionHeader Title="Payment history" />
+
+            @if (_payments.Payments.Count == 0)
+            {
+                <StatePanel Title="No payments yet"
+                            Description="Payments you make on this site will appear here."
+                            Icon="@Icons.Material.Outlined.ReceiptLong" />
+            }
+            else
+            {
+                <MudTable Items="_payments.Payments" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0" Outlined="true">
+                    <HeaderContent>
+                        <MudTh>Date</MudTh>
+                        <MudTh>Description</MudTh>
+                        <MudTh>Amount</MudTh>
+                        <MudTh>Status</MudTh>
+                        <MudTh><span class="visually-hidden">Actions</span></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Date">@ClubTime.ToLocal(context.CreatedAtUtc).ToString("d MMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("en-GB"))</MudTd>
+                        <MudTd DataLabel="Description">@context.Description</MudTd>
+                        <MudTd DataLabel="Amount">@Money.Format(context.AmountMinor, context.Currency)</MudTd>
+                        <MudTd DataLabel="Status">
+                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="@PaymentStatusDisplay.ColorFor(context.Status)">
+                                @PaymentStatusDisplay.LabelFor(context.Status, context.AmountRefundedMinor > 0)
+                            </MudChip>
+                        </MudTd>
+                        <MudTd>
+                            @if (context.Status is PaymentStatus.Pending or PaymentStatus.AwaitingPayment)
+                            {
+                                <MudButton Href="@($"/payments/{context.Id}")" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small">
+                                    Pay now
+                                </MudButton>
+                            }
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </section>
+    }
+</MudContainer>
+
+<MudDialog Visible="@(_subscriptionToCancel is not null)" VisibleChanged="@(visible => { if (!visible) _subscriptionToCancel = null; })">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Cancel monthly payment?</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText>
+            Stop paying for <strong>@_subscriptionToCancel?.Description</strong>? No further payments will be taken.
+        </MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _subscriptionToCancel = null)">Keep it</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="CancelSubscriptionAsync" Disabled="@_working">
+            Cancel monthly payment
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private MyPaymentsResponse? _payments;
+    private SubscriptionSummaryResponse? _subscriptionToCancel;
+    private bool _loading = true;
+    private bool _working;
+    private string? _error;
+    private string? _actionMessage;
+    private Severity _actionSeverity = Severity.Info;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            _payments = await PaymentsApiClient.GetMyPaymentsAsync();
+        }
+        catch (HttpRequestException)
+        {
+            _error = "We could not load your payments. Please try again shortly.";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task OpenBillingPortalAsync()
+    {
+        _working = true;
+        try
+        {
+            Uri portalUrl = await PaymentsApiClient.OpenBillingPortalAsync();
+            Navigation.NavigateTo(portalUrl.ToString(), forceLoad: true);
+        }
+        catch (HttpRequestException exception)
+        {
+            _actionMessage = exception.Message;
+            _actionSeverity = Severity.Error;
+            _working = false;
+        }
+    }
+
+    private async Task CancelSubscriptionAsync()
+    {
+        if (_subscriptionToCancel is null)
+        {
+            return;
+        }
+
+        _working = true;
+        try
+        {
+            await PaymentsApiClient.CancelSubscriptionAsync(_subscriptionToCancel.Id);
+            _actionMessage = $"Your monthly payment for {_subscriptionToCancel.Description} has been cancelled.";
+            _actionSeverity = Severity.Success;
+            _subscriptionToCancel = null;
+            await LoadAsync();
+        }
+        catch (HttpRequestException exception)
+        {
+            _actionMessage = exception.Message;
+            _actionSeverity = Severity.Error;
+        }
+        finally
+        {
+            _working = false;
+        }
+    }
+
+    private static string SubscriptionStatusText(SubscriptionSummaryResponse subscription) =>
+        subscription.Status switch
+        {
+            SubscriptionStatus.Active when subscription.CurrentPeriodEndUtc is { } periodEnd =>
+                $"Active, next payment {ClubTime.ToLocal(periodEnd).ToString("d MMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("en-GB"))}",
+            SubscriptionStatus.Active => "Active",
+            SubscriptionStatus.PastDue => "Payment overdue: please update your payment details",
+            SubscriptionStatus.Cancelled => "Cancelled",
+            _ => "Being set up"
+        };
+}

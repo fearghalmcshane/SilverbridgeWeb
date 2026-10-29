@@ -34,6 +34,9 @@ public sealed class Permission
     public static readonly Permission ApproveBookings = new("bookings:approve");
     public static readonly Permission UpdateBookings = new("bookings:update");
     public static readonly Permission DeleteBookings = new("bookings:delete");
+    public static readonly Permission ReadPayments = new("payments:read");
+    public static readonly Permission RefundPayments = new("payments:refund");
+    public static readonly Permission ManagePayments = new("payments:manage");
 
     public Permission(string code)
     {

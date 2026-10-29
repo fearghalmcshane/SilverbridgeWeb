@@ -1,0 +1,310 @@
+@page "/admin/payments"
+@attribute [Authorize]
+@inject PaymentsApiClient PaymentsApiClient
+@inject UsersApiClient UsersApiClient
+
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+@using SilverbridgeWeb.WebUI.Services.Authorization
+
+<PageTitle>Payments</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="admin-payments-page">
+    <PageHeader Eyebrow="Administration"
+                Title="Payments"
+                Description="Every payment taken through the website. Refunds go back to the original card or bank account." />
+
+    @if (_checkingAccess)
+    {
+        <StatePanel Title="Loading payments"
+                    Description="Checking your access."
+                    Icon="@Icons.Material.Outlined.ReceiptLong" />
+    }
+    else if (!_canRead)
+    {
+        <StatePanel Title="Access unavailable"
+                    Description="You do not have permission to access this page."
+                    Icon="@Icons.Material.Outlined.Lock"
+                    IconColor="Color.Error"
+                    Role="alert" />
+    }
+    else
+    {
+        @if (_actionMessage is not null)
+        {
+            <MudAlert Severity="@_actionSeverity" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="@(() => _actionMessage = null)">
+                @_actionMessage
+            </MudAlert>
+        }
+
+        <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2" Class="admin-payments-filters">
+            <MudTextField T="string"
+                          Value="_search"
+                          ValueChanged="SearchChangedAsync"
+                          Label="Search"
+                          Placeholder="Description, reference, name or email"
+                          DebounceInterval="400"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Clearable="true"
+                          Class="admin-payments-filters__search" />
+            <MudSelect T="PaymentStatus?"
+                       Value="_status"
+                       ValueChanged="StatusChangedAsync"
+                       Label="Status"
+                       Clearable="true"
+                       Class="admin-payments-filters__status">
+                @foreach (PaymentStatus status in Enum.GetValues<PaymentStatus>())
+                {
+                    <MudSelectItem T="PaymentStatus?" Value="@status">@status</MudSelectItem>
+                }
+            </MudSelect>
+        </MudStack>
+
+        @if (_loading)
+        {
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" aria-label="Loading payments" />
+        }
+
+        @if (_page is { Items.Count: 0 } && !_loading)
+        {
+            <StatePanel Title="No payments found"
+                        Description="No payments match these filters."
+                        Icon="@Icons.Material.Outlined.SearchOff" />
+        }
+        else if (_page is not null)
+        {
+            <MudTable Items="_page.Items" Dense="true" Hover="true" Breakpoint="Breakpoint.Md" Elevation="0" Outlined="true">
+                <HeaderContent>
+                    <MudTh>Date</MudTh>
+                    <MudTh>Payer</MudTh>
+                    <MudTh>Description</MudTh>
+                    <MudTh>Amount</MudTh>
+                    <MudTh>Status</MudTh>
+                    <MudTh><span class="visually-hidden">Actions</span></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Date">@ClubTime.ToLocal(context.CreatedAtUtc).ToString("d MMM yyyy HH:mm", System.Globalization.CultureInfo.GetCultureInfo("en-GB"))</MudTd>
+                    <MudTd DataLabel="Payer">
+                        <span class="admin-payments__payer">@(context.PayerName ?? "Unknown member")</span>
+                        @if (context.PayerEmail is not null)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="admin-payments__email">@context.PayerEmail</MudText>
+                        }
+                    </MudTd>
+                    <MudTd DataLabel="Description">
+                        @context.Description
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Source · @context.SourceReference</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Amount">
+                        @Money.Format(context.AmountMinor, context.Currency)@(context.Kind == PaymentKind.MonthlySubscription ? " / month" : string.Empty)
+                        @if (context.AmountRefundedMinor > 0)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                @Money.Format(context.AmountRefundedMinor, context.Currency) refunded
+                            </MudText>
+                        }
+                    </MudTd>
+                    <MudTd DataLabel="Status">
+                        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="@PaymentStatusDisplay.ColorFor(context.Status)">
+                            @PaymentStatusDisplay.LabelFor(context.Status, context.AmountRefundedMinor > 0)
+                        </MudChip>
+                    </MudTd>
+                    <MudTd>
+                        @if (_canRefund && CanRefund(context))
+                        {
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Primary"
+                                       Size="Size.Small"
+                                       OnClick="@(() => OpenRefund(context))">
+                                Refund
+                            </MudButton>
+                        }
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Wrap="Wrap.Wrap" Class="admin-payments-pager">
+                <MudText Typo="Typo.body2">
+                    Page @_page.Page of @TotalPages · @_page.TotalCount payments
+                </MudText>
+                <MudStack Row="true" Spacing="1">
+                    <MudButton Variant="Variant.Outlined" Disabled="@(_page.Page <= 1 || _loading)" OnClick="@(() => LoadPageAsync(_page.Page - 1))">
+                        Previous
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" Disabled="@(_page.Page >= TotalPages || _loading)" OnClick="@(() => LoadPageAsync(_page.Page + 1))">
+                        Next
+                    </MudButton>
+                </MudStack>
+            </MudStack>
+        }
+    }
+</MudContainer>
+
+<MudDialog Visible="@(_refundTarget is not null)" VisibleChanged="@(visible => { if (!visible) _refundTarget = null; })">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Refund payment</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (_refundTarget is not null)
+        {
+            <MudText Class="mb-4">
+                @_refundTarget.Description: up to
+                <strong>@Money.Format(RefundableAmount(_refundTarget), _refundTarget.Currency)</strong> can be refunded.
+            </MudText>
+            <MudTextField @bind-Value="_refundAmount"
+                          Label="Amount (£)"
+                          HelperText="Leave blank to refund everything remaining"
+                          Class="mb-3" />
+            <MudTextField @bind-Value="_refundReason"
+                          Label="Reason"
+                          Required="true"
+                          MaxLength="500"
+                          Lines="2" />
+            @if (_refundError is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mt-3" role="alert">@_refundError</MudAlert>
+            }
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _refundTarget = null)">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="RefundAsync" Disabled="@_refunding">
+            Refund
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private const int PageSize = 25;
+
+    private PagedPaymentsResponse? _page;
+    private AdminPaymentSummaryResponse? _refundTarget;
+    private PaymentStatus? _status;
+    private string? _search;
+    private string? _refundAmount;
+    private string? _refundReason;
+    private string? _refundError;
+    private string? _actionMessage;
+    private Severity _actionSeverity = Severity.Info;
+    private bool _checkingAccess = true;
+    private bool _canRead;
+    private bool _canRefund;
+    private bool _loading;
+    private bool _refunding;
+
+    private int TotalPages => _page is null ? 1 : Math.Max(1, (int)Math.Ceiling(_page.TotalCount / (double)_page.PageSize));
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            UserPermissionsResponse? permissions = await UsersApiClient.GetPermissionsAsync();
+            _canRead = permissions?.Permissions.Contains(AppPermissions.ReadPayments) ?? false;
+            _canRefund = permissions?.Permissions.Contains(AppPermissions.RefundPayments) ?? false;
+        }
+        catch (HttpRequestException)
+        {
+            _canRead = false;
+        }
+        finally
+        {
+            _checkingAccess = false;
+        }
+
+        if (_canRead)
+        {
+            await LoadPageAsync(1);
+        }
+    }
+
+    private async Task SearchChangedAsync(string? search)
+    {
+        _search = search;
+        await LoadPageAsync(1);
+    }
+
+    private async Task StatusChangedAsync(PaymentStatus? status)
+    {
+        _status = status;
+        await LoadPageAsync(1);
+    }
+
+    private async Task LoadPageAsync(int page)
+    {
+        _loading = true;
+        try
+        {
+            _page = await PaymentsApiClient.GetPaymentsAsync(_status, _search, page, PageSize);
+        }
+        catch (HttpRequestException)
+        {
+            _actionMessage = "We could not load payments. Please try again shortly.";
+            _actionSeverity = Severity.Error;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private static bool CanRefund(AdminPaymentSummaryResponse payment) =>
+        payment.Kind == PaymentKind.OneOff &&
+        payment.Status == PaymentStatus.Succeeded &&
+        RefundableAmount(payment) > 0;
+
+    private static long RefundableAmount(AdminPaymentSummaryResponse payment) =>
+        payment.AmountMinor - payment.AmountRefundedMinor;
+
+    private void OpenRefund(AdminPaymentSummaryResponse payment)
+    {
+        _refundTarget = payment;
+        _refundAmount = null;
+        _refundReason = null;
+        _refundError = null;
+    }
+
+    private async Task RefundAsync()
+    {
+        if (_refundTarget is null)
+        {
+            return;
+        }
+
+        long? amountMinor = null;
+        if (!string.IsNullOrWhiteSpace(_refundAmount))
+        {
+            if (!Money.TryParsePounds(_refundAmount, out long parsed))
+            {
+                _refundError = "Enter an amount in pounds and pence, for example 12.50.";
+                return;
+            }
+
+            amountMinor = parsed;
+        }
+
+        if (string.IsNullOrWhiteSpace(_refundReason))
+        {
+            _refundError = "Enter a reason for the refund.";
+            return;
+        }
+
+        _refunding = true;
+        _refundError = null;
+        try
+        {
+            await PaymentsApiClient.RefundAsync(_refundTarget.Id, new RefundRequest(amountMinor, _refundReason.Trim()));
+            _actionMessage = $"Refund requested for {_refundTarget.Description}. It can take 5 to 10 working days to reach the payer.";
+            _actionSeverity = Severity.Success;
+            _refundTarget = null;
+            await LoadPageAsync(_page?.Page ?? 1);
+        }
+        catch (HttpRequestException exception)
+        {
+            _refundError = exception.Message;
+        }
+        finally
+        {
+            _refunding = false;
+        }
+    }
+}
