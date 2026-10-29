@@ -8,6 +8,7 @@ internal sealed class RefundPaymentCommandValidator : AbstractValidator<RefundPa
     public RefundPaymentCommandValidator()
     {
         RuleFor(c => c.PaymentRequestId).NotEmpty();
+        RuleFor(c => c.RefundId).NotEmpty();
         RuleFor(c => c.AmountMinor).GreaterThan(0).When(c => c.AmountMinor is not null);
         RuleFor(c => c.Reason).NotEmpty().MaximumLength(PaymentRequest.ReasonMaxLength);
     }

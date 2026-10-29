@@ -29,6 +29,7 @@ public sealed class Refund : Entity
     public DateTime? CompletedAtUtc { get; private set; }
 
     internal static Refund Create(
+        Guid id,
         Guid paymentRequestId,
         long amountMinor,
         string reason,
@@ -38,7 +39,7 @@ public sealed class Refund : Entity
     {
         return new Refund
         {
-            Id = Ulid.NewUlid().ToGuid(),
+            Id = id,
             PaymentRequestId = paymentRequestId,
             AmountMinor = amountMinor,
             Reason = reason,

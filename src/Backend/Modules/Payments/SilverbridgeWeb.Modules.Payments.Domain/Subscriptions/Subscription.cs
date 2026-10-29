@@ -138,7 +138,7 @@ public sealed class Subscription : Entity
         }
         else
         {
-            Raise(new SubscriptionPaymentFailedDomainEvent(Id, payment.Id));
+            Raise(new SubscriptionPaymentFailedDomainEvent(Id, payment.Id, payment.AmountMinor, payment.FailureReason));
         }
     }
 }

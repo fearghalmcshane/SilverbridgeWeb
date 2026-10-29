@@ -136,8 +136,8 @@ public sealed class PaymentRequestTests
     {
         PaymentRequest request = CreatePaid(amountMinor: 1000);
 
-        Result<Refund> first = request.RequestRefund(600, "Partial", null, Now);
-        Result<Refund> tooMuch = request.RequestRefund(500, "Too much", null, Now);
+        Result<Refund> first = request.RequestRefund(Guid.NewGuid(), 600, "Partial", null, Now);
+        Result<Refund> tooMuch = request.RequestRefund(Guid.NewGuid(), 500, "Too much", null, Now);
 
         Assert.True(first.IsSuccess);
         Assert.Equal(PaymentRequestErrors.InvalidRefundAmount, tooMuch.Error);
@@ -148,7 +148,7 @@ public sealed class PaymentRequestTests
     public void Refund_InFullMarksTheRequestRefunded()
     {
         PaymentRequest request = CreatePaid(amountMinor: 1000);
-        Refund refund = request.RequestRefund(null, "Event cancelled", null, Now).Value;
+        Refund refund = request.RequestRefund(Guid.NewGuid(), null, "Event cancelled", null, Now).Value;
 
         request.ApplyRefundUpdate("re_1", refund.Id, refund.AmountMinor, RefundStatus.Succeeded, null, Now);
         request.ApplyRefundUpdate("re_1", refund.Id, refund.AmountMinor, RefundStatus.Succeeded, null, Now);
@@ -173,10 +173,38 @@ public sealed class PaymentRequestTests
     }
 
     [Fact]
+    public void Refund_RequestedAgainWithTheSameId_ReturnsTheExistingRefund()
+    {
+        PaymentRequest request = CreatePaid(amountMinor: 1000);
+        var refundId = Guid.NewGuid();
+
+        Refund first = request.RequestRefund(refundId, 400, "Partial", null, Now).Value;
+        Refund retried = request.RequestRefund(refundId, 400, "Partial", null, Now).Value;
+
+        Assert.Same(first, retried);
+        Assert.Single(request.Refunds);
+        Assert.Equal(600, request.RefundableAmountMinor);
+    }
+
+    [Fact]
+    public void Refund_SentButNeverSaved_IsRecordedUnderItsOwnIdByTheWebhook()
+    {
+        PaymentRequest request = CreatePaid(amountMinor: 1000);
+        var refundId = Guid.NewGuid();
+
+        request.ApplyRefundUpdate("re_1", refundId, 400, RefundStatus.Succeeded, null, Now);
+        Refund retried = request.RequestRefund(refundId, 400, "Partial", null, Now).Value;
+
+        Assert.Equal(refundId, Assert.Single(request.Refunds).Id);
+        Assert.Equal("re_1", retried.ProviderRefundId);
+        Assert.Equal(400, request.AmountRefundedMinor);
+    }
+
+    [Fact]
     public void Refund_ThatFails_ReleasesTheAmount()
     {
         PaymentRequest request = CreatePaid(amountMinor: 1000);
-        Refund refund = request.RequestRefund(1000, "Duplicate", null, Now).Value;
+        Refund refund = request.RequestRefund(Guid.NewGuid(), 1000, "Duplicate", null, Now).Value;
 
         request.ApplyRefundUpdate("re_1", refund.Id, 1000, RefundStatus.Failed, "card_closed", Now);
 
@@ -192,7 +220,7 @@ public sealed class PaymentRequestTests
         request.AttachCheckout("cs_1", new Uri("https://checkout.stripe.com/cs_1"), Now.AddMinutes(35), null, Now);
         request.MarkCheckoutCompleted("cs_1", isPaid: true, "pi_1", "cus_1", "sub_1", Now);
 
-        Result<Refund> result = request.RequestRefund(null, "No", null, Now);
+        Result<Refund> result = request.RequestRefund(Guid.NewGuid(), null, "No", null, Now);
 
         Assert.Equal(PaymentRequestErrors.NotRefundable, result.Error);
     }

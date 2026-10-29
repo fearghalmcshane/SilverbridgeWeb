@@ -8,6 +8,15 @@ internal static class StripeStatusMapper
     public static bool IsPaid(string? checkoutPaymentStatus) =>
         checkoutPaymentStatus is "paid" or "no_payment_required";
 
+    /// <summary>
+    /// Whether the payment behind a completed, unpaid checkout has failed rather than still being collected.
+    /// A Direct Debit that is in flight is <c>processing</c>; one the bank refused goes back to needing a
+    /// payment method. A first subscription invoice that is never paid leaves the subscription expired.
+    /// </summary>
+    public static bool IsFailedPayment(string? paymentIntentStatus, string? subscriptionStatus) =>
+        paymentIntentStatus is "requires_payment_method" or "canceled" ||
+        subscriptionStatus is "incomplete_expired";
+
     public static RefundStatus ToRefundStatus(string? status) =>
         status switch
         {

@@ -224,4 +224,4 @@ internal sealed record AdminPaymentSummaryResponse(
     DateTime CreatedAtUtc,
     DateTime? CompletedAtUtc);
 
-internal sealed record RefundRequest(long? AmountMinor, string Reason);
+internal sealed record RefundRequest(Guid RefundId, long? AmountMinor, string Reason);

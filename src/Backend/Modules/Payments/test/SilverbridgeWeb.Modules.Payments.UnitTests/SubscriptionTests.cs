@@ -62,7 +62,11 @@ public sealed class SubscriptionTests
         Assert.Equal(2, subscription.Payments.Count);
         Assert.All(subscription.Payments, p => Assert.Equal(SubscriptionPaymentStatus.Succeeded, p.Status));
         Assert.Equal(2, subscription.DomainEvents.OfType<SubscriptionPaymentSucceededDomainEvent>().Count());
-        Assert.Single(subscription.DomainEvents.OfType<SubscriptionPaymentFailedDomainEvent>());
+        // The failure keeps what it was raised with, even though the payment record now shows the later success.
+        SubscriptionPaymentFailedDomainEvent failed =
+            Assert.Single(subscription.DomainEvents.OfType<SubscriptionPaymentFailedDomainEvent>());
+        Assert.Equal(1500, failed.AmountMinor);
+        Assert.Equal("Declined", failed.FailureReason);
     }
 
     private static Subscription CreateSubscription()

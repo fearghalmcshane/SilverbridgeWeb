@@ -279,8 +279,23 @@ public sealed class PaymentRequest : Entity
         return Result.Success();
     }
 
-    public Result<Refund> RequestRefund(long? amountMinor, string reason, Guid? requestedByUserId, DateTime utcNow)
+    /// <summary>
+    /// Starts a refund. The caller chooses <paramref name="refundId"/> and keeps it across retries, so asking
+    /// again for a refund that is already recorded returns that refund instead of refunding twice.
+    /// </summary>
+    public Result<Refund> RequestRefund(
+        Guid refundId,
+        long? amountMinor,
+        string reason,
+        Guid? requestedByUserId,
+        DateTime utcNow)
     {
+        Refund? existing = _refunds.SingleOrDefault(r => r.Id == refundId);
+        if (existing is not null)
+        {
+            return existing;
+        }
+
         if (Kind != PaymentRequestKind.OneOff ||
             Status != PaymentRequestStatus.Succeeded ||
             ProviderPaymentIntentId is null)
@@ -294,7 +309,7 @@ public sealed class PaymentRequest : Entity
             return Result.Failure<Refund>(PaymentRequestErrors.InvalidRefundAmount);
         }
 
-        var refund = Refund.Create(Id, amount, Truncate(reason) ?? string.Empty, requestedByUserId, null, utcNow);
+        var refund = Refund.Create(refundId, Id, amount, Truncate(reason) ?? string.Empty, requestedByUserId, null, utcNow);
         _refunds.Add(refund);
         UpdatedAtUtc = utcNow;
 
@@ -342,7 +357,15 @@ public sealed class PaymentRequest : Entity
                 return Result.Failure(PaymentRequestErrors.NotRefundable);
             }
 
-            refund = Refund.Create(Id, amountMinor, "Refunded through the payment provider", null, providerRefundId, utcNow);
+            // A refund this site asked for but failed to save keeps the identifier it was given, so a retry finds it.
+            refund = Refund.Create(
+                refundId ?? Ulid.NewUlid().ToGuid(),
+                Id,
+                amountMinor,
+                "Refunded through the payment provider",
+                null,
+                providerRefundId,
+                utcNow);
             _refunds.Add(refund);
         }
         else if (refund.ProviderRefundId is null)

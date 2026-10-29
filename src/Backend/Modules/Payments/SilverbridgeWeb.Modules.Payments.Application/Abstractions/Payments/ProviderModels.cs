@@ -24,13 +24,19 @@ public enum CheckoutSessionState
     Expired = 2
 }
 
+/// <param name="PaymentFailed">
+/// The checkout completed but its payment did not go through, for example a Direct Debit the bank refused.
+/// A completed checkout that is neither paid nor failed is still being collected.
+/// </param>
 public sealed record CheckoutSessionSnapshot(
     string SessionId,
     CheckoutSessionState State,
     bool IsPaid,
     string? PaymentIntentId,
     string? CustomerId,
-    string? SubscriptionId);
+    string? SubscriptionId,
+    bool PaymentFailed = false,
+    string? FailureReason = null);
 
 public sealed record ProviderRefundRequest(
     Guid RefundId,

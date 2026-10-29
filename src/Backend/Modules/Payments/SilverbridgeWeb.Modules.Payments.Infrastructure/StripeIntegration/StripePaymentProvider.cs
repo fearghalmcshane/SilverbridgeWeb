@@ -5,6 +5,7 @@ using SilverbridgeWeb.Modules.Payments.Application.Abstractions.Payments;
 using SilverbridgeWeb.Modules.Payments.Domain.PaymentRequests;
 using Stripe;
 using CheckoutSessionCreateOptions = Stripe.Checkout.SessionCreateOptions;
+using CheckoutSessionGetOptions = Stripe.Checkout.SessionGetOptions;
 using CheckoutSessionLineItemOptions = Stripe.Checkout.SessionLineItemOptions;
 using CheckoutSession = SilverbridgeWeb.Modules.Payments.Application.Abstractions.Payments.CheckoutSession;
 using PortalSessionCreateOptions = Stripe.BillingPortal.SessionCreateOptions;
@@ -128,8 +129,10 @@ internal sealed class StripePaymentProvider(
     {
         try
         {
+            // The payment behind the session shows whether a completed but unpaid checkout failed or is still being collected.
             StripeCheckoutSession session = await stripeClient.V1.Checkout.Sessions.GetAsync(
                 sessionId,
+                new CheckoutSessionGetOptions { Expand = ["payment_intent", "subscription"] },
                 cancellationToken: cancellationToken);
 
             return ToSnapshot(session);
@@ -229,19 +232,30 @@ internal sealed class StripePaymentProvider(
         }
     }
 
-    internal static CheckoutSessionSnapshot ToSnapshot(StripeCheckoutSession session) =>
-        new(
+    internal static CheckoutSessionSnapshot ToSnapshot(StripeCheckoutSession session)
+    {
+        CheckoutSessionState state = session.Status switch
+        {
+            "complete" => CheckoutSessionState.Complete,
+            "expired" => CheckoutSessionState.Expired,
+            _ => CheckoutSessionState.Open
+        };
+        bool isPaid = StripeStatusMapper.IsPaid(session.PaymentStatus);
+        bool paymentFailed =
+            state == CheckoutSessionState.Complete &&
+            !isPaid &&
+            StripeStatusMapper.IsFailedPayment(session.PaymentIntent?.Status, session.Subscription?.Status);
+
+        return new CheckoutSessionSnapshot(
             session.Id,
-            session.Status switch
-            {
-                "complete" => CheckoutSessionState.Complete,
-                "expired" => CheckoutSessionState.Expired,
-                _ => CheckoutSessionState.Open
-            },
-            StripeStatusMapper.IsPaid(session.PaymentStatus),
+            state,
+            isPaid,
             session.PaymentIntentId,
             session.CustomerId,
-            session.SubscriptionId);
+            session.SubscriptionId,
+            paymentFailed,
+            paymentFailed ? session.PaymentIntent?.LastPaymentError?.Message : null);
+    }
 
     private string PayPageUrl(Guid paymentRequestId) =>
         new Uri(PublicBaseUrl, $"payments/{paymentRequestId}").ToString();

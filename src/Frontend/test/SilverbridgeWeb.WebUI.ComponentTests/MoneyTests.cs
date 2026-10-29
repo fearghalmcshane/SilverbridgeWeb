@@ -30,6 +30,7 @@ public sealed class MoneyTests
     [InlineData("-3")]
     [InlineData("1.005")]
     [InlineData("twelve")]
+    [InlineData("100000000000000000")]
     public void RejectsAmountsThatAreNotWholePence(string input)
     {
         Money.TryParsePounds(input, out _).Should().BeFalse();

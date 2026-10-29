@@ -90,11 +90,16 @@ public sealed class PaymentsFlowPostgreSqlTests(PaymentsHost host) : IClassFixtu
         Assert.Equal(2500, succeeded.AmountMinor);
 
         // Refunds cannot exceed what was paid; a partial refund is recorded and announced.
-        Result<Guid> tooMuch = await host.SendAsync(new RefundPaymentCommand(paymentRequestId, 3000, "Too much", Guid.NewGuid()));
+        Result<Guid> tooMuch = await host.SendAsync(new RefundPaymentCommand(paymentRequestId, Guid.NewGuid(), 3000, "Too much", Guid.NewGuid()));
         Assert.Equal(PaymentRequestErrors.InvalidRefundAmount, tooMuch.Error);
 
-        Result<Guid> refund = await host.SendAsync(new RefundPaymentCommand(paymentRequestId, 1000, "One ticket returned", Guid.NewGuid()));
+        var refundCommand = new RefundPaymentCommand(paymentRequestId, Guid.NewGuid(), 1000, "One ticket returned", Guid.NewGuid());
+        Result<Guid> refund = await host.SendAsync(refundCommand);
         Assert.True(refund.IsSuccess);
+
+        // Retrying the same refund, for example after a lost response, does not refund again.
+        Result<Guid> retried = await host.SendAsync(refundCommand);
+        Assert.Equal(refund.Value, retried.Value);
 
         // Stripe confirms the same refund by webhook; it is not counted twice.
         ProviderRefundRequest providerRefund = Assert.Single(host.Provider.CreatedRefunds, r => r.PaymentRequestId == paymentRequestId);
@@ -219,6 +224,36 @@ public sealed class PaymentsFlowPostgreSqlTests(PaymentsHost host) : IClassFixtu
         Assert.Single(host.EventBus.OfType<SubscriptionPaymentSucceededIntegrationEvent>(), e => e.SubscriptionId == paymentRequestId);
         Assert.Single(host.EventBus.OfType<SubscriptionCancelledIntegrationEvent>(), e => e.SubscriptionId == paymentRequestId);
         Assert.Single(host.EventBus.OfType<PaymentSucceededIntegrationEvent>(), e => e.PaymentRequestId == paymentRequestId);
+    }
+
+    [Fact]
+    public async Task DirectDebitRefused_WithoutAWebhook_IsReconciledAsFailed()
+    {
+        var payerId = Guid.NewGuid();
+        Guid paymentRequestId = await CreateRequestAsync(payerId, PaymentRequestKind.OneOff);
+        await host.SendAsync(new StartCheckoutCommand(paymentRequestId, payerId));
+        string sessionId = (await host.GetPaymentRequestAsync(paymentRequestId)).ProviderCheckoutSessionId!;
+
+        await PostAndApplyAsync(StripeEvents.CheckoutSession(
+            $"evt_dd_once_{paymentRequestId:N}", "checkout.session.completed", paymentRequestId, sessionId, "unpaid"));
+        Assert.Equal(PaymentRequestStatus.Processing, (await host.GetPaymentRequestAsync(paymentRequestId)).Status);
+
+        // The bank refused the debit, but checkout.session.async_payment_failed never arrived.
+        host.Provider.Sessions[sessionId] = new CheckoutSessionSnapshot(
+            sessionId, CheckoutSessionState.Complete, false, "pi_refused", null, null,
+            PaymentFailed: true, FailureReason: "The account has insufficient funds.");
+        await host.ExecuteAsync(
+            "UPDATE payments.payment_requests SET updated_at_utc = now() - interval '7 hours' WHERE id = @Id",
+            new { Id = paymentRequestId });
+
+        await host.SendAsync(new ReconcilePendingPaymentsCommand(50));
+
+        PaymentRequest failed = await host.GetPaymentRequestAsync(paymentRequestId);
+        Assert.Equal(PaymentRequestStatus.Failed, failed.Status);
+        Assert.Equal("The account has insufficient funds.", failed.FailureReason);
+
+        await host.RunOutboxAsync();
+        Assert.Single(host.EventBus.OfType<PaymentFailedIntegrationEvent>(), e => e.PaymentRequestId == paymentRequestId);
     }
 
     private async Task<Guid> CreateRequestAsync(Guid payerId, PaymentRequestKind kind)

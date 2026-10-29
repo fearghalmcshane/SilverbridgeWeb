@@ -20,6 +20,7 @@ internal sealed class RefundRequestedIntegrationEventHandler(
         Result<Guid> result = await sender.Send(
             new RefundPaymentCommand(
                 integrationEvent.PaymentRequestId,
+                RefundId: integrationEvent.Id,
                 integrationEvent.AmountMinor,
                 integrationEvent.Reason,
                 RequestedByUserId: null),

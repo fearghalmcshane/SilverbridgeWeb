@@ -179,6 +179,9 @@
 
     private PagedPaymentsResponse? _page;
     private AdminPaymentSummaryResponse? _refundTarget;
+
+    // One identifier per refund, kept when the request may have reached the server, so trying again cannot refund twice.
+    private Guid _refundId;
     private PaymentStatus? _status;
     private string? _search;
     private string? _refundAmount;
@@ -258,6 +261,7 @@
     private void OpenRefund(AdminPaymentSummaryResponse payment)
     {
         _refundTarget = payment;
+        _refundId = Guid.CreateVersion7();
         _refundAmount = null;
         _refundReason = null;
         _refundError = null;
@@ -292,7 +296,9 @@
         _refundError = null;
         try
         {
-            await PaymentsApiClient.RefundAsync(_refundTarget.Id, new RefundRequest(amountMinor, _refundReason.Trim()));
+            await PaymentsApiClient.RefundAsync(
+                _refundTarget.Id,
+                new RefundRequest(_refundId, amountMinor, _refundReason.Trim()));
             _actionMessage = $"Refund requested for {_refundTarget.Description}. It can take 5 to 10 working days to reach the payer.";
             _actionSeverity = Severity.Success;
             _refundTarget = null;
@@ -301,6 +307,13 @@
         catch (HttpRequestException exception)
         {
             _refundError = exception.Message;
+
+            // A rejected request refunded nothing, so a corrected one is a new refund. Without a clear answer the
+            // refund may have gone through, so the same identifier is kept for the next attempt.
+            if (exception.StatusCode is { } status && (int)status < 500)
+            {
+                _refundId = Guid.CreateVersion7();
+            }
         }
         finally
         {

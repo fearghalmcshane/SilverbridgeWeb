@@ -21,8 +21,7 @@ internal sealed class SubscriptionPaymentFailedDomainEventHandler(
                 nameof(SubscriptionPaymentFailedDomainEventHandler),
                 SubscriptionErrors.NotFound(domainEvent.SubscriptionId));
 
-        SubscriptionPayment payment = subscription.Payments.Single(p => p.Id == domainEvent.SubscriptionPaymentId);
-
+        // The amount and reason come from the event: a retry that has since succeeded rewrites the payment record.
         await eventBus.PublishAsync(
             new SubscriptionPaymentFailedIntegrationEvent(
                 domainEvent.Id,
@@ -31,8 +30,8 @@ internal sealed class SubscriptionPaymentFailedDomainEventHandler(
                 subscription.Source,
                 subscription.SourceReference,
                 subscription.PayerUserId,
-                payment.AmountMinor,
-                payment.FailureReason),
+                domainEvent.AmountMinor,
+                domainEvent.FailureReason),
             cancellationToken);
     }
 }

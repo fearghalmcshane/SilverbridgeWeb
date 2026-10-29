@@ -25,10 +25,12 @@ internal sealed class IntegrationEventConsumer<TIntegrationEvent>(IDbConnectionF
             OccurredOnUtc = integrationEvent.OccurredOnUtc
         };
 
+        // Delivery is at least once: an event already in the inbox was received, so a repeat is not an error.
         const string sql =
             """
             INSERT INTO payments.inbox_messages(id, type, content, occurred_on_utc)
             VALUES (@Id, @Type, @Content::json, @OccurredOnUtc)
+            ON CONFLICT (id) DO NOTHING
             """;
 
         await connection.ExecuteAsync(sql, inboxMessage);

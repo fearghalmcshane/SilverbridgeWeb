@@ -22,6 +22,7 @@ internal sealed class RefundPayment : IEndpoint
         {
             Result<Guid> result = await sender.Send(new RefundPaymentCommand(
                 id,
+                request.RefundId,
                 request.AmountMinor,
                 request.Reason,
                 userContext.UserId));
@@ -32,5 +33,5 @@ internal sealed class RefundPayment : IEndpoint
         .WithTags(Tags.Payments);
     }
 
-    internal sealed record Request(long? AmountMinor, string Reason);
+    internal sealed record Request(Guid RefundId, long? AmountMinor, string Reason);
 }

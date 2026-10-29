@@ -7,6 +7,9 @@ internal static class Money
 {
     private static readonly CultureInfo s_gbCulture = CultureInfo.GetCultureInfo("en-GB");
 
+    // Anything larger does not fit in pence as a long.
+    private const decimal MaxPounds = long.MaxValue / 100m;
+
     public static string Format(long amountMinor, string currency)
     {
         decimal amount = amountMinor / 100m;
@@ -23,6 +26,7 @@ internal static class Money
         string trimmed = (input ?? string.Empty).Trim().TrimStart('£');
         if (!decimal.TryParse(trimmed, NumberStyles.Number, s_gbCulture, out decimal pounds) ||
             pounds <= 0 ||
+            pounds > MaxPounds ||
             decimal.Round(pounds, 2) != pounds)
         {
             return false;

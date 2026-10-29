@@ -70,6 +70,8 @@ internal sealed class ReconcilePendingPaymentsCommandHandler(
         return snapshot.State switch
         {
             CheckoutSessionState.Expired => paymentRequest.MarkCheckoutExpired(snapshot.SessionId, utcNow),
+            CheckoutSessionState.Complete when snapshot.PaymentFailed =>
+                paymentRequest.MarkAsyncPaymentFailed(snapshot.FailureReason, utcNow),
             CheckoutSessionState.Complete when paymentRequest.Status == PaymentRequestStatus.Processing && snapshot.IsPaid =>
                 paymentRequest.MarkAsyncPaymentSucceeded(snapshot.PaymentIntentId, utcNow),
             CheckoutSessionState.Complete => paymentRequest.MarkCheckoutCompleted(
