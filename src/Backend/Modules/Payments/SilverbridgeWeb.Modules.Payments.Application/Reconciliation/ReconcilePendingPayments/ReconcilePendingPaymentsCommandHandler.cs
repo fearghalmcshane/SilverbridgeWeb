@@ -4,7 +4,9 @@ using SilverbridgeWeb.Common.Application.Messaging;
 using SilverbridgeWeb.Common.Domain;
 using SilverbridgeWeb.Modules.Payments.Application.Abstractions.Data;
 using SilverbridgeWeb.Modules.Payments.Application.Abstractions.Payments;
+using SilverbridgeWeb.Modules.Payments.Application.Checkout.CompleteCheckout;
 using SilverbridgeWeb.Modules.Payments.Domain.PaymentRequests;
+using SilverbridgeWeb.Modules.Payments.Domain.Subscriptions;
 
 namespace SilverbridgeWeb.Modules.Payments.Application.Reconciliation.ReconcilePendingPayments;
 
@@ -15,6 +17,7 @@ namespace SilverbridgeWeb.Modules.Payments.Application.Reconciliation.ReconcileP
 internal sealed class ReconcilePendingPaymentsCommandHandler(
     IPaymentRequestRepository paymentRequestRepository,
     IPaymentProvider paymentProvider,
+    CheckoutCompletion checkoutCompletion,
     IUnitOfWork unitOfWork,
     IDateTimeProvider dateTimeProvider,
     ILogger<ReconcilePendingPaymentsCommandHandler> logger)
@@ -50,7 +53,7 @@ internal sealed class ReconcilePendingPaymentsCommandHandler(
 
             paymentRequest.MarkReconciliationChecked(utcNow);
 
-            Result result = Apply(paymentRequest, snapshot.Value, utcNow);
+            Result result = await ApplyAsync(paymentRequest, snapshot.Value, utcNow, cancellationToken);
             if (result.IsFailure)
             {
                 logger.LogWarning(
@@ -65,23 +68,45 @@ internal sealed class ReconcilePendingPaymentsCommandHandler(
         return unsettled.Count;
     }
 
-    private static Result Apply(PaymentRequest paymentRequest, CheckoutSessionSnapshot snapshot, DateTime utcNow)
+    private async Task<Result> ApplyAsync(
+        PaymentRequest paymentRequest,
+        CheckoutSessionSnapshot snapshot,
+        DateTime utcNow,
+        CancellationToken cancellationToken)
     {
-        return snapshot.State switch
+        if (snapshot.State == CheckoutSessionState.Expired)
         {
-            CheckoutSessionState.Expired => paymentRequest.MarkCheckoutExpired(snapshot.SessionId, utcNow),
-            CheckoutSessionState.Complete when snapshot.PaymentFailed =>
-                paymentRequest.MarkAsyncPaymentFailed(snapshot.FailureReason, utcNow),
-            CheckoutSessionState.Complete when paymentRequest.Status == PaymentRequestStatus.Processing && snapshot.IsPaid =>
-                paymentRequest.MarkAsyncPaymentSucceeded(snapshot.PaymentIntentId, utcNow),
-            CheckoutSessionState.Complete => paymentRequest.MarkCheckoutCompleted(
+            return paymentRequest.MarkCheckoutExpired(snapshot.SessionId, utcNow);
+        }
+
+        if (snapshot.State != CheckoutSessionState.Complete)
+        {
+            return Result.Success();
+        }
+
+        if (snapshot.PaymentFailed)
+        {
+            return paymentRequest.MarkAsyncPaymentFailed(snapshot.FailureReason, utcNow);
+        }
+
+        // The same step as the provider's webhook, so a monthly payment whose webhooks were missed still gets its
+        // subscription, and a Direct Debit that has since been collected is marked paid.
+        Result<Subscription?> completed = await checkoutCompletion.CompleteAsync(
+            paymentRequest,
+            new CompletedCheckout(
                 snapshot.SessionId,
                 snapshot.IsPaid,
                 snapshot.PaymentIntentId,
                 snapshot.CustomerId,
-                snapshot.SubscriptionId,
-                utcNow),
-            _ => Result.Success()
-        };
+                snapshot.SubscriptionId),
+            utcNow,
+            cancellationToken);
+
+        if (completed.IsSuccess && completed.Value is { } subscription && snapshot.SubscriptionStatus is { } status)
+        {
+            subscription.UpdateStatus(status, snapshot.SubscriptionPeriodEndUtc, utcNow, utcNow);
+        }
+
+        return completed;
     }
 }

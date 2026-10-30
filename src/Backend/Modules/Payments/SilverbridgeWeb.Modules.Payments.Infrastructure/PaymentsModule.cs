@@ -12,6 +12,7 @@ using SilverbridgeWeb.Common.Presentation.Endpoints;
 using SilverbridgeWeb.Modules.Payments.Application.Abstractions.Authentication;
 using SilverbridgeWeb.Modules.Payments.Application.Abstractions.Data;
 using SilverbridgeWeb.Modules.Payments.Application.Abstractions.Payments;
+using SilverbridgeWeb.Modules.Payments.Application.Checkout.CompleteCheckout;
 using SilverbridgeWeb.Modules.Payments.Domain.Payers;
 using SilverbridgeWeb.Modules.Payments.Domain.PaymentRequests;
 using SilverbridgeWeb.Modules.Payments.Domain.Subscriptions;
@@ -73,6 +74,7 @@ public static class PaymentsModule
         services.AddScoped<IPaymentRequestRepository, PaymentRequestRepository>();
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddScoped<IPayerRepository, PayerRepository>();
+        services.AddScoped<CheckoutCompletion>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<PaymentsDbContext>());
 

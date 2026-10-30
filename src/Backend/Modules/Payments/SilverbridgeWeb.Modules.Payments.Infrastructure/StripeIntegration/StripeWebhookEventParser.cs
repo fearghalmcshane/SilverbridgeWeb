@@ -123,17 +123,14 @@ internal static class StripeWebhookEventParser
             ? SubscriptionStatus.Cancelled
             : StripeStatusMapper.ToSubscriptionStatus(subscription.Status);
 
-        DateTime? currentPeriodEnd = subscription.Items?.Data?.Count > 0
-            ? subscription.Items.Data.Max(item => item.CurrentPeriodEnd)
-            : null;
-
         return new SubscriptionUpdatedProviderEvent(
             stripeEvent.Id,
             subscription.Id,
             StripeMetadata.ReadGuid(subscription.Metadata, StripeMetadata.PaymentRequestId),
             subscription.CustomerId,
             status,
-            currentPeriodEnd);
+            StripeStatusMapper.CurrentPeriodEnd(subscription),
+            DateTime.SpecifyKind(stripeEvent.Created, DateTimeKind.Utc));
     }
 
     private static InvoicePaymentProviderEvent? ParseInvoice(Event stripeEvent)

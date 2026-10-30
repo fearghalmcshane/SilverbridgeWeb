@@ -6,6 +6,7 @@ using SilverbridgeWeb.Modules.Payments.Application.PaymentRequests.CreatePayment
 using SilverbridgeWeb.Modules.Payments.Application.Reconciliation.ReconcilePendingPayments;
 using SilverbridgeWeb.Modules.Payments.Application.Refunds.RefundPayment;
 using SilverbridgeWeb.Modules.Payments.Application.Subscriptions.CancelSubscription;
+using SilverbridgeWeb.Modules.Payments.Application.Subscriptions.CreateBillingPortalSession;
 using SilverbridgeWeb.Modules.Payments.Application.Abstractions.Payments;
 using SilverbridgeWeb.Modules.Payments.Domain.PaymentRequests;
 using SilverbridgeWeb.Modules.Payments.Domain.Subscriptions;
@@ -254,6 +255,48 @@ public sealed class PaymentsFlowPostgreSqlTests(PaymentsHost host) : IClassFixtu
 
         await host.RunOutboxAsync();
         Assert.Single(host.EventBus.OfType<PaymentFailedIntegrationEvent>(), e => e.PaymentRequestId == paymentRequestId);
+    }
+
+    [Fact]
+    public async Task MonthlyCheckout_WithEveryWebhookMissed_IsRestoredByReconciliation()
+    {
+        // No payer record: this user signed up before Payments existed.
+        var payerId = Guid.NewGuid();
+        Guid paymentRequestId = await CreateRequestAsync(payerId, PaymentRequestKind.MonthlySubscription);
+        await host.SendAsync(new StartCheckoutCommand(paymentRequestId, payerId));
+        string sessionId = (await host.GetPaymentRequestAsync(paymentRequestId)).ProviderCheckoutSessionId!;
+        string providerSubscriptionId = $"sub_missed_{paymentRequestId:N}";
+
+        host.Provider.Sessions[sessionId] = new CheckoutSessionSnapshot(
+            sessionId, CheckoutSessionState.Complete, true, null, "cus_missed", providerSubscriptionId,
+            SubscriptionStatus: SubscriptionStatus.Active, SubscriptionPeriodEndUtc: new DateTime(2026, 12, 1, 0, 0, 0, DateTimeKind.Utc));
+        await host.ExecuteAsync(
+            """
+            UPDATE payments.payment_requests
+            SET checkout_expires_at_utc = now() - interval '1 hour', updated_at_utc = now() - interval '1 hour'
+            WHERE id = @Id
+            """,
+            new { Id = paymentRequestId });
+
+        await host.SendAsync(new ReconcilePendingPaymentsCommand(50));
+
+        Assert.Equal(PaymentRequestStatus.Succeeded, (await host.GetPaymentRequestAsync(paymentRequestId)).Status);
+        Subscription restored = (await host.GetSubscriptionAsync(paymentRequestId))!;
+        Assert.Equal(providerSubscriptionId, restored.ProviderSubscriptionId);
+        Assert.Equal(SubscriptionStatus.Active, restored.Status);
+        Assert.Equal(new DateTime(2026, 12, 1, 0, 0, 0, DateTimeKind.Utc), restored.CurrentPeriodEndUtc);
+
+        // Later invoices now find the subscription.
+        await PostAndApplyAsync(StripeEvents.Invoice(
+            $"evt_missed_invoice_{paymentRequestId:N}", "invoice.paid", $"in_missed_{paymentRequestId:N}", providerSubscriptionId, 1500));
+        Assert.Single((await host.GetSubscriptionAsync(paymentRequestId))!.Payments);
+
+        // Without a payer record, the portal opens for the customer behind the subscription.
+        Result<CheckoutRedirectResponse> portal = await host.SendAsync(new CreateBillingPortalSessionCommand(payerId));
+        Assert.Equal(new Uri("https://billing.stripe.test/cus_missed"), portal.Value.RedirectUrl);
+
+        await host.RunOutboxAsync();
+        Assert.Single(host.EventBus.OfType<SubscriptionActivatedIntegrationEvent>(), e => e.SubscriptionId == paymentRequestId);
     }
 
     private async Task<Guid> CreateRequestAsync(Guid payerId, PaymentRequestKind kind)

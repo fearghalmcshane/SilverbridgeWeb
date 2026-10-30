@@ -1,4 +1,5 @@
 using SilverbridgeWeb.Modules.Payments.Domain.PaymentRequests;
+using SilverbridgeWeb.Modules.Payments.Domain.Subscriptions;
 
 namespace SilverbridgeWeb.Modules.Payments.Application.Abstractions.Payments;
 
@@ -28,6 +29,7 @@ public enum CheckoutSessionState
 /// The checkout completed but its payment did not go through, for example a Direct Debit the bank refused.
 /// A completed checkout that is neither paid nor failed is still being collected.
 /// </param>
+/// <param name="SubscriptionStatus">The monthly payment's current status, when the checkout started one.</param>
 public sealed record CheckoutSessionSnapshot(
     string SessionId,
     CheckoutSessionState State,
@@ -36,7 +38,9 @@ public sealed record CheckoutSessionSnapshot(
     string? CustomerId,
     string? SubscriptionId,
     bool PaymentFailed = false,
-    string? FailureReason = null);
+    string? FailureReason = null,
+    SubscriptionStatus? SubscriptionStatus = null,
+    DateTime? SubscriptionPeriodEndUtc = null);
 
 public sealed record ProviderRefundRequest(
     Guid RefundId,

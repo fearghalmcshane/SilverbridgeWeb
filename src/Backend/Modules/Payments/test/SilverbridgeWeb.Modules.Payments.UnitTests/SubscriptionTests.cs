@@ -37,16 +37,29 @@ public sealed class SubscriptionTests
     {
         Subscription subscription = CreateSubscription();
 
-        subscription.UpdateStatus(SubscriptionStatus.Active, Now.AddMonths(1), Now);
-        subscription.UpdateStatus(SubscriptionStatus.PastDue, null, Now);
-        subscription.UpdateStatus(SubscriptionStatus.Active, null, Now);
-        subscription.UpdateStatus(SubscriptionStatus.Cancelled, null, Now);
-        subscription.UpdateStatus(SubscriptionStatus.Active, null, Now);
+        subscription.UpdateStatus(SubscriptionStatus.Active, Now.AddMonths(1), Now, Now);
+        subscription.UpdateStatus(SubscriptionStatus.PastDue, null, Now.AddMinutes(1), Now);
+        subscription.UpdateStatus(SubscriptionStatus.Active, null, Now.AddMinutes(2), Now);
+        subscription.UpdateStatus(SubscriptionStatus.Cancelled, null, Now.AddMinutes(3), Now);
+        subscription.UpdateStatus(SubscriptionStatus.Active, null, Now.AddMinutes(4), Now);
 
         Assert.Single(subscription.DomainEvents.OfType<SubscriptionActivatedDomainEvent>());
         Assert.Single(subscription.DomainEvents.OfType<SubscriptionCancelledDomainEvent>());
         Assert.Equal(SubscriptionStatus.Cancelled, subscription.Status);
         Assert.Equal(Now.AddMonths(1), subscription.CurrentPeriodEndUtc);
+    }
+
+    [Fact]
+    public void Status_ReportedEarlierButDeliveredLater_IsIgnored()
+    {
+        Subscription subscription = CreateSubscription();
+
+        subscription.UpdateStatus(SubscriptionStatus.Active, Now.AddMonths(2), Now.AddMinutes(5), Now);
+        subscription.UpdateStatus(SubscriptionStatus.PastDue, Now.AddMonths(1), Now, Now.AddMinutes(6));
+
+        Assert.Equal(SubscriptionStatus.Active, subscription.Status);
+        Assert.Equal(Now.AddMonths(2), subscription.CurrentPeriodEndUtc);
+        Assert.Equal(Now.AddMinutes(5), subscription.StatusAsOfUtc);
     }
 
     [Fact]

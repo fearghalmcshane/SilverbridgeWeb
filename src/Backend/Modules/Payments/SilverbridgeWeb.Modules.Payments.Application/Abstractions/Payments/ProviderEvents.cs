@@ -43,13 +43,15 @@ public sealed record RefundUpdatedProviderEvent(
     RefundStatus Status,
     string? FailureReason) : ProviderEvent(ProviderEventId);
 
+/// <param name="OccurredAtUtc">When the provider produced this view, used to ignore updates that arrive late.</param>
 public sealed record SubscriptionUpdatedProviderEvent(
     string ProviderEventId,
     string ProviderSubscriptionId,
     Guid? PaymentRequestId,
     string? CustomerId,
     SubscriptionStatus Status,
-    DateTime? CurrentPeriodEndUtc) : ProviderEvent(ProviderEventId);
+    DateTime? CurrentPeriodEndUtc,
+    DateTime OccurredAtUtc) : ProviderEvent(ProviderEventId);
 
 public sealed record InvoicePaymentProviderEvent(
     string ProviderEventId,

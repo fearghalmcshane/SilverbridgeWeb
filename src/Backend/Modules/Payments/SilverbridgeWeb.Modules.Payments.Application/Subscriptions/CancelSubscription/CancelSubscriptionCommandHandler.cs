@@ -37,7 +37,8 @@ internal sealed class CancelSubscriptionCommandHandler(
         }
 
         // The provider confirms with a webhook too; recording it now keeps the page accurate straight away.
-        subscription.UpdateStatus(SubscriptionStatus.Cancelled, null, dateTimeProvider.UtcNow);
+        DateTime utcNow = dateTimeProvider.UtcNow;
+        subscription.UpdateStatus(SubscriptionStatus.Cancelled, null, utcNow, utcNow);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

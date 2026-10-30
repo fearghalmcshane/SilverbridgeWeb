@@ -8,5 +8,8 @@ public interface ISubscriptionRepository
         string providerSubscriptionId,
         CancellationToken cancellationToken = default);
 
+    /// <summary>The provider customer behind the payer's most recent subscription, if any.</summary>
+    Task<string?> GetLatestProviderCustomerIdAsync(Guid payerUserId, CancellationToken cancellationToken = default);
+
     void Insert(Subscription subscription);
 }

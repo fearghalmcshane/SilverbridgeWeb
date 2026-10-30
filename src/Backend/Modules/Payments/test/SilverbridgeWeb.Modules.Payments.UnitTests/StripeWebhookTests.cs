@@ -108,6 +108,8 @@ public sealed class StripeWebhookTests
         Assert.Equal(SubscriptionStatus.PastDue, subscription.Status);
         Assert.Equal(paymentRequestId, subscription.PaymentRequestId);
         Assert.Equal(DateTimeOffset.FromUnixTimeSeconds(1795978400).UtcDateTime, subscription.CurrentPeriodEndUtc);
+        Assert.Equal(DateTimeOffset.FromUnixTimeSeconds(1793300000).UtcDateTime, subscription.OccurredAtUtc);
+        Assert.Equal(DateTimeKind.Utc, subscription.OccurredAtUtc.Kind);
     }
 
     [Fact]

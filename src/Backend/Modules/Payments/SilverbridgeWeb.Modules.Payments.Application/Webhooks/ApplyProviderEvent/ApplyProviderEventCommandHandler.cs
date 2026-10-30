@@ -3,7 +3,7 @@ using SilverbridgeWeb.Common.Application.Messaging;
 using SilverbridgeWeb.Common.Domain;
 using SilverbridgeWeb.Modules.Payments.Application.Abstractions.Data;
 using SilverbridgeWeb.Modules.Payments.Application.Abstractions.Payments;
-using SilverbridgeWeb.Modules.Payments.Domain.Payers;
+using SilverbridgeWeb.Modules.Payments.Application.Checkout.CompleteCheckout;
 using SilverbridgeWeb.Modules.Payments.Domain.PaymentRequests;
 using SilverbridgeWeb.Modules.Payments.Domain.Subscriptions;
 
@@ -16,7 +16,7 @@ namespace SilverbridgeWeb.Modules.Payments.Application.Webhooks.ApplyProviderEve
 internal sealed class ApplyProviderEventCommandHandler(
     IPaymentRequestRepository paymentRequestRepository,
     ISubscriptionRepository subscriptionRepository,
-    IPayerRepository payerRepository,
+    CheckoutCompletion checkoutCompletion,
     IUnitOfWork unitOfWork,
     IDateTimeProvider dateTimeProvider)
     : ICommandHandler<ApplyProviderEventCommand>
@@ -73,31 +73,11 @@ internal sealed class ApplyProviderEventCommandHandler(
             return Result.Failure(PaymentRequestErrors.NotFound(e.PaymentRequestId));
         }
 
-        Result result = paymentRequest.MarkCheckoutCompleted(
-            e.SessionId, e.IsPaid, e.PaymentIntentId, e.CustomerId, e.SubscriptionId, utcNow);
-        if (result.IsFailure)
-        {
-            return result;
-        }
-
-        if (e.CustomerId is not null)
-        {
-            Payer? payer = await payerRepository.GetAsync(paymentRequest.PayerUserId, cancellationToken);
-            if (payer is { ProviderCustomerId: null })
-            {
-                payer.AssignProviderCustomer(e.CustomerId);
-            }
-        }
-
-        if (e.SubscriptionId is null)
-        {
-            return Result.Success();
-        }
-
-        Result<Subscription> subscription = await GetOrStartSubscriptionAsync(
-            e.SubscriptionId, paymentRequest.Id, e.CustomerId, utcNow, cancellationToken);
-
-        return subscription;
+        return await checkoutCompletion.CompleteAsync(
+            paymentRequest,
+            new CompletedCheckout(e.SessionId, e.IsPaid, e.PaymentIntentId, e.CustomerId, e.SubscriptionId),
+            utcNow,
+            cancellationToken);
     }
 
     private async Task<Result> ApplyAsync(
@@ -140,8 +120,8 @@ internal sealed class ApplyProviderEventCommandHandler(
                 return Result.Failure(SubscriptionErrors.NotFoundForProvider(e.ProviderSubscriptionId));
             }
 
-            Result<Subscription> started = await GetOrStartSubscriptionAsync(
-                e.ProviderSubscriptionId, e.PaymentRequestId.Value, e.CustomerId, utcNow, cancellationToken);
+            Result<Subscription> started = await checkoutCompletion.GetOrStartSubscriptionAsync(
+                e.PaymentRequestId.Value, e.ProviderSubscriptionId, e.CustomerId, utcNow, cancellationToken);
             if (started.IsFailure)
             {
                 return started;
@@ -150,7 +130,7 @@ internal sealed class ApplyProviderEventCommandHandler(
             subscription = started.Value;
         }
 
-        subscription.UpdateStatus(e.Status, e.CurrentPeriodEndUtc, utcNow);
+        subscription.UpdateStatus(e.Status, e.CurrentPeriodEndUtc, e.OccurredAtUtc, utcNow);
 
         return Result.Success();
     }
@@ -178,33 +158,5 @@ internal sealed class ApplyProviderEventCommandHandler(
             utcNow);
 
         return Result.Success();
-    }
-
-    private async Task<Result<Subscription>> GetOrStartSubscriptionAsync(
-        string providerSubscriptionId,
-        Guid paymentRequestId,
-        string? customerId,
-        DateTime utcNow,
-        CancellationToken cancellationToken)
-    {
-        Subscription? existing = await subscriptionRepository.GetAsync(paymentRequestId, cancellationToken);
-        if (existing is not null)
-        {
-            return existing;
-        }
-
-        PaymentRequest? paymentRequest = await paymentRequestRepository.GetAsync(paymentRequestId, cancellationToken);
-        if (paymentRequest is null)
-        {
-            return Result.Failure<Subscription>(PaymentRequestErrors.NotFound(paymentRequestId));
-        }
-
-        Result<Subscription> started = Subscription.Start(paymentRequest, providerSubscriptionId, customerId, utcNow);
-        if (started.IsSuccess)
-        {
-            subscriptionRepository.Insert(started.Value);
-        }
-
-        return started;
     }
 }

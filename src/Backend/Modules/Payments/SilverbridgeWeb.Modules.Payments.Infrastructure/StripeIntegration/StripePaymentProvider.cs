@@ -254,7 +254,9 @@ internal sealed class StripePaymentProvider(
             session.CustomerId,
             session.SubscriptionId,
             paymentFailed,
-            paymentFailed ? session.PaymentIntent?.LastPaymentError?.Message : null);
+            paymentFailed ? session.PaymentIntent?.LastPaymentError?.Message : null,
+            session.Subscription is { } subscription ? StripeStatusMapper.ToSubscriptionStatus(subscription.Status) : null,
+            session.Subscription is not null ? StripeStatusMapper.CurrentPeriodEnd(session.Subscription) : null);
     }
 
     private string PayPageUrl(Guid paymentRequestId) =>

@@ -25,6 +25,12 @@ internal static class StripeStatusMapper
             _ => RefundStatus.Pending
         };
 
+    /// <summary>Stripe keeps billing periods on the subscription's items; the latest one is when the next payment is due.</summary>
+    public static DateTime? CurrentPeriodEnd(Stripe.Subscription subscription) =>
+        subscription.Items?.Data?.Count > 0
+            ? subscription.Items.Data.Max(item => item.CurrentPeriodEnd)
+            : null;
+
     public static SubscriptionStatus ToSubscriptionStatus(string? status) =>
         status switch
         {

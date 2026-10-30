@@ -447,6 +447,10 @@ namespace SilverbridgeWeb.Modules.Payments.Infrastructure.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("status");
 
+                    b.Property<DateTime?>("StatusAsOfUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("status_as_of_utc");
+
                     b.Property<uint>("Version")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()

@@ -38,6 +38,9 @@ public sealed class Subscription : Entity
 
     public DateTime? CurrentPeriodEndUtc { get; private set; }
 
+    /// <summary>When the provider's view last applied to <see cref="Status"/> was taken.</summary>
+    public DateTime? StatusAsOfUtc { get; private set; }
+
     public DateTime CreatedAtUtc { get; private set; }
 
     public DateTime? ActivatedAtUtc { get; private set; }
@@ -73,13 +76,23 @@ public sealed class Subscription : Entity
         };
     }
 
-    public void UpdateStatus(SubscriptionStatus status, DateTime? currentPeriodEndUtc, DateTime utcNow)
+    /// <summary>
+    /// Applies the provider's view of the subscription as it stood at <paramref name="asOfUtc"/>. The provider can
+    /// deliver updates out of order, so a view older than the last one applied is ignored rather than allowed to
+    /// move an active subscription back to past due or its period end backwards.
+    /// </summary>
+    public void UpdateStatus(
+        SubscriptionStatus status,
+        DateTime? currentPeriodEndUtc,
+        DateTime asOfUtc,
+        DateTime utcNow)
     {
-        if (Status == SubscriptionStatus.Cancelled)
+        if (Status == SubscriptionStatus.Cancelled || asOfUtc < StatusAsOfUtc)
         {
             return;
         }
 
+        StatusAsOfUtc = asOfUtc;
         CurrentPeriodEndUtc = currentPeriodEndUtc ?? CurrentPeriodEndUtc;
 
         if (status == Status)

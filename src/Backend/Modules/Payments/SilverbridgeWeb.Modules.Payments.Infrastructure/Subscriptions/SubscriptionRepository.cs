@@ -22,6 +22,17 @@ internal sealed class SubscriptionRepository(PaymentsDbContext context) : ISubsc
             .SingleOrDefaultAsync(s => s.ProviderSubscriptionId == providerSubscriptionId, cancellationToken);
     }
 
+    public async Task<string?> GetLatestProviderCustomerIdAsync(
+        Guid payerUserId,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.Subscriptions
+            .Where(s => s.PayerUserId == payerUserId && s.ProviderCustomerId != null)
+            .OrderByDescending(s => s.CreatedAtUtc)
+            .Select(s => s.ProviderCustomerId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public void Insert(Subscription subscription)
     {
         context.Subscriptions.Add(subscription);
