@@ -67,6 +67,9 @@ IResourceBuilder<ParameterResource> webUiCustomDomainCertificate = builder.AddPa
 IResourceBuilder<ParameterResource> foireannPrimaryKey = builder.AddParameter("foireann-primary-api-key", secret: true);
 IResourceBuilder<ParameterResource> foireannSecondaryKey = builder.AddParameter("foireann-secondary-api-key", secret: true);
 
+IResourceBuilder<ParameterResource> stripeSecretKey = builder.AddParameter("stripe-secret-key", secret: true);
+IResourceBuilder<ParameterResource> stripeWebhookSigningSecret = builder.AddParameter("stripe-webhook-signing-secret", secret: true);
+
 IResourceBuilder<ProjectResource> migrator = builder.AddProject<Projects.SilverbridgeWeb_Migrator>("silverbridgeweb-migrator")
     .WithReference(silverbridgeDb)
     .WaitFor(silverbridgeDb)
@@ -85,9 +88,11 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Silverbridge
     .WithEnvironment("TeamTally__WebhookSigningSecret", teamTallyWebhookSigningSecret)
     .WithEnvironment("Foireann__PrimaryApiKey", foireannPrimaryKey)
     .WithEnvironment("Foireann__SecondaryApiKey", foireannSecondaryKey)
+    .WithEnvironment("Payments__Stripe__SecretKey", stripeSecretKey)
+    .WithEnvironment("Payments__Stripe__WebhookSigningSecret", stripeWebhookSigningSecret)
     .WithHttpHealthCheck("/health");
 
-builder.AddProject<Projects.SilverbridgeWeb_WebUI>("silverbridgeweb-webui")
+IResourceBuilder<ProjectResource> webUi = builder.AddProject<Projects.SilverbridgeWeb_WebUI>("silverbridgeweb-webui")
     .WithExternalHttpEndpoints()
     .WithUrlForEndpoint("https", url => url.DisplayText = "Website (HTTPS)")
     .WithUrlForEndpoint("http", url => url.DisplayText = "Website (HTTP)")
@@ -101,6 +106,16 @@ builder.AddProject<Projects.SilverbridgeWeb_WebUI>("silverbridgeweb-webui")
     {
         app.ConfigureCustomDomain(webUiCustomDomain, webUiCustomDomainCertificate);
     });
+
+// Stripe sends payers back to the website, so the API needs its public address: the custom domain once deployed.
+if (builder.ExecutionContext.IsPublishMode)
+{
+    api.WithEnvironment("Payments__PublicBaseUrl", ReferenceExpression.Create($"https://{webUiCustomDomain}"));
+}
+else
+{
+    api.WithEnvironment("Payments__PublicBaseUrl", webUi.GetEndpoint("https"));
+}
 
 string acaEnvironmentName = Environment.GetEnvironmentVariable("ACA_ENVIRONMENT_NAME") ?? "silverbridgeweb-env";
 

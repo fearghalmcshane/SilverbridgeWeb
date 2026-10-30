@@ -46,6 +46,12 @@ builder.Services.AddHttpClient<BookingsApiClient>(client =>
 })
 .AddHttpMessageHandler<AuthorizationHandler>();
 
+builder.Services.AddHttpClient<PaymentsApiClient>(client =>
+{
+    client.BaseAddress = new("https+http://silverbridgeweb-api/");
+})
+.AddHttpMessageHandler<AuthorizationHandler>();
+
 #pragma warning disable EXTEXP0001 // RemoveAllResilienceHandlers is experimental but is the documented way to opt a client out of retries that are unsafe for streamed upload content.
 builder.Services.AddHttpClient<NewsApiClient>(client =>
 {
@@ -81,6 +87,14 @@ builder.Services.AddHttpClient<ClerkWebhookRelay>(client =>
 
 #pragma warning disable EXTEXP0001 // Team Tally owns delivery retries.
 builder.Services.AddHttpClient<TeamTallyWebhookRelay>(client =>
+{
+    client.BaseAddress = new("https+http://silverbridgeweb-api/");
+})
+.RemoveAllResilienceHandlers();
+#pragma warning restore EXTEXP0001
+
+#pragma warning disable EXTEXP0001 // Stripe owns delivery retries.
+builder.Services.AddHttpClient<StripeWebhookRelay>(client =>
 {
     client.BaseAddress = new("https+http://silverbridgeweb-api/");
 })
@@ -174,5 +188,6 @@ app.MapPost(ClerkWebhookRelay.PublicPath, async (
 .WithMetadata(new RequestSizeLimitAttribute(ClerkWebhookRelay.MaxRequestBodySize));
 
 TeamTallyWebhookRelay.MapEndpoint(app);
+StripeWebhookRelay.MapEndpoint(app);
 
 await app.RunAsync().ConfigureAwait(false);

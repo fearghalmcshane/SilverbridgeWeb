@@ -18,7 +18,7 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("users")
-                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -171,6 +171,21 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
                         {
                             PermissionCode = "users:read",
                             RoleName = "Booking Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "payments:read",
+                            RoleName = "Treasurer"
+                        },
+                        new
+                        {
+                            PermissionCode = "payments:refund",
+                            RoleName = "Treasurer"
+                        },
+                        new
+                        {
+                            PermissionCode = "payments:manage",
+                            RoleName = "Treasurer"
                         },
                         new
                         {
@@ -330,6 +345,21 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
                         new
                         {
                             PermissionCode = "bookings:delete",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "payments:read",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "payments:refund",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "payments:manage",
                             RoleName = "Administrator"
                         });
                 });
@@ -599,6 +629,18 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
                         new
                         {
                             Code = "bookings:delete"
+                        },
+                        new
+                        {
+                            Code = "payments:read"
+                        },
+                        new
+                        {
+                            Code = "payments:refund"
+                        },
+                        new
+                        {
+                            Code = "payments:manage"
                         });
                 });
 
@@ -626,6 +668,10 @@ namespace SilverbridgeWeb.Modules.Users.Infrastructure.Database.Migrations
                         new
                         {
                             Name = "Communications Officer"
+                        },
+                        new
+                        {
+                            Name = "Treasurer"
                         },
                         new
                         {

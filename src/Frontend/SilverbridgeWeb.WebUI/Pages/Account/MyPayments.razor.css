@@ -1,0 +1,22 @@
+.my-payments-page {
+    padding-block: 2rem 4rem;
+}
+
+.my-payments-section {
+    margin-top: 2rem;
+}
+
+.my-payments-section ::deep .subscription-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+}
+
+.subscription-card__details {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}

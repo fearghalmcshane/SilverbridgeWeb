@@ -28,6 +28,7 @@ internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
             Role.Member,
             Role.BookingAdministrator,
             Role.CommunicationsOfficer,
+            Role.Treasurer,
             Role.Administrator);
     }
 }

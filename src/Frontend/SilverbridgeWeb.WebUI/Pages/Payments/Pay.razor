@@ -1,0 +1,215 @@
+@page "/payments/{Id:guid}"
+@attribute [Authorize]
+@implements IAsyncDisposable
+@inject PaymentsApiClient PaymentsApiClient
+@inject NavigationManager Navigation
+
+@using SilverbridgeWeb.WebUI.Services.ApiClients
+
+<PageTitle>Make a payment</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="pay-page">
+    <PageHeader Eyebrow="Payments"
+                Title="Make a payment"
+                Description="Check the details below, then pay securely with Stripe." />
+
+    @if (_payment is null && _waitingForPayment)
+    {
+        <StatePanel Title="Preparing your payment"
+                    Description="This only takes a moment."
+                    Icon="@Icons.Material.Outlined.HourglassTop" />
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" aria-label="Preparing your payment" Class="mt-4" />
+    }
+    else if (_loadError is not null)
+    {
+        <StatePanel Title="Payment unavailable"
+                    Description="@_loadError"
+                    Icon="@Icons.Material.Outlined.ErrorOutline"
+                    IconColor="Color.Error"
+                    Role="alert" />
+    }
+    else if (_payment is null)
+    {
+        <StatePanel Title="Payment not found"
+                    Description="We could not find this payment. It may belong to a different account."
+                    Icon="@Icons.Material.Outlined.SearchOff"
+                    Role="alert">
+            <Actions>
+                <MudButton Href="/account/payments" Variant="Variant.Outlined" Color="Color.Primary">My payments</MudButton>
+            </Actions>
+        </StatePanel>
+    }
+    else if (_payment.Status is PaymentStatus.Succeeded or PaymentStatus.Processing or PaymentStatus.Refunded)
+    {
+        <StatePanel Title="Already paid"
+                    Description="This payment has already been made."
+                    Icon="@Icons.Material.Outlined.CheckCircle"
+                    IconColor="Color.Success">
+            <Actions>
+                <MudButton Href="@($"/payments/{Id}/complete")" Variant="Variant.Filled" Color="Color.Primary">View payment</MudButton>
+            </Actions>
+        </StatePanel>
+    }
+    else if (_payment.Status is PaymentStatus.Failed or PaymentStatus.Expired or PaymentStatus.Cancelled)
+    {
+        <StatePanel Title="Payment no longer available"
+                    Description="This payment has closed. Please start again from where you made the request."
+                    Icon="@Icons.Material.Outlined.Block"
+                    Role="alert">
+            <Actions>
+                <MudButton Href="/account/payments" Variant="Variant.Outlined" Color="Color.Primary">My payments</MudButton>
+            </Actions>
+        </StatePanel>
+    }
+    else
+    {
+        @if (Cancelled)
+        {
+            <MudAlert Severity="Severity.Info" Class="mb-4">
+                You left the payment page before paying. Nothing has been charged.
+            </MudAlert>
+        }
+
+        @if (_payError is not null)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4" role="alert">@_payError</MudAlert>
+        }
+
+        <MudCard Outlined="true" Elevation="0" Class="pay-card">
+            <MudCardContent>
+                <SectionHeader Title="@_payment.Description"
+                               Description="@(_payment.Kind == PaymentKind.MonthlySubscription ? "Paid monthly until you cancel." : null)" />
+
+                <ul class="pay-lines">
+                    @foreach (PaymentLineResponse line in _payment.Lines)
+                    {
+                        <li class="pay-line">
+                            <span>@line.Description @(line.Quantity > 1 ? $"× {line.Quantity}" : string.Empty)</span>
+                            <span>@Money.Format(line.UnitAmountMinor * line.Quantity, _payment.Currency)</span>
+                        </li>
+                    }
+                </ul>
+
+                <div class="pay-total">
+                    <span>@(_payment.Kind == PaymentKind.MonthlySubscription ? "Each month" : "Total")</span>
+                    <strong>@Money.Format(_payment.AmountMinor, _payment.Currency)</strong>
+                </div>
+            </MudCardContent>
+            <MudCardActions Class="pay-actions">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           FullWidth="true"
+                           OnClick="PayAsync"
+                           Disabled="@_redirecting"
+                           StartIcon="@Icons.Material.Filled.Lock">
+                    @(_redirecting ? "Opening secure checkout…" : "Pay securely")
+                </MudButton>
+            </MudCardActions>
+        </MudCard>
+
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="pay-note">
+            Payments are handled by Stripe. Your card or bank details never reach this website, and Stripe emails you a receipt.
+        </MudText>
+    }
+</MudContainer>
+
+@code {
+    private const int MaxPreparingAttempts = 15;
+
+    private readonly CancellationTokenSource _disposed = new();
+    private PaymentResponse? _payment;
+    private bool _waitingForPayment = true;
+    private bool _redirecting;
+    private string? _loadError;
+    private string? _payError;
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    [SupplyParameterFromQuery(Name = "cancelled")]
+    public bool Cancelled { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadAsync();
+        }
+        catch (OperationCanceledException) when (_disposed.IsCancellationRequested)
+        {
+            // The page was closed; there is nothing left to update.
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && _waitingForPayment)
+        {
+            _ = WaitForPaymentAsync();
+        }
+    }
+
+    /// <summary>The request may still be on its way from the module that asked for it, so wait briefly for it.</summary>
+    private async Task WaitForPaymentAsync()
+    {
+        try
+        {
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(2));
+            for (int attempt = 0; attempt < MaxPreparingAttempts && _waitingForPayment; attempt++)
+            {
+                if (!await timer.WaitForNextTickAsync(_disposed.Token))
+                {
+                    break;
+                }
+
+                await LoadAsync();
+                await InvokeAsync(StateHasChanged);
+            }
+
+            _waitingForPayment = false;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (OperationCanceledException) when (_disposed.IsCancellationRequested)
+        {
+            // The page was closed; there is nothing left to update.
+        }
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            _payment = await PaymentsApiClient.GetPaymentAsync(Id, _disposed.Token);
+            _waitingForPayment = _payment is null && _waitingForPayment;
+        }
+        catch (HttpRequestException)
+        {
+            _loadError = "We could not load this payment. Please try again shortly.";
+            _waitingForPayment = false;
+        }
+    }
+
+    private async Task PayAsync()
+    {
+        _redirecting = true;
+        _payError = null;
+
+        try
+        {
+            Uri checkoutUrl = await PaymentsApiClient.StartCheckoutAsync(Id, _disposed.Token);
+            Navigation.NavigateTo(checkoutUrl.ToString(), forceLoad: true);
+        }
+        catch (HttpRequestException exception)
+        {
+            _payError = exception.Message;
+            _redirecting = false;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _disposed.CancelAsync();
+        _disposed.Dispose();
+    }
+}

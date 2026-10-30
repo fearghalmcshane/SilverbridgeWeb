@@ -35,8 +35,12 @@
                     <MudIcon Icon="@Icons.Material.Filled.ManageAccounts" Class="mr-2" />
                     My profile
                 </MudMenuItem>
+                <MudMenuItem Href="/account/payments">
+                    <MudIcon Icon="@Icons.Material.Filled.ReceiptLong" Class="mr-2" />
+                    My payments
+                </MudMenuItem>
 
-                @if (_canManageNews || _isAdmin)
+                @if (_canManageNews || _isAdmin || _canViewPayments)
                 {
                     <MudDivider />
                     <MudMenuItem Disabled="true">
@@ -51,6 +55,13 @@
                         <MudMenuItem Href="/admin/news/categories">
                             <MudIcon Icon="@Icons.Material.Filled.Category" Class="mr-2" />
                             News categories
+                        </MudMenuItem>
+                    }
+                    @if (_canViewPayments)
+                    {
+                        <MudMenuItem Href="/admin/payments">
+                            <MudIcon Icon="@Icons.Material.Filled.Payments" Class="mr-2" />
+                            Payments
                         </MudMenuItem>
                     }
                     @if (_isAdmin)
@@ -90,6 +101,7 @@
 @code {
     private bool _isAdmin;
     private bool _canManageNews;
+    private bool _canViewPayments;
     private string? _profileImageUrl;
 
     [CascadingParameter]
@@ -117,11 +129,13 @@
             IReadOnlyList<string> roles = rolesResponse?.Roles ?? [];
             _isAdmin = roles.Contains(AppRoles.Administrator, StringComparer.Ordinal);
             _canManageNews = _isAdmin || roles.Contains(AppRoles.CommunicationsOfficer, StringComparer.Ordinal);
+            _canViewPayments = _isAdmin || roles.Contains(AppRoles.Treasurer, StringComparer.Ordinal);
         }
         catch (HttpRequestException)
         {
             _isAdmin = false;
             _canManageNews = false;
+            _canViewPayments = false;
         }
     }
 

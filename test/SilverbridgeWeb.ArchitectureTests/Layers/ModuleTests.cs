@@ -19,14 +19,15 @@ public class ModuleTests : BaseTest
     [Fact]
     public void UsersModule_ShouldNotHaveDependencyOn_AnyOtherModule()
     {
-        string[] otherModules = [EventsNamespace, TicketingNamespace, AttendanceNamespace, NewsNamespace, MatchesNamespace];
+        string[] otherModules = [EventsNamespace, TicketingNamespace, AttendanceNamespace, NewsNamespace, MatchesNamespace, PaymentsNamespace];
         string[] integrationEventsModules =
         [
             EventsIntegrationEventsNamespace,
             TicketingIntegrationEventsNamespace,
             AttendanceIntegrationEventsNamespace,
             NewsIntegrationEventsNamespace,
-            MatchesIntegrationEventsNamespace
+            MatchesIntegrationEventsNamespace,
+            PaymentsIntegrationEventsNamespace
         ];
 
         List<Assembly> usersAssemblies =
@@ -49,14 +50,15 @@ public class ModuleTests : BaseTest
     [Fact]
     public void EventsModule_ShouldNotHaveDependencyOn_AnyOtherModule()
     {
-        string[] otherModules = [UsersNamespace, TicketingNamespace, AttendanceNamespace, NewsNamespace, MatchesNamespace];
+        string[] otherModules = [UsersNamespace, TicketingNamespace, AttendanceNamespace, NewsNamespace, MatchesNamespace, PaymentsNamespace];
         string[] integrationEventsModules =
         [
             UsersIntegrationEventsNamespace,
             TicketingIntegrationEventsNamespace,
             AttendanceIntegrationEventsNamespace,
             NewsIntegrationEventsNamespace,
-            MatchesIntegrationEventsNamespace
+            MatchesIntegrationEventsNamespace,
+            PaymentsIntegrationEventsNamespace
         ];
 
         List<Assembly> eventsAssemblies =
@@ -79,14 +81,15 @@ public class ModuleTests : BaseTest
     [Fact]
     public void TicketingModule_ShouldNotHaveDependencyOn_AnyOtherModule()
     {
-        string[] otherModules = [EventsNamespace, UsersNamespace, AttendanceNamespace, NewsNamespace, MatchesNamespace];
+        string[] otherModules = [EventsNamespace, UsersNamespace, AttendanceNamespace, NewsNamespace, MatchesNamespace, PaymentsNamespace];
         string[] integrationEventsModules =
         [
             EventsIntegrationEventsNamespace,
             UsersIntegrationEventsNamespace,
             AttendanceIntegrationEventsNamespace,
             NewsIntegrationEventsNamespace,
-            MatchesIntegrationEventsNamespace
+            MatchesIntegrationEventsNamespace,
+            PaymentsIntegrationEventsNamespace
         ];
 
         List<Assembly> ticketingAssemblies =
@@ -109,14 +112,15 @@ public class ModuleTests : BaseTest
     [Fact]
     public void AttendanceModule_ShouldNotHaveDependencyOn_AnyOtherModule()
     {
-        string[] otherModules = [UsersNamespace, TicketingNamespace, EventsNamespace, NewsNamespace, MatchesNamespace];
+        string[] otherModules = [UsersNamespace, TicketingNamespace, EventsNamespace, NewsNamespace, MatchesNamespace, PaymentsNamespace];
         string[] integrationEventsModules =
         [
             UsersIntegrationEventsNamespace,
             TicketingIntegrationEventsNamespace,
             EventsIntegrationEventsNamespace,
             NewsIntegrationEventsNamespace,
-            MatchesIntegrationEventsNamespace
+            MatchesIntegrationEventsNamespace,
+            PaymentsIntegrationEventsNamespace
         ];
 
         List<Assembly> attendanceAssemblies =
@@ -139,14 +143,15 @@ public class ModuleTests : BaseTest
     [Fact]
     public void NewsModule_ShouldNotHaveDependencyOn_AnyOtherModule()
     {
-        string[] otherModules = [UsersNamespace, EventsNamespace, TicketingNamespace, AttendanceNamespace, MatchesNamespace];
+        string[] otherModules = [UsersNamespace, EventsNamespace, TicketingNamespace, AttendanceNamespace, MatchesNamespace, PaymentsNamespace];
         string[] integrationEventsModules =
         [
             UsersIntegrationEventsNamespace,
             EventsIntegrationEventsNamespace,
             TicketingIntegrationEventsNamespace,
             AttendanceIntegrationEventsNamespace,
-            MatchesIntegrationEventsNamespace
+            MatchesIntegrationEventsNamespace,
+            PaymentsIntegrationEventsNamespace
         ];
 
         List<Assembly> newsAssemblies =
@@ -172,13 +177,13 @@ public class ModuleTests : BaseTest
         string[] otherModules =
         [
             UsersNamespace, EventsNamespace, TicketingNamespace, AttendanceNamespace, NewsNamespace,
-            "SilverbridgeWeb.Modules.Bookings", "SilverbridgeWeb.Modules.Foireann"
+            "SilverbridgeWeb.Modules.Bookings", "SilverbridgeWeb.Modules.Foireann", PaymentsNamespace
         ];
         string[] integrationEventsModules =
         [
             UsersIntegrationEventsNamespace, EventsIntegrationEventsNamespace, TicketingIntegrationEventsNamespace,
             AttendanceIntegrationEventsNamespace, NewsIntegrationEventsNamespace,
-            "SilverbridgeWeb.Modules.Bookings.IntegrationEvents"
+            "SilverbridgeWeb.Modules.Bookings.IntegrationEvents", PaymentsIntegrationEventsNamespace
         ];
         List<Assembly> matchesAssemblies =
         [
@@ -189,6 +194,32 @@ public class ModuleTests : BaseTest
         ];
 
         Types.InAssemblies(matchesAssemblies)
+            .That()
+            .DoNotHaveDependencyOnAny(integrationEventsModules)
+            .Should()
+            .NotHaveDependencyOnAny(otherModules)
+            .GetResult()
+            .ShouldBeSuccessful();
+    }
+
+    [Fact]
+    public void PaymentsModule_ShouldNotHaveDependencyOn_AnyOtherModule()
+    {
+        string[] otherModules =
+        [
+            UsersNamespace, EventsNamespace, TicketingNamespace, AttendanceNamespace, NewsNamespace, MatchesNamespace,
+            "SilverbridgeWeb.Modules.Bookings", "SilverbridgeWeb.Modules.Foireann"
+        ];
+        string[] integrationEventsModules = [UsersIntegrationEventsNamespace];
+        List<Assembly> paymentsAssemblies =
+        [
+            typeof(Modules.Payments.Domain.PaymentRequests.PaymentRequest).Assembly,
+            Modules.Payments.Application.AssemblyReference.Assembly,
+            Modules.Payments.Presentation.AssemblyReference.Assembly,
+            typeof(Modules.Payments.Infrastructure.PaymentsModule).Assembly
+        ];
+
+        Types.InAssemblies(paymentsAssemblies)
             .That()
             .DoNotHaveDependencyOnAny(integrationEventsModules)
             .Should()

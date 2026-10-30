@@ -21,4 +21,7 @@ public abstract class BaseTest
 
     protected const string MatchesNamespace = "SilverbridgeWeb.Modules.Matches";
     protected const string MatchesIntegrationEventsNamespace = "SilverbridgeWeb.Modules.Matches.IntegrationEvents";
+
+    protected const string PaymentsNamespace = "SilverbridgeWeb.Modules.Payments";
+    protected const string PaymentsIntegrationEventsNamespace = "SilverbridgeWeb.Modules.Payments.IntegrationEvents";
 }
