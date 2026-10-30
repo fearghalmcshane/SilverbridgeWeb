@@ -295,6 +295,11 @@ public sealed class PaymentsFlowPostgreSqlTests(PaymentsHost host) : IClassFixtu
         Result<CheckoutRedirectResponse> portal = await host.SendAsync(new CreateBillingPortalSessionCommand(payerId));
         Assert.Equal(new Uri("https://billing.stripe.test/cus_missed"), portal.Value.RedirectUrl);
 
+        // A second monthly payment reuses that customer, so one portal covers both.
+        Guid second = await CreateRequestAsync(payerId, PaymentRequestKind.MonthlySubscription);
+        await host.SendAsync(new StartCheckoutCommand(second, payerId));
+        Assert.Equal("cus_missed", Assert.Single(host.Provider.CreatedSessions, s => s.PaymentRequestId == second).ProviderCustomerId);
+
         await host.RunOutboxAsync();
         Assert.Single(host.EventBus.OfType<SubscriptionActivatedIntegrationEvent>(), e => e.SubscriptionId == paymentRequestId);
     }

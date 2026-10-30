@@ -211,6 +211,28 @@ public sealed class PaymentRequestTests
         Assert.Equal(RefundStatus.Failed, refund.Status);
         Assert.Equal(0, request.AmountRefundedMinor);
         Assert.Equal(1000, request.RefundableAmountMinor);
+        Assert.False(Assert.Single(request.DomainEvents.OfType<PaymentRefundFailedDomainEvent>()).WasReversed);
+    }
+
+    [Fact]
+    public void Refund_ThatFailsAfterSucceeding_IsReversed()
+    {
+        PaymentRequest request = CreatePaid(amountMinor: 1000);
+        Refund refund = request.RequestRefund(Guid.NewGuid(), null, "Event cancelled", null, Now).Value;
+        request.ApplyRefundUpdate("re_1", refund.Id, 1000, RefundStatus.Succeeded, null, Now);
+
+        // The payer's bank sent the money back.
+        request.ApplyRefundUpdate("re_1", refund.Id, 1000, RefundStatus.Failed, "expired_or_canceled_card", Now);
+        request.ApplyRefundUpdate("re_1", refund.Id, 1000, RefundStatus.Failed, "expired_or_canceled_card", Now);
+
+        Assert.Equal(RefundStatus.Failed, refund.Status);
+        Assert.Equal(0, request.AmountRefundedMinor);
+        Assert.Equal(PaymentRequestStatus.Succeeded, request.Status);
+        Assert.Equal(1000, request.RefundableAmountMinor);
+        PaymentRefundFailedDomainEvent failed = Assert.Single(request.DomainEvents.OfType<PaymentRefundFailedDomainEvent>());
+        Assert.True(failed.WasReversed);
+        Assert.Equal(0, failed.TotalRefundedMinor);
+        Assert.Equal("expired_or_canceled_card", failed.FailureReason);
     }
 
     [Fact]

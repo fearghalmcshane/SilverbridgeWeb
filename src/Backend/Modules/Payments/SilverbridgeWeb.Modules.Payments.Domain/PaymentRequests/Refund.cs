@@ -67,9 +67,13 @@ public sealed class Refund : Entity
         return true;
     }
 
+    /// <summary>
+    /// A refund can fail after it succeeded, for example when the payer's bank rejects it, so both pending and
+    /// succeeded refunds can fail. A failed refund stays failed.
+    /// </summary>
     internal bool MarkFailed(string? failureReason, DateTime utcNow)
     {
-        if (Status != RefundStatus.Pending)
+        if (Status == RefundStatus.Failed)
         {
             return false;
         }

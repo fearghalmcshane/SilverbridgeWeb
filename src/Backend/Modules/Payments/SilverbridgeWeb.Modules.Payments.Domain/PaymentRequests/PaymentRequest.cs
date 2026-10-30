@@ -386,12 +386,36 @@ public sealed class PaymentRequest : Entity
 
             Raise(new PaymentRefundedDomainEvent(Id, refund.Id, refund.AmountMinor, AmountRefundedMinor, isFullyRefunded));
         }
-        else if (status == RefundStatus.Failed && refund.MarkFailed(Truncate(failureReason), utcNow))
+        else if (status == RefundStatus.Failed)
         {
-            UpdatedAtUtc = utcNow;
+            ApplyRefundFailure(refund, failureReason, utcNow);
         }
 
         return Result.Success();
+    }
+
+    private void ApplyRefundFailure(Refund refund, string? failureReason, DateTime utcNow)
+    {
+        bool wasSucceeded = refund.Status == RefundStatus.Succeeded;
+        if (!refund.MarkFailed(Truncate(failureReason), utcNow))
+        {
+            return;
+        }
+
+        // The money came back after the refund had been counted, so the payer has not been refunded after all.
+        if (wasSucceeded)
+        {
+            AmountRefundedMinor -= refund.AmountMinor;
+            if (Status == PaymentRequestStatus.Refunded && AmountRefundedMinor < AmountMinor)
+            {
+                Status = PaymentRequestStatus.Succeeded;
+            }
+        }
+
+        UpdatedAtUtc = utcNow;
+
+        Raise(new PaymentRefundFailedDomainEvent(
+            Id, refund.Id, refund.AmountMinor, AmountRefundedMinor, wasSucceeded, refund.FailureReason));
     }
 
     /// <summary>Records that the provider was asked about this request, so reconciliation waits before asking again.</summary>

@@ -5,12 +5,14 @@ using SilverbridgeWeb.Modules.Payments.Application.Abstractions.Data;
 using SilverbridgeWeb.Modules.Payments.Application.Abstractions.Payments;
 using SilverbridgeWeb.Modules.Payments.Domain.Payers;
 using SilverbridgeWeb.Modules.Payments.Domain.PaymentRequests;
+using SilverbridgeWeb.Modules.Payments.Domain.Subscriptions;
 
 namespace SilverbridgeWeb.Modules.Payments.Application.Checkout.StartCheckout;
 
 internal sealed class StartCheckoutCommandHandler(
     IPaymentRequestRepository paymentRequestRepository,
     IPayerRepository payerRepository,
+    ISubscriptionRepository subscriptionRepository,
     IPaymentProvider paymentProvider,
     IUnitOfWork unitOfWork,
     IDateTimeProvider dateTimeProvider)
@@ -94,7 +96,9 @@ internal sealed class StartCheckoutCommandHandler(
 
     /// <summary>
     /// Reuses or creates the payer's customer record at the provider so receipts go to their email address.
-    /// Users that Payments has not heard about yet pay without one; the provider then asks for an email itself.
+    /// Users that Payments has not heard about yet have no payer record to create one from: they reuse the customer
+    /// from an earlier monthly payment, so all of theirs share one billing portal, or else the provider asks for an
+    /// email itself.
     /// </summary>
     private async Task<Result<string?>> EnsureProviderCustomerAsync(
         PaymentRequest paymentRequest,
@@ -103,6 +107,13 @@ internal sealed class StartCheckoutCommandHandler(
         Payer? payer = await payerRepository.GetAsync(paymentRequest.PayerUserId, cancellationToken);
 
         string? customerId = payer?.ProviderCustomerId ?? paymentRequest.ProviderCustomerId;
+        if (customerId is null && payer is null)
+        {
+            customerId = await subscriptionRepository.GetLatestProviderCustomerIdAsync(
+                paymentRequest.PayerUserId,
+                cancellationToken);
+        }
+
         if (customerId is not null || payer is null)
         {
             // Explicit, because converting a null value to a Result counts as a failure.
