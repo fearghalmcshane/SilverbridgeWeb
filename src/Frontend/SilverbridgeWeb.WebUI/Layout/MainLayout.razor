@@ -126,8 +126,16 @@
 
     public void Dispose()
     {
-        ThemePreferenceService.SystemThemeChanged -= HandleSystemThemeChanged;
+        Dispose(disposing: true);
         GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            ThemePreferenceService.SystemThemeChanged -= HandleSystemThemeChanged;
+        }
     }
 
     private void ToggleDrawer()
