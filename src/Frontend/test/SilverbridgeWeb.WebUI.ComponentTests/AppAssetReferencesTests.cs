@@ -24,6 +24,17 @@ public sealed class AppAssetReferencesTests
     }
 
     [Fact]
+    public void AppRendersHeadOutletSoPageTitlesApply()
+    {
+        string appMarkup = File.ReadAllText(Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory, "..", "..", "..", "..", "..", "SilverbridgeWeb.WebUI", "App.razor")));
+
+        appMarkup.Should().Contain("<HeadOutlet @rendermode=\"InteractiveServer\" />");
+        // A static <title> would win over every page's <PageTitle>.
+        appMarkup.Should().NotContain("<title>Silverbridge");
+    }
+
+    [Fact]
     public void AccountAvatarUsesExplicitMenuToggle()
     {
         string componentPath = Path.GetFullPath(Path.Combine(

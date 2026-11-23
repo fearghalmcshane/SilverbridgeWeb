@@ -1,0 +1,50 @@
+.agm-qr-page {
+    padding-block: clamp(2rem, 4vw, 4rem) 4rem;
+    text-align: center;
+}
+
+::deep .page-header {
+    justify-content: center;
+    text-align: center;
+}
+
+::deep .page-header__content {
+    display: grid;
+    justify-items: center;
+}
+
+.agm-qr {
+    margin: 1.5rem auto 2rem;
+}
+
+/* Always dark-on-white, even in dark mode, so every phone camera can read it. */
+.agm-qr__code {
+    width: min(100%, 28rem);
+    margin-inline: auto;
+    padding: 1rem;
+    border-radius: 1rem;
+    background: #FFFFFF;
+}
+
+.agm-qr__code ::deep svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+figcaption {
+    margin-top: 1rem;
+    font-size: clamp(1.25rem, 4vw, 1.75rem);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.agm-qr__download {
+    align-self: center;
+    color: var(--mud-palette-primary);
+}
+
+.agm-qr__download:focus-visible {
+    outline: 2px solid var(--mud-palette-primary);
+    outline-offset: 2px;
+}

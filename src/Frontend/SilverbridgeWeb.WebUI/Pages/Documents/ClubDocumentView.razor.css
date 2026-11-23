@@ -1,0 +1,226 @@
+.document-page {
+    padding-block: clamp(2rem, 4vw, 4rem) 4rem;
+}
+
+.document-layout {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.document-toc--sidebar {
+    display: none;
+}
+
+.document-toc__heading {
+    margin: 0 0 .5rem;
+    color: var(--mud-palette-text-secondary);
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.document-toc__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.document-toc__item a {
+    display: block;
+    padding: .4rem .6rem;
+    border-radius: .4rem;
+    color: var(--mud-palette-text-primary);
+    text-decoration: none;
+    line-height: 1.35;
+}
+
+.document-toc__item a:hover {
+    background: var(--mud-palette-action-default-hover);
+}
+
+.document-toc__item a:focus-visible {
+    outline: 2px solid var(--mud-palette-primary);
+    outline-offset: 2px;
+}
+
+.document-toc__item--level-3 a {
+    padding-left: 1.6rem;
+    color: var(--mud-palette-text-secondary);
+    font-size: .92rem;
+}
+
+.document-body {
+    min-width: 0;
+    max-width: 46rem;
+    font-size: 1.06rem;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+}
+
+.document-body ::deep :is(h2, h3, h4) {
+    scroll-margin-top: 5.5rem;
+    line-height: 1.25;
+}
+
+.document-body ::deep h2 {
+    margin: 2.5rem 0 1rem;
+    padding-bottom: .5rem;
+    border-bottom: 2px solid var(--mud-palette-secondary);
+    color: var(--mud-palette-primary);
+    font-size: 1.6rem;
+}
+
+.document-body ::deep h3 {
+    margin: 1.75rem 0 .75rem;
+    font-size: 1.25rem;
+}
+
+.document-body ::deep :is(h2, h3):first-child {
+    margin-top: 0;
+}
+
+.document-body ::deep :is(ol, ul) {
+    padding-left: 1.75rem;
+}
+
+.document-body ::deep li + li {
+    margin-top: .25rem;
+}
+
+.document-body ::deep img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-inline: auto;
+    border-radius: .5rem;
+}
+
+.document-body ::deep p > img {
+    margin-block: .5rem;
+}
+
+/* Photo rows from the booklet's layout tables: side by side when there is room, stacked on phones. */
+.document-body ::deep .doc-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: .75rem;
+    margin: 1.25rem 0;
+}
+
+/* Cover photos: one per row at the full width of the text column, uncropped. */
+.document-body ::deep .doc-gallery--wide {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 0;
+}
+
+.document-body ::deep .doc-gallery--wide img {
+    height: auto;
+    max-height: none;
+    object-fit: initial;
+}
+
+.document-body ::deep .doc-gallery img {
+    width: 100%;
+    height: 100%;
+    max-height: 18rem;
+    object-fit: cover;
+}
+
+/* Stats tables are screenshots; link them to the full image so phones can zoom. */
+.document-body ::deep .doc-zoom {
+    display: block;
+    margin: .75rem 0;
+    border-radius: .5rem;
+    background: #FFFFFF;
+}
+
+.document-body ::deep .doc-zoom:focus-visible {
+    outline: 2px solid var(--mud-palette-primary);
+    outline-offset: 3px;
+}
+
+.document-body ::deep blockquote {
+    margin: 1.25rem 0;
+    padding: .75rem 1rem;
+    border-left: 4px solid var(--mud-palette-secondary);
+    border-radius: 0 .5rem .5rem 0;
+    background: var(--mud-palette-background-grey);
+}
+
+.document-body ::deep blockquote p {
+    margin: 0;
+}
+
+/* Wide tables scroll inside themselves so the page never scrolls sideways. */
+.document-body ::deep table {
+    display: block;
+    max-width: 100%;
+    margin: 1.25rem 0;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: .95rem;
+    overflow-wrap: normal;
+}
+
+/* Never split figures like "£1,250.00" or "2026" across lines; the table scrolls instead. */
+.document-body ::deep :is(th, td)[style*="right"] {
+    white-space: nowrap;
+}
+
+/* Labels such as "Fundraising/Sponsorship/Donations" may break anywhere so the figures stay on screen. */
+.document-body ::deep :is(th, td):not([style*="right"]) {
+    overflow-wrap: anywhere;
+}
+
+.document-body ::deep :is(th, td) {
+    padding: .5rem .75rem;
+    border: 1px solid var(--mud-palette-lines-default);
+    vertical-align: top;
+}
+
+.document-body ::deep th {
+    background: var(--mud-palette-background-grey);
+    text-align: left;
+}
+
+.document-body ::deep a {
+    color: var(--mud-palette-primary);
+}
+
+@media (min-width: 960px) {
+    .document-layout {
+        grid-template-columns: 16rem minmax(0, 1fr);
+        gap: 3rem;
+        align-items: start;
+    }
+
+    ::deep .document-toc--compact {
+        display: none;
+    }
+
+    .document-toc--sidebar {
+        display: block;
+        position: sticky;
+        top: 5.5rem;
+        max-height: calc(100vh - 7rem);
+        overflow-y: auto;
+    }
+}
+
+@media print {
+    ::deep .document-toc--compact,
+    .document-toc--sidebar {
+        display: none;
+    }
+
+    .document-layout {
+        display: block;
+    }
+
+    .document-body {
+        max-width: none;
+    }
+}

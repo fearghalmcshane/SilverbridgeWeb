@@ -4,7 +4,7 @@
 @using SilverbridgeWeb.WebUI.Services.ApiClients
 @inject NewsApiClient NewsApiClient
 
-<PageTitle>@(_article?.Title is null ? "News Article" : $"{_article.Title} - Silverbridge Harps GAC")</PageTitle>
+<PageTitle>@(_article?.Title ?? "News Article") - Silverbridge Harps GAC</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="article-page">
     <PageHeader Eyebrow="@(_article?.CategoryName ?? "Club news")" Title="@(_article?.Title ?? "News article")"

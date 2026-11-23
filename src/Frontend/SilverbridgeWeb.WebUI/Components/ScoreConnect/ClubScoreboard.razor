@@ -145,9 +145,18 @@
 
     public void Dispose()
     {
-        _refresher?.Dispose();
-        _ticker?.Cancel();
-        _ticker?.Dispose();
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _refresher?.Dispose();
+            _ticker?.Cancel();
+            _ticker?.Dispose();
+        }
     }
 
     private static RenderFragment TeamRow(LiveScoreTeam team, bool leading) => __builder =>
