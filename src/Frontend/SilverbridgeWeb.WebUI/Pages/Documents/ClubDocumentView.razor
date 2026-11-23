@@ -6,6 +6,7 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="document-page">
     @if (_document is null || _rendered is null)
     {
+        <PageHeader Title="Document not found" />
         <StatePanel Title="Document not found"
                     Description="The requested document may have moved or is no longer available."
                     Icon="@Icons.Material.Outlined.SearchOff">
