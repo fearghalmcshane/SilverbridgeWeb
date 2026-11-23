@@ -109,8 +109,17 @@
     margin: 1.25rem 0;
 }
 
+/* Cover photos: one per row at the full width of the text column, uncropped. */
 .document-body ::deep .doc-gallery--wide {
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 0;
+}
+
+.document-body ::deep .doc-gallery--wide img {
+    height: auto;
+    max-height: none;
+    object-fit: initial;
 }
 
 .document-body ::deep .doc-gallery img {
