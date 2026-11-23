@@ -1,0 +1,89 @@
+@page "/documents/{Slug}"
+@using SilverbridgeWeb.WebUI.Services.Documents
+
+<PageTitle>@(_document?.Title ?? "Document not found") - Silverbridge Harps GAC</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="document-page">
+    @if (_document is null || _rendered is null)
+    {
+        <StatePanel Title="Document not found"
+                    Description="The requested document may have moved or is no longer available."
+                    Icon="@Icons.Material.Outlined.SearchOff">
+            <Actions>
+                <MudButton Href="/" Variant="Variant.Filled" Color="Color.Primary">Back to home</MudButton>
+            </Actions>
+        </StatePanel>
+    }
+    else
+    {
+        <PageHeader Eyebrow="@_document.Eyebrow" Title="@_document.Title" Description="@_document.Description">
+            <Actions>
+                @if (_document.PdfUrl is not null)
+                {
+                    @* target="_blank" keeps Blazor's router from intercepting the static file link. *@
+                    <MudButton Href="@_document.PdfUrl" Target="_blank" Variant="Variant.Filled" Color="Color.Primary"
+                               StartIcon="@Icons.Material.Outlined.PictureAsPdf">Download PDF</MudButton>
+                }
+                @if (_document == ClubDocumentCatalog.CurrentAgm)
+                {
+                    <MudButton Href="/agm/qr" Variant="Variant.Outlined" Color="Color.Primary"
+                               StartIcon="@Icons.Material.Outlined.QrCode2">Show QR code</MudButton>
+                }
+            </Actions>
+        </PageHeader>
+
+        <div class="document-layout">
+            @if (_rendered.Sections.Count > 0)
+            {
+                <MudExpansionPanels Class="document-toc document-toc--compact" Elevation="0" Outlined="true">
+                    @* Left open after a link is followed: collapsing it would shift the page after the jump. *@
+                    <MudExpansionPanel Text="Contents">
+                        <nav aria-label="Contents">
+                            @TableOfContents
+                        </nav>
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
+
+                <aside class="document-toc document-toc--sidebar">
+                    <nav aria-label="Contents">
+                        <p class="document-toc__heading">Contents</p>
+                        @TableOfContents
+                    </nav>
+                </aside>
+            }
+
+            <article class="document-body">
+                @((MarkupString)_rendered.Html)
+            </article>
+        </div>
+    }
+</MudContainer>
+
+@code {
+    private ClubDocument? _document;
+    private RenderedDocument? _rendered;
+
+    [Parameter]
+    public string? Slug { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        _document = ClubDocumentCatalog.Find(Slug);
+        _rendered = _document is null ? null : MarkdownDocumentRenderer.RenderResource(_document);
+    }
+
+    private RenderFragment TableOfContents => __builder =>
+    {
+        <ol class="document-toc__list">
+            @foreach (DocumentSection section in _rendered!.Sections)
+            {
+                <li class="document-toc__item document-toc__item--level-@section.Level">
+                    <a href="@SectionHref(section)">@section.Title</a>
+                </li>
+            }
+        </ol>
+    };
+
+    private string SectionHref(DocumentSection section) =>
+        $"{ClubDocumentCatalog.PathFor(_document!).TrimStart('/')}#{section.Id}";
+}

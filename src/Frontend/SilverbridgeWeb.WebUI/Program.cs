@@ -10,6 +10,7 @@ using MudBlazor.Services;
 using SilverbridgeWeb.WebUI;
 using SilverbridgeWeb.WebUI.Authentication;
 using SilverbridgeWeb.WebUI.Services.ApiClients;
+using SilverbridgeWeb.WebUI.Services.Documents;
 using SilverbridgeWeb.WebUI.Services.ScoreConnect;
 using SilverbridgeWeb.WebUI.Services.Theme;
 using SilverbridgeWeb.WebUI.Services.Webhooks;
@@ -144,6 +145,7 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+app.UseNoIndexForClubDocuments();
 
 app.MapStaticAssets();
 
@@ -189,5 +191,6 @@ app.MapPost(ClerkWebhookRelay.PublicPath, async (
 
 TeamTallyWebhookRelay.MapEndpoint(app);
 StripeWebhookRelay.MapEndpoint(app);
+app.MapClubDocumentEndpoints();
 
 await app.RunAsync().ConfigureAwait(false);

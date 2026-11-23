@@ -1,0 +1,40 @@
+@page "/agm/qr"
+@using SilverbridgeWeb.WebUI.Services.Documents
+@inject NavigationManager Navigation
+
+<PageTitle>AGM booklet QR code - Silverbridge Harps GAC</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="agm-qr-page">
+    <PageHeader Eyebrow="Annual General Meeting"
+                Title="Scan to read the AGM booklet"
+                Description="Point your phone camera at the code to open the booklet." />
+
+    <figure class="agm-qr">
+        <div class="agm-qr__code" role="img" aria-label="QR code linking to @_link">
+            @((MarkupString)_svg)
+        </div>
+        <figcaption>@_displayLink</figcaption>
+    </figure>
+
+    <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2" Justify="Justify.Center">
+        <MudButton Href="@ClubDocumentCatalog.PathFor(ClubDocumentCatalog.CurrentAgm)" Variant="Variant.Filled" Color="Color.Primary"
+                   StartIcon="@Icons.Material.Outlined.MenuBook">Open the booklet</MudButton>
+        <a class="agm-qr__download" href="@ClubDocumentEndpoints.AgmQrCodePath.TrimStart('/')" download="agm-booklet-qr.svg">
+            Download QR code (SVG)
+        </a>
+    </MudStack>
+</MudContainer>
+
+@code {
+    private string _svg = string.Empty;
+    private string _link = string.Empty;
+    private string _displayLink = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        Uri target = ClubDocumentEndpoints.PublicAgmUri(new Uri(Navigation.BaseUri));
+        _link = target.AbsoluteUri;
+        _displayLink = $"{target.Host}{(target.IsDefaultPort ? string.Empty : $":{target.Port}")}{target.AbsolutePath}";
+        _svg = ClubDocumentEndpoints.CreateQrCodeSvg(target);
+    }
+}

@@ -45,7 +45,9 @@
     <PackageVersion Include="Testcontainers.PostgreSql" Version="4.16.0" />
     <PackageVersion Include="Microsoft.OpenApi" Version="2.12.2" />
     <PackageVersion Include="Microsoft.Playwright.Xunit.v3" Version="1.64.1" />
+    <PackageVersion Include="Markdig" Version="1.6.0" />
     <PackageVersion Include="MudBlazor" Version="9.11.0" />
+    <PackageVersion Include="QRCoder" Version="1.9.0" />
     <PackageVersion Include="Npgsql.OpenTelemetry" Version="10.0.3" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.20.1" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.20.1" />
